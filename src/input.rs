@@ -1,4 +1,6 @@
 use bevy_math::UVec2;
+#[cfg(feature = "gamepad")]
+use gilrs_input_helper::GilrsInputHelper;
 use glium::winit;
 use std::path::PathBuf;
 use std::{
@@ -11,11 +13,11 @@ use winit_input_helper::WinitInputHelper;
 
 use crate::get_state;
 
-mod gamepad;
-
 pub(crate) struct Input {
     helper: WinitInputHelper,
     action_map: HashMap<Action, Button>,
+    #[cfg(feature = "gamepad")]
+    pub gamepad: GilrsInputHelper,
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
@@ -84,6 +86,8 @@ impl Input {
         Self {
             helper: WinitInputHelper::new(),
             action_map: HashMap::new(),
+            #[cfg(feature = "gamepad")]
+            gamepad: GilrsInputHelper::new().unwrap(),
         }
     }
 

@@ -1,5 +1,7 @@
 use bevy_math::Vec4;
+use egui_glium::egui_winit::egui::Color32;
 use palette::{Hsl, IntoColor, LinSrgb, Oklch, Srgb};
+use u8::Pixel;
 
 pub mod schemes;
 pub mod u8;
@@ -152,6 +154,10 @@ impl Color {
         let (l, c, h) = self.to_oklch();
         let new_h = (h + degrees).rem_euclid(360.0);
         Self::from_oklch_with_alpha(l, c, new_h, self.a)
+    }
+
+    pub fn to_pixel(self) -> Pixel {
+        Pixel::from_rgba_f32(self.r, self.g, self.b, self.a)
     }
 
     pub const BLACK: Self = Self::new(0.0, 0.0, 0.0);
@@ -404,4 +410,11 @@ impl Color {
     pub const ROSE_800: Self = Self::new(0.37578920080931333, 0.0, 0.03685734103560458);
     pub const ROSE_900: Self = Self::new(0.25756876776980975, 0.0023249759686472895, 0.03653672606147411);
     pub const ROSE_950: Self = Self::new(0.0748068134880863, 0.0006826491618721138, 0.009392106875841258);
+}
+
+impl From<Color> for Color32 {
+    fn from(value: Color) -> Self {
+        let raw = value.to_pixel().raw();
+        Color32::from_rgba_unmultiplied(raw[0], raw[1], raw[2], raw[3])
+    }
 }

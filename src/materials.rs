@@ -169,7 +169,7 @@ impl glium::uniforms::Uniforms for Material {
 
 gen_ref_type!(Material, MaterialRef, materials);
 
-pub fn create_flat_3d_material(color: Color) -> MaterialRef {
+pub fn create_flat_material(color: Color) -> MaterialRef {
     let material = Material::new(FLAT_3D_PROGRAM).with_color("color", color);
     material.create()
 }

@@ -256,6 +256,9 @@ pub fn next_frame() {
             _ => (),
         });
 
+    #[cfg(feature = "gamepad")]
+    state.input.gamepad.update();
+
     let mut frame = state.frame.take().unwrap_or_else(|| state.display.draw());
 
     state.render_pipeline.draw_on(&mut frame);

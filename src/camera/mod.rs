@@ -101,6 +101,10 @@ impl Camera2D {
     pub fn screen_to_world(&mut self, screen_pos: Vec2) -> Vec2 {
         self.update_matrices();
 
+        if self.scale == 0.0 {
+            return self.translation;
+        }
+
         let centered = screen_pos - self.screen_center();
         let world_pos_homogeneous = self.inverse_view_matrix * centered.extend(1.0);
 

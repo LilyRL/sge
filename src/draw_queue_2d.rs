@@ -1,12 +1,12 @@
 use std::collections::HashMap;
 
-use crate::api::debugger_add_drawn_objects;
-use crate::prelude::Transform2D;
+use crate::api::{debugger_add_drawn_objects, draw_texture};
+use crate::prelude::{Sprite, Transform2D, draw_shape};
 use crate::programs::{CIRCLE_PROGRAM, FLAT_PROGRAM, TEXTURED_PROGRAM};
 use crate::shapes_2d::{QUAD_INDICES, Shape2D, UNIT_QUAD};
 use crate::textures::TextureRef;
 use crate::{Color, get_state};
-use bevy_math::{Mat4, Rect, Vec2};
+use bevy_math::{Mat4, Rect, Vec2, Vec3};
 use glium::{Blend, DrawParameters, IndexBuffer, Surface, VertexBuffer, uniform};
 use glium::{Depth, DepthTest, implement_vertex};
 
@@ -60,12 +60,28 @@ pub struct Vertex3D {
     pub color: [f32; 4],
 }
 
+impl Vertex3D {}
+
 implement_vertex!(MaterialVertex3D, position, normal, tex_coords);
 #[derive(Copy, Clone, Debug)]
 pub struct MaterialVertex3D {
     pub position: [f32; 3],
     pub normal: [f32; 3],
     pub tex_coords: [f32; 2],
+}
+
+impl MaterialVertex3D {
+    pub fn new(pos: Vec3, normal: Vec3, tex_coords: Vec2) -> Self {
+        Self {
+            position: pos.into(),
+            normal: normal.into(),
+            tex_coords: tex_coords.into(),
+        }
+    }
+
+    pub fn from_pos(pos: Vec3) -> Self {
+        Self::new(pos, Vec3::ZERO, Vec2::ZERO)
+    }
 }
 
 #[derive(Copy, Clone, Debug)]
@@ -131,7 +147,7 @@ impl DrawQueue2D {
             sprite_draws: HashMap::new(),
             current_z: 0.0,
             start_z: 0.0,
-            z_increment: 0.001,
+            z_increment: 0.01,
         }
     }
 
@@ -499,4 +515,18 @@ impl DrawQueue2D {
         self.sprite_draws.clear();
         self.current_z = self.start_z;
     }
+}
+
+pub trait Drawable {
+    fn draw(&self);
+}
+
+impl<T: Shape2D> Drawable for T {
+    fn draw(&self) {
+        draw_shape(self);
+    }
+}
+
+pub fn draw<T: Drawable>(o: T) {
+    o.draw();
 }

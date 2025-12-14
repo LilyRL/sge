@@ -114,6 +114,88 @@ impl FontRef {
             },
         )
     }
+
+    pub fn draw_multiline_text(
+        &self,
+        text: impl AsRef<str>,
+        position: Vec2,
+        size: usize,
+        line_spacing: f32,
+    ) -> TextDimensions {
+        draw_multiline_text_ex(
+            text,
+            TextDrawParams {
+                font: Some(*self),
+                font_size: size,
+                position,
+                ..Default::default()
+            },
+            line_spacing,
+        )
+    }
+
+    pub fn draw_multiline_text_world(
+        &self,
+        text: impl AsRef<str>,
+        position: Vec2,
+        size: usize,
+        line_spacing: f32,
+    ) -> TextDimensions {
+        draw_multiline_text_world_ex(
+            text,
+            TextDrawParams {
+                font: Some(*self),
+                font_size: size,
+                position,
+                ..Default::default()
+            },
+            line_spacing,
+        )
+    }
+
+    pub fn draw_multiline_text_ex(
+        &self,
+        text: impl AsRef<str>,
+        position: Vec2,
+        size: usize,
+        color: Color,
+        do_dpi_scaling: bool,
+        line_spacing: f32,
+    ) -> TextDimensions {
+        draw_multiline_text_ex(
+            text,
+            TextDrawParams {
+                font: Some(*self),
+                font_size: size,
+                position,
+                color,
+                do_dpi_scaling,
+            },
+            line_spacing,
+        )
+    }
+
+    pub fn draw_multiline_text_world_ex(
+        &self,
+        text: impl AsRef<str>,
+        position: Vec2,
+        size: usize,
+        color: Color,
+        do_dpi_scaling: bool,
+        line_spacing: f32,
+    ) -> TextDimensions {
+        draw_multiline_text_world_ex(
+            text,
+            TextDrawParams {
+                font: Some(*self),
+                font_size: size,
+                position,
+                color,
+                do_dpi_scaling,
+            },
+            line_spacing,
+        )
+    }
 }
 
 impl EngineFont {
@@ -411,4 +493,161 @@ pub fn measure_text_ex(text: impl AsRef<str>, params: TextDrawParams) -> TextDim
 
     font.unwrap_or(default_font())
         .measure_text(text, font_size as f32, do_dpi_scaling)
+}
+
+fn draw_multiline_text_to(
+    text: impl AsRef<str>,
+    params: TextDrawParams,
+    line_spacing: f32,
+    draw_queue: &mut DrawQueue2D,
+) -> TextDimensions {
+    let text = text.as_ref();
+    let lines: Vec<&str> = text.lines().collect();
+
+    if lines.is_empty() {
+        return TextDimensions::default();
+    }
+
+    let mut max_width = 0.0f32;
+    let mut current_y = params.position.y;
+    let line_height = params.font_size as f32 * line_spacing;
+
+    for line in &lines {
+        let dims = draw_text_to(
+            line,
+            TextDrawParams {
+                position: Vec2::new(params.position.x, current_y),
+                ..params
+            },
+            draw_queue,
+        );
+        max_width = max_width.max(dims.size.x);
+        current_y += line_height;
+    }
+
+    let total_height = line_height * (lines.len() as f32);
+
+    TextDimensions {
+        size: Vec2::new(max_width, total_height),
+    }
+}
+
+pub fn draw_multiline_text(
+    text: impl AsRef<str>,
+    position: Vec2,
+    line_spacing: f32,
+) -> TextDimensions {
+    draw_multiline_text_to(
+        text,
+        TextDrawParams {
+            position,
+            ..Default::default()
+        },
+        line_spacing,
+        get_state().draw_queue_2d(),
+    )
+}
+
+pub fn draw_multiline_text_size(
+    text: impl AsRef<str>,
+    position: Vec2,
+    size: usize,
+    line_spacing: f32,
+) -> TextDimensions {
+    draw_multiline_text_to(
+        text,
+        TextDrawParams {
+            position,
+            font_size: size,
+            ..Default::default()
+        },
+        line_spacing,
+        get_state().draw_queue_2d(),
+    )
+}
+
+pub fn draw_multiline_text_ex(
+    text: impl AsRef<str>,
+    params: TextDrawParams,
+    line_spacing: f32,
+) -> TextDimensions {
+    draw_multiline_text_to(text, params, line_spacing, get_state().draw_queue_2d())
+}
+
+pub fn draw_multiline_text_world(
+    text: impl AsRef<str>,
+    position: Vec2,
+    line_spacing: f32,
+) -> TextDimensions {
+    draw_multiline_text_to(
+        text,
+        TextDrawParams {
+            position,
+            ..Default::default()
+        },
+        line_spacing,
+        get_state().world_draw_queue_2d(),
+    )
+}
+
+pub fn draw_multiline_text_size_world(
+    text: impl AsRef<str>,
+    position: Vec2,
+    size: usize,
+    line_spacing: f32,
+) -> TextDimensions {
+    draw_multiline_text_to(
+        text,
+        TextDrawParams {
+            position,
+            font_size: size,
+            ..Default::default()
+        },
+        line_spacing,
+        get_state().world_draw_queue_2d(),
+    )
+}
+
+pub fn draw_multiline_text_world_ex(
+    text: impl AsRef<str>,
+    params: TextDrawParams,
+    line_spacing: f32,
+) -> TextDimensions {
+    draw_multiline_text_to(
+        text,
+        params,
+        line_spacing,
+        get_state().world_draw_queue_2d(),
+    )
+}
+
+pub fn measure_multiline_text(text: impl AsRef<str>, line_spacing: f32) -> TextDimensions {
+    measure_multiline_text_ex(text, TextDrawParams::default(), line_spacing)
+}
+
+pub fn measure_multiline_text_ex(
+    text: impl AsRef<str>,
+    params: TextDrawParams,
+    line_spacing: f32,
+) -> TextDimensions {
+    let text = text.as_ref();
+    let lines: Vec<&str> = text.lines().collect();
+
+    if lines.is_empty() {
+        return TextDimensions::default();
+    }
+
+    let mut max_width = 0.0f32;
+    let line_height = params.font_size as f32 * line_spacing;
+
+    for line in &lines {
+        let dims = measure_text_ex(line, params);
+        max_width = max_width.max(dims.size.x);
+    }
+
+    let total_height = line_height * (lines.len() as f32);
+
+    TextDimensions {
+        size: Vec2::new(max_width, total_height),
+    }
 }

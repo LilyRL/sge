@@ -12,6 +12,7 @@ use crate::{
 };
 use bevy_math::{UVec2, Vec2};
 use egui_glium::egui_winit::egui::Context;
+use gilrs_input_helper::GilrsInputHelper;
 use glium::{
     Texture2d,
     texture::DepthTexture2d,
@@ -584,4 +585,8 @@ pub fn max_window_dimension() -> f32 {
 
 pub fn min_window_dimension() -> f32 {
     window_height().min(window_width())
+}
+
+pub fn gamepad_input() -> &'static GilrsInputHelper {
+    &get_state().input.gamepad
 }

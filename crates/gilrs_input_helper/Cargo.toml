@@ -1,0 +1,15 @@
+[package]
+name = "gilrs_input_helper"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+gilrs = "0.11"
+
+[[example]]
+name = "basic"
+path = "examples/basic.rs"
+
+[[example]]
+name = "multi_gamepad"
+path = "examples/multi_gamepad.rs"

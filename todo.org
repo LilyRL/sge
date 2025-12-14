@@ -21,14 +21,20 @@
   cattpucin and stuff?
 - [X] Fix examples now get_input() doesnt exist SPC / get_input
 - [ ] use bump allocators for per-frame data that gets cleared
-- [ ] texture atlasses
+- [X] texture atlasses
 - [ ] clipboard interaction
 - [ ] Serde feature to make everything publicly facing serializable.
   - [ ] automatic saving and loading support with efficient binary format
 - [ ] Transparency is fucked
   - [ ] Very fucked
   - [ ] Someone needs to do something about this
-- [ ] Circle anti aliasing between outline and fill is non existant
+- [ ] debug AABB draw lines on ::new() in wireframe feature
+- [ ] draw line 3D
+- [ ] draw Sphere
+- [X] draw cube
+- [ ] draw cuboid from Vec3
+- [ ] match material HashMap<Material, Mesh>
+- [ ] Circle anti aliasing between outline and fill is non existent
 - [X] Move draw param overrides to the material
 - [X] https://github.com/sqrew/tunes
 - [ ] Dithering to reduce colour banding
@@ -60,13 +66,18 @@
 - [X] good api for creating and managing and drawing spritesheets
 - [-] TEXT RENDERING!!!
   - [X] fonts
+  - [X] multiline
   - [ ] layout / text wrapping / text alignment
   - [ ] rich text
   - [X] text measurement
   - [ ] text scale and rotation
   - [ ] sdf?
+  - [ ] 3d
 - [X] transparant textures?
 - [ ] controller support
+  - [ ] Implementation
+  - [ ] Testing
+  - [ ] Examples
 - [ ] probably split into multiple crates
 - [ ] drag and drop files?
 - [-] Animation support
@@ -81,14 +92,14 @@
   - [ ] Animation state machine
   - [ ] pause animation controller
 - [ ] egui_dock
-- [ ] expose egui charts if not already
+- [X] expose egui charts if not already
 - [ ] let users access intermediary depth textures only if they want it
 - [X] impl mul TransformXD for VecX
 - [X] impl mul Transform * Transform
 - [X] .translate_point method
-- [ ] area perimiter methods on shapes
-- [ ] draw line through many points
-- [ ] Macros for all this *Ref stuff
+- [X] area perimiter methods on shapes
+- [X] draw line through many points (path)
+- [X] Macros for all this *Ref stuff
 - [X] draw text
   - [X] draw_fps function
 - [X] 2d mouse camera controller, like whats in the examples but built into the engine
@@ -277,3 +288,5 @@ Hue rotation wrap-around (0°/360°)
 Saturation/lightness clamping
 Color space boundary values
 Alpha channel preservation
+
+implement shape_3d functions for generating lines, cubes, cuboids, 2d shapes in 3d space, 2d shapes always drawn facing the camera in 3d space, wireframes, a path (line) through many points

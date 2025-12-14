@@ -97,6 +97,30 @@ impl HasBounds2D for Rect {
 }
 
 impl Rect {
+    pub fn new(top_left: Vec2, size: Vec2, color: Color) -> Self {
+        Self {
+            top_left,
+            size,
+            color,
+        }
+    }
+
+    pub fn from_center(center: Vec2, size: Vec2, color: Color) -> Self {
+        Self::new(center - size / 2.0, size, color)
+    }
+
+    pub fn center(&self) -> Vec2 {
+        self.top_left + self.size / 2.0
+    }
+
+    pub fn new_square(top_left: Vec2, size: f32, color: Color) -> Self {
+        Self::new(top_left, Vec2::splat(size), color)
+    }
+
+    pub fn from_square_center(center: Vec2, size: f32, color: Color) -> Self {
+        Self::from_center(center, Vec2::splat(size), color)
+    }
+
     fn gen_quad(&self) -> Vec<Vertex2D> {
         let tl = self.top_left;
         let br = self.top_left + self.size;
@@ -149,14 +173,14 @@ impl Shape2D for Triangle {
 }
 
 #[derive(Clone, Copy, Debug)]
-pub struct Line {
+pub struct Line2D {
     pub start: Vec2,
     pub end: Vec2,
     pub thickness: f32,
     pub color: Color,
 }
 
-impl HasBounds2D for Line {
+impl HasBounds2D for Line2D {
     fn bounds(&self) -> AABB2D {
         let half_thick = self.thickness * 0.5;
         AABB2D::new(
@@ -166,7 +190,7 @@ impl HasBounds2D for Line {
     }
 }
 
-impl Line {
+impl Line2D {
     fn gen_mesh(&self) -> Option<Vec<Vertex2D>> {
         let direction = self.end - self.start;
         let length = direction.length();
@@ -203,7 +227,7 @@ impl Line {
     }
 }
 
-impl Shape2D for Line {
+impl Shape2D for Line2D {
     fn points(&self, starting_index: u32) -> (Vec<u32>, Vec<Vertex2D>) {
         if let Some(mesh) = self.gen_mesh() {
             (QUAD_INDICES.map(|n| n + starting_index).to_vec(), mesh)
@@ -345,12 +369,24 @@ define_draw_functions!(
     draw_rect: top_left: Vec2, size: Vec2, color: Color => Rect { top_left, size, color },
     draw_square: top_left: Vec2, size: f32, color: Color => Rect { top_left, size: Vec2::splat(size), color },
     draw_tri: a: Vec2, b: Vec2, c: Vec2, color: Color => Triangle { points: [a, b, c], color },
-    draw_line: start: Vec2, end: Vec2, thickness: f32, color: Color => Line { start, end, thickness, color },
+    draw_line: start: Vec2, end: Vec2, thickness: f32, color: Color => Line2D { start, end, thickness, color },
     draw_poly: center: Vec2, sides: usize, radius: f32, rotation: f32, color: Color => Poly { center, sides, radius, rotation, color },
     draw_custom_shape: points: Vec<Vec2>, color: Color => CustomShape { points, color },
     draw_hexagon: center: Vec2, radius: f32, color: Color => Poly { center, sides: 6, radius, rotation: 0.0, color },
     draw_hexagon_pointy: center: Vec2, radius: f32, color: Color => Poly { center, sides: 6, radius, rotation: std::f32::consts::FRAC_PI_6, color },
 );
+
+pub fn draw_path(points: &[Vec2], thickness: f32, color: Color) {
+    points
+        .windows(2)
+        .for_each(|p| draw_line(p[0], p[1], thickness, color));
+}
+
+pub fn draw_path_world(points: &[Vec2], thickness: f32, color: Color) {
+    points
+        .windows(2)
+        .for_each(|p| draw_line_world(p[0], p[1], thickness, color));
+}
 
 pub fn draw_circle(center: Vec2, radius: f32, color: Color) {
     get_state()

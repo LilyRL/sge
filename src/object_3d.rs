@@ -11,7 +11,7 @@ use crate::{
     draw_queue_3d::ObjectToDraw,
     get_state,
     materials::{DEFAULT_MATERIAL, MaterialRef},
-    prelude::{Material, Transform3D, create_flat_3d_material},
+    prelude::{Material, Transform3D, create_flat_material},
 };
 
 pub struct Object3D {
@@ -319,7 +319,7 @@ pub fn test_triangle() -> anyhow::Result<Object3DRef> {
 
     let triangle = Object3D {
         mesh: Mesh { vertices, indices }.create(),
-        material: create_flat_3d_material(Color::RED_500),
+        material: create_flat_material(Color::RED_500),
         transform: Transform3D::IDENTITY,
     };
 
@@ -329,6 +329,30 @@ pub fn test_triangle() -> anyhow::Result<Object3DRef> {
 pub struct Mesh {
     pub vertices: VertexBuffer<MaterialVertex3D>,
     pub indices: IndexBuffer<u32>,
+}
+
+impl Mesh {
+    pub(crate) fn from_points_internal(
+        vertices: Vec<MaterialVertex3D>,
+        indices: Vec<u32>,
+    ) -> anyhow::Result<Self> {
+        let state = get_state();
+        let vertices = VertexBuffer::new(&state.display, &vertices)?;
+        let indices = IndexBuffer::new(
+            &state.display,
+            glium::index::PrimitiveType::TrianglesList,
+            &indices,
+        )?;
+
+        Ok(Self { vertices, indices })
+    }
+
+    pub fn from_points(
+        vertices: Vec<MaterialVertex3D>,
+        indices: Vec<u32>,
+    ) -> anyhow::Result<MeshRef> {
+        Self::from_points_internal(vertices, indices).map(|m| m.create())
+    }
 }
 
 gen_ref_type!(Mesh, MeshRef, meshes);

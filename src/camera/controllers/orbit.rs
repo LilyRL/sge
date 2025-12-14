@@ -6,19 +6,19 @@ use glium::winit::event::MouseButton;
 use crate::get_state;
 
 pub struct OrbitCameraController {
-    target: Vec3,
-    distance: f32,
-    theta: f32, // horizontal angle
-    phi: f32,   // vertical angle
-    is_orbiting: bool,
-    last_mouse_pos: Vec2,
-    enabled: bool,
-    sensitivity: f32,
-    zoom_speed: f32,
-    min_distance: f32,
-    max_distance: f32,
-    min_phi: f32,
-    max_phi: f32,
+    pub target: Vec3,
+    pub distance: f32,
+    pub theta: f32, // horizontal angle
+    pub phi: f32,   // vertical angle
+    pub is_orbiting: bool,
+    pub last_mouse_pos: Vec2,
+    pub enabled: bool,
+    pub sensitivity: f32,
+    pub zoom_speed: f32,
+    pub min_distance: f32,
+    pub max_distance: f32,
+    pub min_phi: f32,
+    pub max_phi: f32,
 }
 
 impl OrbitCameraController {
@@ -138,7 +138,8 @@ impl OrbitCameraController {
         let x = self.distance * self.phi.sin() * self.theta.cos();
         let y = self.distance * self.phi.cos();
         let z = self.distance * self.phi.sin() * self.theta.sin();
-        Vec3::new(x, y, z) + self.target
+
+        self.target + Vec3::new(x, y, z)
     }
 
     pub fn get_distance(&self) -> f32 {

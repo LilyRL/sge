@@ -1,24 +1,19 @@
 use engine_4::prelude::*;
-use palette::encoding::Linear;
 
 fn random_rect() -> Rect {
     let sf = window_height().min(window_width());
-    let top_left: Vec2 = rand::<Vec2>() * sf;
-    let size: Vec2 = rand::<Vec2>() * 300.0;
+    let center: Vec2 = rand::<Vec2>() * sf;
+    let size: Vec2 = rand::<Vec2>() * sf;
     let color: Color = random_color();
 
-    Rect {
-        top_left,
-        size,
-        color,
-    }
+    Rect::from_center(center, size, color)
 }
 
 fn main() -> anyhow::Result<()> {
     init("Animation")?;
 
     let mut animation_controller =
-        AnimationController::new(random_rect(), random_rect(), 0.5, LinearEasingFunction);
+        AnimationController::new(random_rect(), random_rect(), 1.0, EaseOutElastic);
 
     loop {
         draw_shape(&animation_controller.value());

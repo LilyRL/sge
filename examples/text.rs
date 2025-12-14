@@ -69,12 +69,12 @@ fn main() -> anyhow::Result<()> {
             }
 
             draw_circle_world(Vec2::ZERO, 20.0, Color::RED_300);
-            draw_circle_outline_world(
-                Vec2::ZERO,
-                min_window_dimension() / 4.0,
-                Color::GRAY_800,
-                20.0,
-            );
+            // draw_circle_outline_world(
+            //     Vec2::ZERO,
+            //     min_window_dimension() / 4.0,
+            //     Color::GRAY_800,
+            //     20.0,
+            // );
 
             let text = "Hello world";
             let mut params = TextDrawParams {

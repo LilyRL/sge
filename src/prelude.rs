@@ -11,6 +11,7 @@ pub use crate::debugging::grid::create_infinite_grid;
 #[cfg(feature = "debugging")]
 pub use crate::debugging::*;
 pub use crate::draw_queue_2d::MaterialVertex3D;
+pub use crate::draw_queue_2d::{Drawable, draw};
 pub use crate::image::Image;
 pub use crate::image::*;
 pub use crate::include_program;
