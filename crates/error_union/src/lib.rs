@@ -29,19 +29,19 @@ pub fn derive_union(tokens: TokenStream) -> TokenStream {
     for variant in variants {
         let variant_name = &variant.ident;
 
-        if let Fields::Unnamed(fields) = &variant.fields {
-            if fields.unnamed.len() == 1 {
-                let ty = &fields.unnamed[0].ty;
+        if let Fields::Unnamed(fields) = &variant.fields
+            && fields.unnamed.len() == 1
+        {
+            let ty = &fields.unnamed[0].ty;
 
-                from_impls = quote! {
-                    #from_impls
-                    impl From<#ty> for #enum_name {
-                        fn from(value: #ty) -> Self {
-                            Self::#variant_name(value)
-                        }
+            from_impls = quote! {
+                #from_impls
+                impl From<#ty> for #enum_name {
+                    fn from(value: #ty) -> Self {
+                        Self::#variant_name(value)
                     }
-                };
-            }
+                }
+            };
         }
     }
 

@@ -2,6 +2,7 @@
 name = "engine_color"
 version = "0.0.1"
 authors = [ "Lily Lopes <joshrl@proton.me>" ]
+edition = "2024"
 
 [dependencies]
 bevy_math = { workspace = true }

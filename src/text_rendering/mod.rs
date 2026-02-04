@@ -297,7 +297,6 @@ impl EngineFont {
 
             let char_info = self.characters[&glyph];
 
-            // FIXED: Use character advance to handle spaces correctly
             let glyph_end = position.x + char_info.advance;
             width = width.max(glyph_end);
         }
@@ -368,15 +367,23 @@ impl Default for TextDrawParams {
         Self {
             font: None,
             font_size: 16,
-            color: Color::WHITE,
+            color: Color::NEUTRAL_100,
             do_dpi_scaling: false,
             position: Vec2::ZERO,
         }
     }
 }
 
+pub const MONO: FontRef = FontRef(0);
+pub const SANS: FontRef = FontRef(1);
+pub const SANS_DISPLAY: FontRef = FontRef(2);
+
 pub(crate) fn init_fonts() -> Result<(), FontError> {
-    load_font(include_bytes!("../../assets/fonts/jetbrains.ttf")).map(|_| ())
+    load_font(include_bytes!("../../assets/fonts/jetbrains.ttf")).map(|_| ())?;
+    load_font(include_bytes!("../../assets/fonts/inter.ttf")).map(|_| ())?;
+    load_font(include_bytes!("../../assets/fonts/inter-display-bold.ttf")).map(|_| ())?;
+
+    Ok(())
 }
 
 fn draw_text_to(

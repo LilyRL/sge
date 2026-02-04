@@ -37,8 +37,10 @@ bon = "3.8.1"
 anyhow = "1.0.100"
 error_union = { path = "./crates/error_union" }
 engine_color = { path = "./crates/color" }
+si = { path = "./crates/si" }
 
 [dependencies]
+si = { workspace = true }
 gilrs_input_helper = { path = "./crates/gilrs_input_helper", optional = true }
 pprof = { version = "0.15.0", features = ["flamegraph"], optional = true }
 egui_plot = {version = "0.31", optional = true}
@@ -74,6 +76,7 @@ bon = { workspace = true }
 anyhow = { workspace = true }
 error_union = { workspace = true }
 engine_color = { workspace = true }
+const-random = "0.1.18"
 
 [profile.dev]
 opt-level = 1

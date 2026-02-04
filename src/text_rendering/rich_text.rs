@@ -38,7 +38,7 @@ impl RichTextParser {
             chars: text.chars().collect::<Vec<char>>(),
             i: 0,
             blocks: vec![],
-            color: Color::WHITE,
+            color: Color::NEUTRAL_100,
         }
     }
 

@@ -11,7 +11,7 @@ impl MovingCircle {
             circle: Circle {
                 center: Vec2::new(rand::<f32>() * 1000.0, rand::<f32>() * 1000.0),
                 radius: Vec2::splat(rand::<f32>() * 30.0),
-                color: Color::from_rgba(rand(), rand(), rand(), 1.0),
+                color: Color::from_oklch(0.7493, 0.1184, rand::<f32>() * 360.0),
             },
             velocity: Vec2::ZERO,
         }
@@ -20,6 +20,7 @@ impl MovingCircle {
 
 fn main() -> anyhow::Result<()> {
     init("3D render textures")?;
+    set_magnify_filter(MagnifySamplerFilter::Linear);
 
     let mut camera_controller = OrbitCameraController::new(Vec3::ZERO);
 
@@ -38,7 +39,7 @@ fn main() -> anyhow::Result<()> {
         camera_controller.update();
 
         start_rendering_to_texture(render_texture);
-        clear_screen(Color::TEAL_500);
+        clear_screen(Color::NEUTRAL_100);
         for circle in circles.iter_mut() {
             let r = || (rand::<f32>() - 0.5) * 1.0;
             circle.velocity += Vec2::new(r(), r());

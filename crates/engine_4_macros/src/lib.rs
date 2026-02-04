@@ -1,6 +1,5 @@
-use std::fs::{self, ReadDir};
+use std::fs;
 
-use glob::glob;
 use heck::{ToShoutySnakeCase, ToSnakeCase};
 use image::ImageFormat;
 use proc_macro::TokenStream;
@@ -145,7 +144,7 @@ pub fn gen_ref_type(input: TokenStream) -> TokenStream {
 
     quote! {
         #[derive(Clone, Copy, PartialEq, Eq, Ord, PartialOrd, Hash)]
-        pub struct #ty_ref(pub usize);
+        pub struct #ty_ref(pub(crate) usize);
 
         impl #ty_ref {
             pub(crate) fn get(&self) -> &'static #ty {
@@ -355,31 +354,30 @@ pub fn include_spritesheet(input: TokenStream) -> TokenStream {
             .extension()
             .and_then(|e| e.to_str())
             .map(|e| e.to_string())
+            && let Some(format) = ext_to_format(&ext)
         {
-            if let Some(format) = ext_to_format(&ext) {
-                let name = match path.file_name() {
-                    Some(n) => n.to_string_lossy().to_string(),
-                    None => continue,
-                };
+            let name = match path.file_name() {
+                Some(n) => n.to_string_lossy().to_string(),
+                None => continue,
+            };
 
-                let bytes = match fs::read(&path) {
-                    Ok(b) => b,
-                    Err(e) => {
-                        return syn::Error::new(
-                            Span::call_site(),
-                            format!("Failed to read file '{}': {}", path.display(), e),
-                        )
-                        .to_compile_error()
-                        .into();
-                    }
-                };
+            let bytes = match fs::read(&path) {
+                Ok(b) => b,
+                Err(e) => {
+                    return syn::Error::new(
+                        Span::call_site(),
+                        format!("Failed to read file '{}': {}", path.display(), e),
+                    )
+                    .to_compile_error()
+                    .into();
+                }
+            };
 
-                images.push(ImageData {
-                    bytes,
-                    format,
-                    name,
-                });
-            }
+            images.push(ImageData {
+                bytes,
+                format,
+                name,
+            });
         }
     }
 

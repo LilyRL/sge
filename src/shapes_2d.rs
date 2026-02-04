@@ -83,6 +83,117 @@ impl Shape2D for CircleOutline {
     }
 }
 
+pub struct RoundedRectangle {
+    pub top_left: Vec2,
+    pub size: Vec2,
+    pub fill_color: Color,
+    pub corner_radius: f32,
+    pub outline_thickness: f32,
+    pub outline_color: Color,
+}
+
+impl HasBounds2D for RoundedRectangle {
+    fn bounds(&self) -> AABB2D {
+        AABB2D::new(self.top_left, self.top_left + self.size)
+    }
+}
+
+impl Shape2D for RoundedRectangle {
+    fn add_to_draw_queue(&self, draw_queue: &mut DrawQueue2D) {
+        draw_queue.add_rounded_rectangle(
+            self.center(),
+            self.size,
+            self.corner_radius,
+            self.fill_color,
+            self.outline_thickness,
+            self.outline_color,
+        );
+    }
+
+    fn points(&self, _: u32) -> (Vec<u32>, Vec<Vertex2D>) {
+        unimplemented!();
+    }
+}
+
+impl RoundedRectangle {
+    pub fn new(top_left: Vec2, size: Vec2, color: Color, corner_radius: f32) -> Self {
+        Self {
+            top_left,
+            size,
+            fill_color: color,
+            corner_radius,
+            outline_color: color,
+            outline_thickness: 0.0,
+        }
+    }
+
+    pub fn square(top_left: Vec2, size: f32, color: Color, corner_radius: f32) -> Self {
+        Self::new(top_left, Vec2::splat(size), color, corner_radius)
+    }
+
+    pub fn square_with_outline(
+        top_left: Vec2,
+        size: f32,
+        color: Color,
+        corner_radius: f32,
+        outline_thickness: f32,
+        outline_color: Color,
+    ) -> Self {
+        Self::with_outline(
+            top_left,
+            Vec2::splat(size),
+            color,
+            corner_radius,
+            outline_thickness,
+            outline_color,
+        )
+    }
+
+    pub fn with_outline(
+        top_left: Vec2,
+        size: Vec2,
+        color: Color,
+        corner_radius: f32,
+        outline_thickness: f32,
+        outline_color: Color,
+    ) -> Self {
+        Self {
+            top_left,
+            size,
+            fill_color: color,
+            corner_radius,
+            outline_thickness,
+            outline_color,
+        }
+    }
+
+    pub fn from_center(center: Vec2, size: Vec2, color: Color, corner_radius: f32) -> Self {
+        Self::new(center - size / 2.0, size, color, corner_radius)
+    }
+
+    pub fn from_center_with_outline(
+        center: Vec2,
+        size: Vec2,
+        color: Color,
+        corner_radius: f32,
+        outline_thickness: f32,
+        outline_color: Color,
+    ) -> Self {
+        Self::with_outline(
+            center - size / 2.0,
+            size,
+            color,
+            corner_radius,
+            outline_thickness,
+            outline_color,
+        )
+    }
+
+    pub fn center(&self) -> Vec2 {
+        self.top_left + self.size / 2.0
+    }
+}
+
 #[derive(Clone, Copy, Debug)]
 pub struct Rect {
     pub top_left: Vec2,
@@ -955,4 +1066,62 @@ pub fn draw_gradient_path(points: &[Vec2], thickness: f32, start: Color, end: Co
 
 pub fn draw_gradient_path_world(points: &[Vec2], thickness: f32, start: Color, end: Color) {
     draw_gradient_path_internal(points, thickness, start, end, draw_line_gradient_world);
+}
+
+pub fn draw_rounded_rect(top_left: Vec2, size: Vec2, color: Color, corner_radius: f32) {
+    let rounded_rect = RoundedRectangle::new(top_left, size, color, corner_radius);
+    rounded_rect.draw();
+}
+
+pub fn draw_rounded_rect_world(top_left: Vec2, size: Vec2, color: Color, corner_radius: f32) {
+    let rounded_rect = RoundedRectangle::new(top_left, size, color, corner_radius);
+    rounded_rect.draw_world();
+}
+
+pub fn draw_rounded_square(top_left: Vec2, size: f32, color: Color, corner_radius: f32) {
+    let rounded_rect = RoundedRectangle::new(top_left, Vec2::splat(size), color, corner_radius);
+    rounded_rect.draw();
+}
+
+pub fn draw_rounded_square_world(top_left: Vec2, size: f32, color: Color, corner_radius: f32) {
+    let rounded_rect = RoundedRectangle::new(top_left, Vec2::splat(size), color, corner_radius);
+    rounded_rect.draw_world();
+}
+
+pub fn draw_rounded_rect_with_outline(
+    top_left: Vec2,
+    size: Vec2,
+    color: Color,
+    corner_radius: f32,
+    outline_thickness: f32,
+    outline_color: Color,
+) {
+    let rounded_rect = RoundedRectangle {
+        top_left,
+        size,
+        fill_color: color,
+        corner_radius,
+        outline_thickness,
+        outline_color,
+    };
+    rounded_rect.draw();
+}
+
+pub fn draw_rounded_rect_with_outline_world(
+    top_left: Vec2,
+    size: Vec2,
+    color: Color,
+    corner_radius: f32,
+    outline_thickness: f32,
+    outline_color: Color,
+) {
+    let rounded_rect = RoundedRectangle {
+        top_left,
+        size,
+        fill_color: color,
+        corner_radius,
+        outline_thickness,
+        outline_color,
+    };
+    rounded_rect.draw_world();
 }

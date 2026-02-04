@@ -100,7 +100,7 @@ fn main() -> anyhow::Result<()> {
             break;
         }
 
-        run_ui(|_| {});
+        run_egui(|_| {});
 
         next_frame();
     }

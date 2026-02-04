@@ -122,7 +122,7 @@ fn main() -> anyhow::Result<()> {
     }
 
     loop {
-        clear_screen(Color::NEUTRAL_900);
+        clear_screen(Color::NEUTRAL_700);
         let cursor_pos = cursor_pos();
 
         if key_pressed(KeyCode::KeyD) {
@@ -159,7 +159,7 @@ fn main() -> anyhow::Result<()> {
         }
 
         for [a, b] in &walls {
-            draw_rect(*a, *b - *a, Color::NEUTRAL_950);
+            draw_rect(*a, *b - *a, Color::NEUTRAL_600);
         }
 
         for (body_handle, _, shape_type) in &objects {
@@ -171,15 +171,25 @@ fn main() -> anyhow::Result<()> {
             }
         }
 
-        run_ui(|ctx| {
-            egui::Window::new("Physics Showcase").show(ctx, |ui| {
-                ui.label(format!("Objects: {}", objects.len()));
-                ui.separator();
-                ui.label("Controls:");
-                ui.label("• Left Click: Spawn object");
-                ui.label("• Right Click (hold): Apply force");
-            });
-        });
+        let ui = {
+            use ui::*;
+
+            Fit::new(Fill::new(
+                Color::NEUTRAL_600,
+                Padding::all(
+                    50.0,
+                    Col::new([
+                        Text::title("Physics showcase"),
+                        Text::new("Objects: 138"),
+                        Text::new(format!("FPS: {:.2}", avg_fps())),
+                        Text::h2("Controls"),
+                        Text::body("• Left Click: Spawn object"),
+                        Text::body("• Right Click (hold): Apply force"),
+                    ]),
+                ),
+            ))
+        };
+        ui::draw_ui(ui, vec2(0.0, BOUNDS_SIZE.y - BOUNDS_THICKNESS));
 
         if should_quit() {
             break;

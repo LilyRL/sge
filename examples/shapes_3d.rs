@@ -20,6 +20,7 @@ fn main() -> anyhow::Result<()> {
         controller.update();
 
         cube.draw();
+        outline.draw();
 
         if should_quit() {
             break;

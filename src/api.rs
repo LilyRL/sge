@@ -226,10 +226,10 @@ pub fn camera2d_zoom_at(screen_pos: Vec2, zoom_factor: f32) {
     get_state().camera_2d.zoom_at(screen_pos, zoom_factor);
 }
 
-pub fn run_ui(mut f: impl FnMut(&Context)) {
+pub fn run_egui(mut f: impl FnMut(&Context)) {
     let state = get_state();
-    state.gui_initialized = true;
-    state.gui.run(&state.window, |ctx| {
+    state.egui_initialized = true;
+    state.egui.run(&state.window, |ctx| {
         #[cfg(feature = "debugging")]
         state.debug_info.draw_debug_info(ctx);
 
@@ -416,6 +416,16 @@ pub(crate) fn debugger_add_drawn_objects(_count: usize) {}
 
 pub fn time() -> f32 {
     get_state().time
+}
+
+pub fn time_seconds() -> usize {
+    get_state().time as usize
+}
+
+pub fn once_per_second() -> bool {
+    let state = get_state();
+
+    state.time as usize != (state.time - state.delta_time) as usize
 }
 
 pub fn delta_time() -> f32 {

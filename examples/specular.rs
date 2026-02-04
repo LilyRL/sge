@@ -29,7 +29,7 @@ fn main() -> anyhow::Result<()> {
         }
 
         show_debug_info();
-        run_ui(|_| {});
+        run_egui(|_| {});
 
         next_frame();
     }

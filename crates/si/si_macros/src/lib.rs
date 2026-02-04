@@ -1,5 +1,4 @@
 use proc_macro2::Span;
-use proc_macro2::TokenStream as TokenStream2;
 use quote::quote;
 use syn::Ident;
 
@@ -119,7 +118,7 @@ pub fn gen_types(_input: proc_macro::TokenStream) -> proc_macro::TokenStream {
     let mut cross_type_impls = quote! {};
 
     for (unit_type, unit_name, unit_shorthand) in units {
-        let unit_type_ident = Ident::new(&unit_type, Span::call_site());
+        let unit_type_ident = Ident::new(unit_type, Span::call_site());
 
         let mut constructors = quote! {};
         let mut converters = quote! {};
@@ -128,7 +127,7 @@ pub fn gen_types(_input: proc_macro::TokenStream) -> proc_macro::TokenStream {
 
         for (size_name, size_shorthand, scale_factor) in sizes.iter() {
             let constructor_name;
-            let converter_name;
+
             let unit_full;
             let unit_symbol;
 
@@ -155,7 +154,7 @@ pub fn gen_types(_input: proc_macro::TokenStream) -> proc_macro::TokenStream {
                     unit_symbol = adjusted_shorthand;
 
                     let constructor_ident = Ident::new(&constructor_name, Span::call_site());
-                    let converter_name_str = format!("to_{}", constructor_name);
+                    let converter_name_str = format!("as_{}", constructor_name);
                     let converter_ident = Ident::new(&converter_name_str, Span::call_site());
 
                     constructors = quote! {
@@ -179,7 +178,7 @@ pub fn gen_types(_input: proc_macro::TokenStream) -> proc_macro::TokenStream {
                 }
             } else {
                 constructor_name = if size_name.is_empty() {
-                    format!("{}", unit_name)
+                    unit_name.to_string()
                 } else {
                     format!("{}{}", size_name, unit_name)
                 };
@@ -188,7 +187,7 @@ pub fn gen_types(_input: proc_macro::TokenStream) -> proc_macro::TokenStream {
             }
 
             let constructor_ident = Ident::new(&constructor_name, Span::call_site());
-            converter_name = format!("to_{}", constructor_name);
+            let converter_name = format!("as_{}", constructor_name);
             let converter_ident = Ident::new(&converter_name, Span::call_site());
 
             constructors = quote! {

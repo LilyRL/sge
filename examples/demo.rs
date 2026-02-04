@@ -113,7 +113,7 @@ fn main() -> anyhow::Result<()> {
             draw_custom_shape(points, Color::YELLOW_500);
         }
 
-        run_ui(|ctx| {
+        run_egui(|ctx| {
             egui::Window::new("Hello, world").show(ctx, |ui| {
                 ui.label("This is a perfect engine");
 

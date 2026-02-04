@@ -18,7 +18,7 @@ fn main() -> anyhow::Result<()> {
         obj.draw();
         bloom_screen(0.5, 2.0, 10.0);
 
-        run_ui(|_| {});
+        run_egui(|_| {});
 
         if should_quit() {
             break;

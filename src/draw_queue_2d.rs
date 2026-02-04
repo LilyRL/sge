@@ -1,34 +1,96 @@
-use std::collections::HashMap;
-
 use crate::api::{
     debugger_add_draw_calls, debugger_add_drawn_objects, debugger_add_indices,
     debugger_add_vertices,
 };
-use crate::prelude::{Transform2D, draw_shape};
-use crate::programs::{CIRCLE_PROGRAM, FLAT_PROGRAM, TEXTURED_PROGRAM};
+use crate::prelude::{Transform2D, current_scissor, draw_shape};
+use crate::programs::{CIRCLE_PROGRAM, FLAT_PROGRAM, ROUNDED_PROGRAM, TEXTURED_PROGRAM};
 use crate::shapes_2d::{QUAD_INDICES, Shape2D, UNIT_QUAD};
 use crate::textures::TextureRef;
 use crate::{Color, get_state};
 use bevy_math::{Mat4, Rect, Vec2, Vec3};
+use glium::vertex::Vertex as GliumVertex;
 use glium::{Blend, DrawParameters, IndexBuffer, Surface, VertexBuffer, uniform};
 use glium::{Depth, DepthTest, implement_vertex};
 
 pub struct DrawQueue2D {
-    shape_vertices: Vec<Vertex3D>,
-    shape_indices: Vec<u32>,
-    current_max_index: u32,
+    shape_batches: Vec<ShapeBatch>,
+    current_shape_batch: ShapeBatch,
 
-    circle_instances: Vec<CircleInstance>,
-    sprite_draws: HashMap<TextureRef, SpriteDrawBatch>,
+    circle_batches: Vec<CircleBatch>,
+    current_circle_batch: CircleBatch,
+
+    rounded_batches: Vec<RoundedBatch>,
+    current_rounded_batch: RoundedBatch,
+
+    sprite_draws: Vec<SpriteBatch>,
 
     current_z: f32,
     start_z: f32,
     z_increment: f32,
 }
 
-struct SpriteDrawBatch {
+struct RoundedBatch {
+    instances: Vec<RoundedInstance>,
+    scissor: Option<glium::Rect>,
+}
+
+implement_vertex!(
+    RoundedInstance,
+    dimensions,
+    center,
+    corner_radius,
+    outline_thickness,
+    fill_color,
+    outline_color
+);
+#[derive(Copy, Clone, Debug)]
+struct RoundedInstance {
+    pub dimensions: [f32; 2],
+    pub center: [f32; 3],
+    pub corner_radius: f32,
+    pub outline_thickness: f32,
+    pub fill_color: [f32; 4],
+    pub outline_color: [f32; 4],
+}
+
+impl RoundedInstance {
+    pub fn new(
+        dimensions: Vec2,
+        center: Vec2,
+        z: f32,
+        corner_radius: f32,
+        fill_color: Color,
+        outline_thickness: f32,
+        outline_color: Color,
+    ) -> Self {
+        Self {
+            dimensions: dimensions.into(),
+            center: [center.x, center.y, z],
+            corner_radius,
+            outline_thickness,
+            fill_color: fill_color.for_gpu(),
+            outline_color: outline_color.for_gpu(),
+        }
+    }
+}
+
+struct ShapeBatch {
+    vertices: Vec<Vertex3D>,
+    indices: Vec<u32>,
+    max_index: u32,
+    scissor: Option<glium::Rect>,
+}
+
+struct CircleBatch {
+    instances: Vec<CircleInstance>,
+    scissor: Option<glium::Rect>,
+}
+
+struct SpriteBatch {
+    texture: TextureRef,
     vertices: Vec<SpriteVertex>,
     indices: Vec<u32>,
+    scissor: Option<glium::Rect>,
 }
 
 implement_vertex!(SpriteVertex, position, tex_coords, color);
@@ -140,14 +202,45 @@ impl CircleInstance {
     }
 }
 
+impl ShapeBatch {
+    fn new(scissor: Option<glium::Rect>) -> Self {
+        Self {
+            vertices: Vec::new(),
+            indices: Vec::new(),
+            max_index: 0,
+            scissor,
+        }
+    }
+}
+
+impl CircleBatch {
+    fn new(scissor: Option<glium::Rect>) -> Self {
+        Self {
+            instances: Vec::new(),
+            scissor,
+        }
+    }
+}
+
+impl RoundedBatch {
+    fn new(scissor: Option<glium::Rect>) -> Self {
+        Self {
+            instances: Vec::new(),
+            scissor,
+        }
+    }
+}
+
 impl DrawQueue2D {
     pub fn empty() -> Self {
         Self {
-            shape_vertices: vec![],
-            shape_indices: vec![],
-            current_max_index: 0,
-            circle_instances: vec![],
-            sprite_draws: HashMap::new(),
+            shape_batches: Vec::new(),
+            current_shape_batch: ShapeBatch::new(None),
+            circle_batches: Vec::new(),
+            current_circle_batch: CircleBatch::new(None),
+            rounded_batches: Vec::new(),
+            current_rounded_batch: RoundedBatch::new(None),
+            sprite_draws: Vec::new(),
             current_z: 0.0,
             start_z: 0.0,
             z_increment: 0.0001,
@@ -156,11 +249,13 @@ impl DrawQueue2D {
 
     pub fn with_z_config(start_z: f32, z_increment: f32) -> Self {
         Self {
-            shape_vertices: vec![],
-            shape_indices: vec![],
-            current_max_index: 0,
-            circle_instances: vec![],
-            sprite_draws: HashMap::new(),
+            shape_batches: Vec::new(),
+            current_shape_batch: ShapeBatch::new(None),
+            circle_batches: Vec::new(),
+            current_circle_batch: CircleBatch::new(None),
+            rounded_batches: Vec::new(),
+            current_rounded_batch: RoundedBatch::new(None),
+            sprite_draws: Vec::new(),
             current_z: start_z,
             start_z,
             z_increment,
@@ -180,6 +275,54 @@ impl DrawQueue2D {
         self.current_z
     }
 
+    fn ensure_shape_batch(&mut self) {
+        let current_scissor = current_scissor();
+
+        if self.current_shape_batch.scissor != current_scissor {
+            if !self.current_shape_batch.vertices.is_empty() {
+                let old_batch = std::mem::replace(
+                    &mut self.current_shape_batch,
+                    ShapeBatch::new(current_scissor),
+                );
+                self.shape_batches.push(old_batch);
+            } else {
+                self.current_shape_batch.scissor = current_scissor;
+            }
+        }
+    }
+
+    fn ensure_circle_batch(&mut self) {
+        let current_scissor = current_scissor();
+
+        if self.current_circle_batch.scissor != current_scissor {
+            if !self.current_circle_batch.instances.is_empty() {
+                let old_batch = std::mem::replace(
+                    &mut self.current_circle_batch,
+                    CircleBatch::new(current_scissor),
+                );
+                self.circle_batches.push(old_batch);
+            } else {
+                self.current_circle_batch.scissor = current_scissor;
+            }
+        }
+    }
+
+    fn ensure_rounded_batch(&mut self) {
+        let current_scissor = current_scissor();
+
+        if self.current_rounded_batch.scissor != current_scissor {
+            if !self.current_rounded_batch.instances.is_empty() {
+                let old_batch = std::mem::replace(
+                    &mut self.current_rounded_batch,
+                    RoundedBatch::new(current_scissor),
+                );
+                self.rounded_batches.push(old_batch);
+            } else {
+                self.current_rounded_batch.scissor = current_scissor;
+            }
+        }
+    }
+
     pub fn add_shape(&mut self, shape: &impl Shape2D) {
         self.add_shape_at_z(shape, self.current_z);
         self.current_z += self.z_increment;
@@ -195,14 +338,16 @@ impl DrawQueue2D {
             frame.drawn_objects += 1;
         }
 
-        let (mut indices, vertices) = shape.points(self.current_max_index);
+        self.ensure_shape_batch();
+
+        let (mut indices, vertices) = shape.points(self.current_shape_batch.max_index);
 
         for vertex in &vertices {
-            self.shape_vertices.push(vertex.to_3d(z));
+            self.current_shape_batch.vertices.push(vertex.to_3d(z));
         }
 
-        self.current_max_index += vertices.len() as u32;
-        self.shape_indices.append(&mut indices);
+        self.current_shape_batch.max_index += vertices.len() as u32;
+        self.current_shape_batch.indices.append(&mut indices);
     }
 
     pub fn add_circle(&mut self, center: Vec2, radius: Vec2, color: Color) {
@@ -239,7 +384,10 @@ impl DrawQueue2D {
             frame.drawn_objects += 1;
         }
 
-        self.circle_instances
+        self.ensure_circle_batch();
+
+        self.current_circle_batch
+            .instances
             .push(CircleInstance::new(center, z, radius, color));
     }
 
@@ -261,14 +409,75 @@ impl DrawQueue2D {
             frame.drawn_objects += 1;
         }
 
-        self.circle_instances.push(CircleInstance::new_with_outline(
+        self.ensure_circle_batch();
+
+        self.current_circle_batch
+            .instances
+            .push(CircleInstance::new_with_outline(
+                center,
+                z,
+                radius,
+                fill_color,
+                outline_thickness,
+                outline_color,
+            ));
+    }
+
+    pub fn add_rounded_rectangle(
+        &mut self,
+        center: Vec2,
+        dimensions: Vec2,
+        corner_radius: f32,
+        fill_color: Color,
+        outline_thickness: f32,
+        outline_color: Color,
+    ) {
+        self.add_rounded_rectangle_at_z(
             center,
-            z,
-            radius,
+            dimensions,
+            corner_radius,
             fill_color,
             outline_thickness,
             outline_color,
-        ));
+            self.current_z,
+        );
+        self.current_z += self.z_increment;
+    }
+
+    pub fn add_rounded_rectangle_at_z(
+        &mut self,
+        center: Vec2,
+        dimensions: Vec2,
+        corner_radius: f32,
+        fill_color: Color,
+        outline_thickness: f32,
+        outline_color: Color,
+        z: f32,
+    ) {
+        #[cfg(feature = "debugging")]
+        {
+            use crate::debugging::get_debug_info_mut;
+
+            let debug = get_debug_info_mut();
+            let frame = debug.current_frame_mut();
+            frame.drawn_objects += 1;
+        }
+
+        self.ensure_rounded_batch();
+
+        let shortest_side = dimensions.x.min(dimensions.y);
+
+        self.current_rounded_batch
+            .instances
+            .push(RoundedInstance::new(
+                dimensions,
+                center,
+                z,
+                corner_radius.clamp(0.0, 0.5 * shortest_side),
+                fill_color,
+                outline_thickness,
+                outline_color,
+            ));
     }
 
     pub fn add_sprite(
@@ -288,16 +497,40 @@ impl DrawQueue2D {
     }
 
     pub fn add_mesh_at_z(&mut self, vertices: &[Vertex2D], indices: &[u32], z: f32) {
-        let base_index = self.current_max_index;
+        self.ensure_shape_batch();
+
+        let base_index = self.current_shape_batch.max_index;
 
         for v in vertices {
-            self.shape_vertices.push(v.to_3d(z));
+            self.current_shape_batch.vertices.push(v.to_3d(z));
         }
 
-        self.shape_indices
+        self.current_shape_batch
+            .indices
             .extend(indices.iter().map(|i| i + base_index));
 
-        self.current_max_index += vertices.len() as u32;
+        self.current_shape_batch.max_index += vertices.len() as u32;
+    }
+
+    fn get_or_create_sprite_batch(&mut self, texture: TextureRef) -> &mut SpriteBatch {
+        let current_scissor = current_scissor();
+
+        let batch_index = self
+            .sprite_draws
+            .iter()
+            .position(|b| b.texture == texture && b.scissor == current_scissor);
+
+        if let Some(idx) = batch_index {
+            &mut self.sprite_draws[idx]
+        } else {
+            self.sprite_draws.push(SpriteBatch {
+                texture,
+                vertices: Vec::new(),
+                indices: Vec::new(),
+                scissor: current_scissor,
+            });
+            self.sprite_draws.last_mut().unwrap()
+        }
     }
 
     pub fn add_sprite_at_z(
@@ -310,14 +543,7 @@ impl DrawQueue2D {
     ) {
         debugger_add_drawn_objects(1);
 
-        let batch = self
-            .sprite_draws
-            .entry(texture)
-            .or_insert_with(|| SpriteDrawBatch {
-                vertices: Vec::new(),
-                indices: Vec::new(),
-            });
-
+        let batch = self.get_or_create_sprite_batch(texture);
         let base_index = batch.vertices.len() as u32;
 
         let (tex_min_x, tex_min_y, tex_max_x, tex_max_y) = if let Some(region) = region {
@@ -372,10 +598,63 @@ impl DrawQueue2D {
     }
 
     pub fn draw<T: Surface>(&mut self, frame: &mut T, projection: &Mat4) {
-        let state = get_state();
-        let display = &state.display;
+        if !self.current_shape_batch.vertices.is_empty() {
+            let batch = std::mem::replace(&mut self.current_shape_batch, ShapeBatch::new(None));
+            self.shape_batches.push(batch);
+        }
 
-        let params = DrawParameters {
+        if !self.current_circle_batch.instances.is_empty() {
+            let batch = std::mem::replace(&mut self.current_circle_batch, CircleBatch::new(None));
+            self.circle_batches.push(batch);
+        }
+
+        if !self.current_rounded_batch.instances.is_empty() {
+            let batch = std::mem::replace(&mut self.current_rounded_batch, RoundedBatch::new(None));
+            self.rounded_batches.push(batch);
+        }
+
+        for batch in &self.shape_batches {
+            if batch.vertices.is_empty() {
+                continue;
+            }
+            self.draw_mesh_batch(frame, projection, batch, FLAT_PROGRAM.get());
+        }
+
+        for batch in &self.circle_batches {
+            if batch.instances.is_empty() {
+                continue;
+            }
+            self.draw_quad_instanced(
+                frame,
+                projection,
+                &batch.instances,
+                CIRCLE_PROGRAM.get(),
+                batch.scissor,
+            );
+        }
+
+        for batch in &self.rounded_batches {
+            if batch.instances.is_empty() {
+                continue;
+            }
+            self.draw_quad_instanced(
+                frame,
+                projection,
+                &batch.instances,
+                ROUNDED_PROGRAM.get(),
+                batch.scissor,
+            );
+        }
+
+        for batch in &self.sprite_draws {
+            if !batch.vertices.is_empty() {
+                self.draw_sprite_batch(frame, projection, batch);
+            }
+        }
+    }
+
+    fn common_draw_params(scissor: Option<glium::Rect>) -> DrawParameters<'static> {
+        DrawParameters {
             blend: Blend {
                 color: glium::BlendingFunction::Addition {
                     source: glium::LinearBlendingFactor::SourceAlpha,
@@ -392,98 +671,107 @@ impl DrawQueue2D {
                 write: true,
                 ..Default::default()
             },
+            scissor,
             ..Default::default()
-        };
-
-        if !self.shape_vertices.is_empty() {
-            let vertex_buffer = VertexBuffer::new(display, &self.shape_vertices).unwrap();
-            let index_buffer = IndexBuffer::new(
-                display,
-                glium::index::PrimitiveType::TrianglesList,
-                &self.shape_indices,
-            )
-            .unwrap();
-
-            let uniforms = uniform! {
-                transform: projection.to_cols_array_2d(),
-            };
-
-            #[cfg(feature = "debugging")]
-            {
-                use crate::debugging::get_debug_info_mut;
-
-                let debug = get_debug_info_mut();
-                let frame = debug.current_frame_mut();
-                frame.draw_calls += 1;
-                frame.vertex_count += vertex_buffer.len();
-                frame.index_count += index_buffer.len();
-            }
-
-            frame
-                .draw(
-                    &vertex_buffer,
-                    &index_buffer,
-                    FLAT_PROGRAM.get(),
-                    &uniforms,
-                    &params,
-                )
-                .unwrap();
-        }
-
-        if !self.circle_instances.is_empty() {
-            let quad_buffer = VertexBuffer::new(display, &UNIT_QUAD).unwrap();
-            let instance_buffer = VertexBuffer::dynamic(display, &self.circle_instances).unwrap();
-            let index_buffer = IndexBuffer::new(
-                display,
-                glium::index::PrimitiveType::TrianglesList,
-                &QUAD_INDICES,
-            )
-            .unwrap();
-
-            let uniforms = uniform! {
-                transform: projection.to_cols_array_2d(),
-            };
-
-            #[cfg(feature = "debugging")]
-            {
-                use crate::debugging::get_debug_info_mut;
-
-                let debug = get_debug_info_mut();
-                let frame = debug.current_frame_mut();
-                frame.draw_calls += 1;
-                frame.vertex_count += quad_buffer.len() * self.circle_instances.len();
-                frame.index_count += index_buffer.len() * self.circle_instances.len();
-            }
-
-            frame
-                .draw(
-                    (&quad_buffer, instance_buffer.per_instance().unwrap()),
-                    &index_buffer,
-                    CIRCLE_PROGRAM.get(),
-                    &uniforms,
-                    &params,
-                )
-                .unwrap();
-        }
-
-        for (texture_ref, batch) in &self.sprite_draws {
-            if !batch.vertices.is_empty() {
-                self.draw_sprite_batch(frame, projection, *texture_ref, batch);
-            }
         }
     }
 
-    fn draw_sprite_batch<T: Surface>(
+    fn draw_mesh_batch<T: Surface>(
         &self,
         frame: &mut T,
         projection: &Mat4,
-        texture: TextureRef,
-        batch: &SpriteDrawBatch,
+        batch: &ShapeBatch,
+        program: &glium::Program,
     ) {
         let state = get_state();
         let display = &state.display;
 
-        let texture = texture.get();
+        let params = Self::common_draw_params(batch.scissor);
+
+        let vertex_buffer = VertexBuffer::new(display, &batch.vertices).unwrap();
+        let index_buffer = IndexBuffer::new(
+            display,
+            glium::index::PrimitiveType::TrianglesList,
+            &batch.indices,
+        )
+        .unwrap();
+
+        let uniforms = uniform! {
+            transform: projection.to_cols_array_2d(),
+        };
+
+        #[cfg(feature = "debugging")]
+        {
+            use crate::debugging::get_debug_info_mut;
+
+            let debug = get_debug_info_mut();
+            let frame_dbg = debug.current_frame_mut();
+            frame_dbg.draw_calls += 1;
+            frame_dbg.vertex_count += vertex_buffer.len();
+            frame_dbg.index_count += index_buffer.len();
+        }
+
+        frame
+            .draw(&vertex_buffer, &index_buffer, program, &uniforms, &params)
+            .unwrap();
+    }
+
+    fn draw_quad_instanced<T, S>(
+        &self,
+        frame: &mut S,
+        projection: &Mat4,
+        instances: &[T],
+        program: &glium::Program,
+        scissor: Option<glium::Rect>,
+    ) where
+        T: Copy + GliumVertex,
+        S: Surface,
+    {
+        let state = get_state();
+        let display = &state.display;
+
+        let params = Self::common_draw_params(scissor);
+
+        let quad_buffer = VertexBuffer::new(display, &UNIT_QUAD).unwrap();
+        let instance_buffer = VertexBuffer::dynamic(display, instances).unwrap();
+        let index_buffer = IndexBuffer::new(
+            display,
+            glium::index::PrimitiveType::TrianglesList,
+            &QUAD_INDICES,
+        )
+        .unwrap();
+
+        let uniforms = uniform! {
+            transform: projection.to_cols_array_2d(),
+        };
+
+        #[cfg(feature = "debugging")]
+        {
+            use crate::debugging::get_debug_info_mut;
+            let debug = get_debug_info_mut();
+            let frame_dbg = debug.current_frame_mut();
+            frame_dbg.draw_calls += 1;
+
+            frame_dbg.vertex_count += quad_buffer.len() * instances.len();
+            frame_dbg.index_count += index_buffer.len() * instances.len();
+        }
+
+        frame
+            .draw(
+                (&quad_buffer, instance_buffer.per_instance().unwrap()),
+                &index_buffer,
+                program,
+                &uniforms,
+                &params,
+            )
+            .unwrap();
+    }
+
+    fn draw_sprite_batch<T: Surface>(&self, frame: &mut T, projection: &Mat4, batch: &SpriteBatch) {
+        let state = get_state();
+        let display = &state.display;
+
+        let texture = batch.texture.get();
         let vertex_buffer = VertexBuffer::new(display, &batch.vertices).unwrap();
         let index_buffer = IndexBuffer::new(
             display,
@@ -504,6 +792,7 @@ impl DrawQueue2D {
                 write: true,
                 ..Default::default()
             },
+            scissor: batch.scissor,
             ..Default::default()
         };
 
@@ -523,10 +812,12 @@ impl DrawQueue2D {
     }
 
     pub fn clear(&mut self) {
-        self.shape_vertices.clear();
-        self.shape_indices.clear();
-        self.current_max_index = 0;
-        self.circle_instances.clear();
+        self.shape_batches.clear();
+        self.current_shape_batch = ShapeBatch::new(None);
+        self.circle_batches.clear();
+        self.current_circle_batch = CircleBatch::new(None);
+        self.rounded_batches.clear();
+        self.current_rounded_batch = RoundedBatch::new(None);
         self.sprite_draws.clear();
         self.current_z = self.start_z;
     }

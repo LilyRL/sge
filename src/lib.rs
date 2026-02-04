@@ -1,5 +1,6 @@
 #![allow(static_mut_refs)]
 #![feature(duration_millis_float)]
+use std::collections::HashMap;
 use std::time::Instant;
 
 use bevy_math::Mat4;
@@ -49,7 +50,12 @@ use textures::EngineTexture;
 use textures::init_textures;
 use tunes::engine::AudioEngine;
 use ui::SomeNode;
+use ui::SomeState;
+use ui::StateRef;
+use ui::update_ui;
 use user_storage::UserStorage;
+#[cfg(feature = "profile")]
+use window::WindowOptions;
 use window::init_window;
 
 pub mod animation;
@@ -71,6 +77,7 @@ mod post_processing;
 pub mod prelude;
 mod programs;
 mod render_pipeline;
+pub mod scissor;
 mod shapes_2d;
 mod shapes_3d;
 mod slop;
@@ -105,9 +112,9 @@ struct EngineState {
     flat_projection: Mat4,
     camera_2d: Camera2D,
     camera_3d: Camera3D,
-    gui: EguiGlium,
+    egui: EguiGlium,
     audio_engine: AudioEngine,
-    gui_initialized: bool,
+    egui_initialized: bool,
     render_pipeline: RenderPipeline,
     texture_pipeline: Option<RenderPipeline>,
     #[cfg(feature = "profile")]
@@ -129,6 +136,7 @@ struct EngineState {
     last_frame_end_time: Instant,
     cursor_position: Vec2,
     user_storage: UserStorage,
+    scissors: Vec<glium::Rect>,
 }
 
 unsafe impl Sync for EngineState {}
@@ -145,6 +153,7 @@ pub(crate) struct EngineStorage {
     texture_atlasses: Vec<TextureAtlas>,
     images: Vec<Image>,
     ui_nodes: Vec<SomeNode>,
+    ui_states: HashMap<StateRef, SomeState>,
 }
 
 impl EngineStorage {
@@ -160,6 +169,7 @@ impl EngineStorage {
             texture_atlasses: vec![],
             images: vec![],
             ui_nodes: vec![],
+            ui_states: HashMap::new(),
         }
     }
 }
@@ -179,7 +189,13 @@ pub enum InitError {
     Audio(tunes::error::TunesError),
 }
 
-pub fn init_custom(opts: config::Opts) -> Result<(), InitError> {
+#[allow(unused_mut)]
+pub fn init_custom(mut opts: config::Opts) -> Result<(), InitError> {
+    #[cfg(feature = "profile")]
+    {
+        opts.swap_interval = Some(SwapInterval::DontWait);
+    }
+
     let opts = opts.build();
     logging::init_engine_logger()?;
     get_logger().min_log_level = opts.min_log_level;
@@ -188,12 +204,6 @@ pub fn init_custom(opts: config::Opts) -> Result<(), InitError> {
         Ok(_) => (),
         Err(e) => error!("Could not install color_eyre: {e}"),
     }
-
-    #[cfg(feature = "profile")]
-    let opts = WindowOptions {
-        swap_interval: SwapInterval::DontWait,
-        ..opts
-    };
 
     let (window, display, event_loop) = match init_window(opts.window) {
         Ok(output) => {
@@ -249,8 +259,8 @@ pub fn init_custom(opts: config::Opts) -> Result<(), InitError> {
             camera_2d,
             camera_3d,
             audio_engine,
-            gui,
-            gui_initialized,
+            egui: gui,
+            egui_initialized: gui_initialized,
             #[cfg(feature = "debugging")]
             debug_info,
             storage,
@@ -275,6 +285,7 @@ pub fn init_custom(opts: config::Opts) -> Result<(), InitError> {
                 .blocklist(&["libc", "libgcc", "pthread", "vdso"])
                 .build()
                 .unwrap(),
+            scissors: vec![],
         });
     }
 
@@ -288,6 +299,8 @@ pub fn init_custom(opts: config::Opts) -> Result<(), InitError> {
 }
 
 pub fn next_frame() {
+    update_ui();
+
     #[cfg(feature = "debugging")]
     let engine_start_time = Instant::now();
     let state = get_state();
@@ -297,7 +310,7 @@ pub fn next_frame() {
         .event_loop
         .pump_events(None, |event, event_loop_window_target| match event {
             Event::WindowEvent { event, .. } => {
-                let gui_response = state.gui.on_event(&state.window, &event);
+                let gui_response = state.egui.on_event(&state.window, &event);
                 if gui_response.consumed {
                     return;
                 }
@@ -334,8 +347,8 @@ pub fn next_frame() {
     state.render_pipeline.draw_on(&mut frame);
     state.render_pipeline = RenderPipeline::screen();
 
-    if state.gui_initialized {
-        state.gui.paint(&state.display, &mut frame);
+    if state.egui_initialized {
+        state.egui.paint(&state.display, &mut frame);
     }
 
     #[cfg(feature = "debugging")]

@@ -42,7 +42,7 @@ fn main() -> anyhow::Result<()> {
         draw_texture_world(texture, Vec2::ZERO, 1000.0);
         draw_square_outline_world(Vec2::ZERO, 1000.0, 2.0, Color::NEUTRAL_500);
 
-        run_ui(|_| {});
+        run_egui(|_| {});
 
         if should_quit() {
             break;

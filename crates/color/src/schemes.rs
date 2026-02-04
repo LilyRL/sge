@@ -34,6 +34,39 @@ pub struct ColorScheme {
     pub light_gray: Color,
 }
 
+impl ColorScheme {
+    pub fn palette(&self) -> [Color; 26] {
+        [
+            self.bg0,
+            self.bg1,
+            self.bg2,
+            self.bg3,
+            self.bg4,
+            self.fg4,
+            self.fg2,
+            self.fg0,
+            self.fg1,
+            self.fg3,
+            self.red,
+            self.orange,
+            self.yellow,
+            self.green,
+            self.aqua,
+            self.blue,
+            self.purple,
+            self.gray,
+            self.light_red,
+            self.light_orange,
+            self.light_yellow,
+            self.light_green,
+            self.light_blue,
+            self.light_purple,
+            self.light_aqua,
+            self.light_gray,
+        ]
+    }
+}
+
 // here down is slop
 
 impl ColorScheme {

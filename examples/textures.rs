@@ -40,7 +40,7 @@ fn main() -> anyhow::Result<()> {
             }
         }
 
-        run_ui(|_| {});
+        run_egui(|_| {});
 
         if should_quit() {
             break;

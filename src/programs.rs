@@ -27,6 +27,7 @@ pub const FLAT_3D_PROGRAM: ProgramRef = ProgramRef(3);
 pub const GOURAUD_3D_PROGRAM: ProgramRef = ProgramRef(4);
 pub const TEXTURED_3D_PROGRAM: ProgramRef = ProgramRef(5);
 pub const BLINN_PHONG_3D_PROGRAM: ProgramRef = ProgramRef(6);
+pub const ROUNDED_PROGRAM: ProgramRef = ProgramRef(7);
 
 gen_ref_type!(Program, ProgramRef, programs);
 
@@ -80,6 +81,13 @@ pub(crate) fn init_programs(
         display,
         "../assets/shaders/blinn_phong/vertex.glsl",
         "../assets/shaders/blinn_phong/fragment.glsl"
+    )?;
+    storage.programs.push(program);
+
+    let program = include_program_internal!(
+        display,
+        "../assets/shaders/rounded/vertex.glsl",
+        "../assets/shaders/rounded/fragment.glsl"
     )?;
     storage.programs.push(program);
 

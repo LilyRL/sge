@@ -15,8 +15,9 @@ use winit_input_helper::WinitInputHelper;
 pub mod keys;
 
 use crate::get_state;
+use crate::ui::Area;
 
-pub(crate) struct Input {
+pub struct Input {
     helper: WinitInputHelper,
     action_map: HashMap<Action, Button>,
     #[cfg(feature = "gamepad")]
@@ -79,6 +80,18 @@ impl Input {
             action_map: HashMap::new(),
             #[cfg(feature = "gamepad")]
             gamepad: GilrsInputHelper::new(),
+        }
+    }
+
+    pub fn is_cursor_within_area(&self, area: Area) -> bool {
+        let cursor = self.cursor();
+        if let Some(cursor) = cursor {
+            cursor.0 >= area.top_left().x
+                && cursor.0 <= area.bottom_right().x
+                && cursor.1 >= area.top_left().y
+                && cursor.1 <= area.bottom_right().y
+        } else {
+            false
         }
     }
 

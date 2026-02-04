@@ -125,7 +125,7 @@ fn main() -> anyhow::Result<()> {
             break;
         }
 
-        run_ui(|ui| {
+        run_egui(|ui| {
             egui::Window::new("Keybinds").show(ui, |ui| {
                 ui.label("M - show many suzannes");
                 ui.label("Y - change color to yellow");

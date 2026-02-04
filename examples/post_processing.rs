@@ -30,7 +30,7 @@ fn main() -> anyhow::Result<()> {
             Color::SKY_500,
         );
 
-        run_ui(|_| {});
+        run_egui(|_| {});
 
         if should_quit() {
             break;
