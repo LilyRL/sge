@@ -2,6 +2,7 @@ use crate::prelude::draw_rounded_rect;
 
 use super::*;
 
+#[derive(Debug)]
 pub struct Fill {
     fill_color: Color,
     corner_radius: f32,

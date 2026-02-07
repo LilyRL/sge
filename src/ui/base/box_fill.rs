@@ -1,5 +1,6 @@
 use super::*;
 
+#[derive(Debug)]
 pub struct BoxFill {
     color: Color,
     child: Child,
@@ -22,13 +23,14 @@ impl UiNode for BoxFill {
     }
 }
 
-pub struct HoverFill {
+#[derive(Debug)]
+pub struct HoverBoxFill {
     base_color: Color,
     hovered_color: Color,
     child: Child,
 }
 
-impl HoverFill {
+impl HoverBoxFill {
     pub fn new(base_color: Color, hovered_color: Color, child: Child) -> UiRef {
         Self {
             base_color,
@@ -39,7 +41,7 @@ impl HoverFill {
     }
 }
 
-impl UiNode for HoverFill {
+impl UiNode for HoverBoxFill {
     fn preferred_dimensions(&self) -> Vec2 {
         self.child.node.preferred_dimensions()
     }

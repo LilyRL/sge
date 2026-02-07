@@ -5,9 +5,11 @@ fn main() -> anyhow::Result<()> {
     init("UI")?;
     let texture = include_texture!("../assets/textures/guy.jpg");
     let mut progress: f32 = rand();
+    let mut show_message = false;
+    let mut clear_color = w95::PRIMARY;
 
     loop {
-        clear_screen(Color::hex(0xC0C0C0));
+        clear_screen(clear_color);
 
         let ui = SizedBox::wh(
             400.0,
@@ -38,17 +40,18 @@ fn main() -> anyhow::Result<()> {
                 ),
             ),
         );
-        draw_ui(ui, vec2(20.0, 500.0));
+        draw_ui(ui, vec2(20.0, 600.0));
 
         // ------
 
         let show_blinking = time_seconds().is_multiple_of(2);
 
-        if once_per_second() {
+        if once_per_n_seconds(2.0 / 3.0) {
             progress = rand();
         }
 
-        let ui = Fit::new(card(
+        let button_id = id!();
+        let ui = Fit::new(w95::Card::new(
             20.0,
             Col::with_gap(
                 10.0,
@@ -56,20 +59,13 @@ fn main() -> anyhow::Result<()> {
                     black_text(format!("{:.0}", avg_fps())),
                     black_text("Hello world!"),
                     black_text("This is UI."),
+                    w95::Button::text(button_id, "Click me!"),
                     Text::new_with_size_color("Styled text", 30, Color::RED_600),
                     ConstrainedBox::max_size(
                         vec2(300.0, 200.0),
-                        card(0.0, ImageNode::from_texture(texture)),
+                        w95::Card::new(0.0, ImageNode::from_texture(texture)),
                     ),
-                    SizedBox::wh(
-                        200.0,
-                        20.0,
-                        Border::all(
-                            4.0,
-                            Color::GRAY_500,
-                            ProgressBar::new(progress, 1.0, Color::GRAY_500, id!()),
-                        ),
-                    ),
+                    w95::ProgressBar::new(vec2(200.0, 20.0), progress, 1.0, id!()),
                     if show_blinking {
                         black_text("I blink")
                     } else {
@@ -80,6 +76,10 @@ fn main() -> anyhow::Result<()> {
         ));
 
         draw_ui(ui, Vec2::splat(20.0));
+
+        if ui_button_clicked(button_id) {
+            clear_color = random_color();
+        }
 
         // ------
 
@@ -101,6 +101,20 @@ fn main() -> anyhow::Result<()> {
                             Text::body("Lorem ipsum dolor sit amet."),
                             Text::h3("Heading 1"),
                             Text::body("Lorem ipsum dolor sit amet."),
+                            Text::italic("Lorem ipsum dolor sit amet."),
+                            Text::bold("Lorem ipsum dolor sit amet."),
+                            Text::bold_italic("Lorem ipsum dolor sit amet."),
+                            bold_italic_colored("Lorem ipsum dolor sit amet.", Color::WHITE),
+                            bold_italic_colored("Lorem ipsum dolor sit amet.", Color::NEUTRAL_100),
+                            bold_italic_colored("Lorem ipsum dolor sit amet.", Color::NEUTRAL_200),
+                            bold_italic_colored("Lorem ipsum dolor sit amet.", Color::NEUTRAL_300),
+                            bold_italic_colored("Lorem ipsum dolor sit amet.", Color::NEUTRAL_400),
+                            bold_italic_colored("Lorem ipsum dolor sit amet.", Color::NEUTRAL_500),
+                            bold_italic_colored("Lorem ipsum dolor sit amet.", Color::NEUTRAL_600),
+                            bold_italic_colored("Lorem ipsum dolor sit amet.", Color::NEUTRAL_700),
+                            bold_italic_colored("Lorem ipsum dolor sit amet.", Color::NEUTRAL_800),
+                            bold_italic_colored("Lorem ipsum dolor sit amet.", Color::NEUTRAL_900),
+                            bold_italic_colored("Lorem ipsum dolor sit amet.", Color::BLACK),
                         ]),
                     ),
                 ),
@@ -108,6 +122,64 @@ fn main() -> anyhow::Result<()> {
         );
 
         draw_ui(ui, vec2(500.0, 20.0));
+
+        // ------
+
+        let button_id = id!();
+        let ui = library::flat::Card::sized(
+            vec2(300.0, 200.0),
+            Color::NEUTRAL_900,
+            Col::with_gap(
+                30.0,
+                [
+                    Center::new(flat::Button::text(
+                        Color::NEUTRAL_600,
+                        Color::NEUTRAL_500,
+                        button_id,
+                        "Click me!",
+                    )),
+                    if show_message {
+                        Center::new(Text::body("Thanks for clicking."))
+                    } else {
+                        EMPTY
+                    },
+                ],
+            ),
+        );
+
+        draw_ui(ui, vec2(500.0, 540.0));
+
+        if ui_button_clicked(button_id) {
+            show_message = !show_message;
+        }
+
+        // ------
+
+        let size = vec2(300.0, 300.0);
+        let ui = SizedBox::new(
+            size,
+            BoxFill::new(
+                Color::BLACK,
+                Stack::new(
+                    size,
+                    [
+                        Align::top_left(square(Color::RED_500)),
+                        Align::top_center(square(Color::ORANGE_500)),
+                        Align::top_right(square(Color::YELLOW_500)),
+                        Align::center_right(square(Color::GREEN_500)),
+                        Align::bottom_right(square(Color::SKY_500)),
+                        Align::bottom_center(square(Color::BLUE_500)),
+                        Align::bottom_left(square(Color::PURPLE_500)),
+                        Align::center_left(square(Color::PINK_500)),
+                        Align::center(square(Color::WHITE)),
+                    ],
+                ),
+            ),
+        );
+
+        draw_ui(ui, vec2(500.0, 760.0));
+
+        // ------
 
         if should_quit() {
             break;
@@ -119,19 +191,16 @@ fn main() -> anyhow::Result<()> {
     Ok(())
 }
 
+fn square(color: Color) -> UiRef {
+    BoxFill::new(color, EmptyBox::new(50.0, 50.0))
+}
+
 // example simple widget. if you want to make something more complicated check out the UiNode trait
-// if you want to create a widget with retained mutable state, check out the source for Scroll
+// if you want to create a widget with retained mutable state, check out the source for ProgressBar
 fn black_text(text: impl ToString) -> UiRef {
     Text::new_with_color(text, Color::BLACK)
 }
 
-// slightly more complex wrapper widget.
-fn card(padding: f32, child: UiRef) -> UiRef {
-    Border::tblr(
-        BorderStyle::new(10.0, Color::hex(0xFCFCFC)),
-        BorderStyle::new(10.0, Color::hex(0x08080E)),
-        BorderStyle::new(10.0, Color::hex(0xFCFCFC)),
-        BorderStyle::new(10.0, Color::hex(0x08080E)),
-        BoxFill::new(Color::hex(0xC0C0C0), Padding::all(padding, child)),
-    )
+fn bold_italic_colored(text: impl ToString, color: Color) -> UiRef {
+    Text::new_full(text, SANS_BOLD_ITALIC, 24, color, true)
 }

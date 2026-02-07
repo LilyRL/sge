@@ -422,10 +422,22 @@ pub fn time_seconds() -> usize {
     get_state().time as usize
 }
 
+pub fn is_first_frame() -> bool {
+    let state = get_state();
+
+    state.frame_count == 0
+}
+
 pub fn once_per_second() -> bool {
     let state = get_state();
 
     state.time as usize != (state.time - state.delta_time) as usize
+}
+
+pub fn once_per_n_seconds(n: f32) -> bool {
+    let state = get_state();
+
+    (state.time / n) as usize != ((state.time - state.delta_time) / n) as usize
 }
 
 pub fn delta_time() -> f32 {

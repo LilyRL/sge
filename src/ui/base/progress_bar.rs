@@ -4,16 +4,17 @@ use crate::prelude::lerp;
 
 use super::*;
 
+#[derive(Debug)]
 pub struct ProgressBar {
-    max: f32,
-    value: f32,
-    color: Color,
-    state: State<ProgressBarState>,
-    interpolation_speed: f32,
+    pub(crate) max: f32,
+    pub(crate) value: f32,
+    pub(crate) color: Color,
+    pub(crate) state: State<ProgressBarState>,
+    pub(crate) interpolation_speed: f32,
 }
 
-#[derive(Default)]
-struct ProgressBarState {
+#[derive(Default, Clone, Copy, Debug)]
+pub(crate) struct ProgressBarState {
     displayed_value: f32,
 }
 

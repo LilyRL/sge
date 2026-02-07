@@ -311,9 +311,17 @@ impl RenderPipeline {
     pub fn screen() -> Self {
         Self::new(RenderTarget::Screen, None)
     }
+
+    pub(crate) fn new_draw_queues(&mut self) {
+        self.steps.push(RenderStep::Drawing(DrawQueues::empty()));
+    }
 }
 
 impl EngineState {
+    pub fn new_draw_queues(&mut self) {
+        self.current_render_pipeline().new_draw_queues();
+    }
+
     pub fn draw_queue_2d(&mut self) -> &mut DrawQueue2D {
         self.current_render_pipeline().draw_queue_2d()
     }

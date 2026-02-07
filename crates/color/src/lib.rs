@@ -68,9 +68,14 @@ impl Color {
     pub fn splat(v: f32) -> Self {
         Self::new(v, v, v)
     }
+
     pub const fn with_alpha(mut self, a: f32) -> Self {
         self.a = a;
         self
+    }
+
+    pub fn inverted(self) -> Self {
+        Self::from_rgba(1.0 - self.r, 1.0 - self.g, 1.0 - self.b, self.a)
     }
 
     fn to_hsl(self) -> (f32, f32, f32) {
@@ -84,7 +89,7 @@ impl Color {
         )
     }
 
-    pub fn hex(hex: u32) -> Self {
+    pub const fn hex(hex: u32) -> Self {
         let red = (hex & 0xFF0000) >> 16;
         let green = (hex & 0x00FF00) >> 8;
         let blue = hex & 0x0000FF;

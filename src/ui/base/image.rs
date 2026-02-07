@@ -2,10 +2,12 @@ use crate::prelude::TextureRef;
 
 use super::*;
 
+#[derive(Debug)]
 pub enum ImageSource {
     Texture(TextureRef),
 }
 
+#[derive(Debug)]
 pub struct ImageNode {
     pub source: ImageSource,
 }

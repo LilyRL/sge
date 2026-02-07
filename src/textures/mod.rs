@@ -1,4 +1,4 @@
-use std::io::Cursor;
+use std::{fmt::Debug, io::Cursor};
 
 use bevy_math::{UVec2, Vec2};
 use engine_4_macros::gen_ref_type;
@@ -141,6 +141,12 @@ impl EngineTexture {
 }
 
 gen_ref_type!(EngineTexture, TextureRef, textures);
+
+impl Debug for TextureRef {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        self.0.fmt(f)
+    }
+}
 
 impl TextureRef {
     pub fn dimensions(&self) -> UVec2 {

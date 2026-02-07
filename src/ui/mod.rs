@@ -1,3 +1,5 @@
+use std::fmt::Debug;
+
 use crate::{
     api::window_size,
     get_state,
@@ -11,10 +13,10 @@ use engine_color::Color;
 use glium::winit::event::MouseButton;
 
 /// base building blocks
-pub mod components;
-pub mod prelude;
+pub mod base;
 /// more complex widgets made of compoenents
-pub mod widgets;
+pub mod library;
+pub mod prelude;
 
 #[macro_export]
 macro_rules! id {
@@ -61,7 +63,13 @@ pub struct SomeNode {
 
 gen_ref_type!(SomeNode, UiRef, ui_nodes);
 
-pub trait UiNode {
+impl Debug for UiRef {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        self.node.fmt(f)
+    }
+}
+
+pub trait UiNode: Debug {
     fn preferred_dimensions(&self) -> Vec2;
     fn draw(&self, area: Area, ui: &UiState) -> Vec2;
 }
@@ -85,14 +93,16 @@ pub(crate) type Child = UiRef;
 
 impl Default for UiRef {
     fn default() -> Self {
-        components::EMPTY
+        base::EMPTY
     }
 }
 
 /// run at start of frame
 pub(crate) fn update_ui() {
-    get_state().storage.ui_nodes.clear();
-    components::Empty.to_ref(); // set default (id: 0) node to Empty
+    let state = get_state();
+    state.storage.ui_nodes.clear();
+    state.storage.button_clicked = None;
+    base::Empty.to_ref(); // set default (id: 0) node to Empty
 }
 
 /// does not limit ui elements to the edge of the screen.
@@ -196,15 +206,21 @@ impl Area {
 }
 
 #[derive(Clone, Copy)]
-pub struct State<T> {
+pub struct State<T: Debug> {
     _ref: StateRef,
     _marker: std::marker::PhantomData<T>,
+}
+
+impl<T: Debug + 'static> Debug for State<T> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        self.get().fmt(f)
+    }
 }
 
 #[derive(Clone, Copy, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub struct StateRef(usize);
 
-impl<T> State<T> {
+impl<T: Debug> State<T> {
     pub fn from_id(id: usize) -> Self {
         Self {
             _ref: StateRef(id),
@@ -240,9 +256,16 @@ impl<T> State<T> {
             .downcast_mut::<T>()
             .unwrap()
     }
+
+    pub fn get(&self) -> Option<&'static T> {
+        let storage = &get_state().storage.ui_states;
+        let some_state = storage.get(&self._ref)?;
+
+        some_state.state.downcast_ref::<T>()
+    }
 }
 
-impl<T: Default> State<T> {
+impl<T: Default + Debug> State<T> {
     pub fn get_or_default(&self) -> &'static mut T {
         self.get_or_create_mut(T::default)
     }

@@ -2,12 +2,13 @@ use crate::prelude::draw_custom_shape;
 
 use super::*;
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Debug)]
 pub struct BorderStyle {
     thickness: f32,
     color: Color,
 }
 
+#[derive(Debug)]
 enum Side {
     Top,
     Bottom,
@@ -38,6 +39,7 @@ impl BorderStyle {
     }
 }
 
+#[derive(Debug)]
 pub struct Border {
     top: BorderStyle,
     bottom: BorderStyle,

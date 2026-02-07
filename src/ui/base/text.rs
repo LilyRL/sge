@@ -4,9 +4,11 @@ use log::warn;
 
 use super::*;
 use crate::prelude::{
-    FontRef, MONO, SANS, SANS_DISPLAY, TextDrawParams, draw_text_ex, measure_text_ex,
+    FontRef, MONO, SANS, SANS_BOLD, SANS_BOLD_ITALIC, SANS_DISPLAY, SANS_ITALIC, TextDrawParams,
+    draw_text_ex, measure_text_ex,
 };
 
+#[derive(Debug)]
 pub struct Text {
     text: String,
     font: FontRef,
@@ -139,6 +141,35 @@ impl Text {
         Self {
             text: text.to_string(),
             font_size: 12,
+            ..Default::default()
+        }
+        .to_ref()
+    }
+
+    pub fn italic(text: impl ToString) -> UiRef {
+        Self {
+            text: text.to_string(),
+            font: SANS_ITALIC,
+            ..Default::default()
+        }
+        .to_ref()
+    }
+
+    pub fn bold(text: impl ToString) -> UiRef {
+        Self {
+            text: text.to_string(),
+            font: SANS_BOLD,
+            font_size: 18,
+            ..Default::default()
+        }
+        .to_ref()
+    }
+
+    pub fn bold_italic(text: impl ToString) -> UiRef {
+        Self {
+            text: text.to_string(),
+            font: SANS_BOLD_ITALIC,
+            font_size: 18,
             ..Default::default()
         }
         .to_ref()

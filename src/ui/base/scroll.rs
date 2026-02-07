@@ -7,6 +7,7 @@ use crate::{
 
 use super::*;
 
+#[derive(Debug)]
 pub struct Scroll {
     child: Child,
     state: State<ScrollState>,
@@ -15,7 +16,7 @@ pub struct Scroll {
     scrollbar: Option<ScrollbarStyle>,
 }
 
-#[derive(Clone, Copy, PartialEq)]
+#[derive(Clone, Copy, PartialEq, Debug)]
 pub struct ScrollbarStyle {
     pub width: f32,
     pub handle_color: Color,
@@ -37,7 +38,7 @@ impl Default for ScrollbarStyle {
 const DEFAULT_SCROLL_SPEED: f32 = 48.0;
 const DEFAULT_INTERPOLATION_SPEED: f32 = 20.0;
 
-#[derive(Default)]
+#[derive(Default, Debug)]
 struct ScrollState {
     desired_offset: f32,
     offset: f32,

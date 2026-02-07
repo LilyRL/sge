@@ -19,7 +19,36 @@
 - [ ] easier physics
 - [ ] proper sound
 - [ ] something is broken evident in shapes_3d example
+  - [ ] needs gouraud shading
 - [ ] sphere SDF
+- [ ] video
+- [ ] particle system
+- [ ] screenshake
+- [ ] proper sound
+- [ ] sepia
+- [ ] edge detection
+- [ ] sharpen
+- [ ] 3d scene with lights and shadow
+- [ ] list view builder where it only generates the nodes that are actually visible
+- [ ] rename compoenents and widgets to base and library
+  - [ ] w95 library
+- [ ] gradient fill ui node
+- [ ] loading spinner
+- [ ] input
+- [ ] number input
+- [ ] slider
+- [ ] text box
+- [X] button
+- [X] align
+- [ ] aspect-ratio
+- [ ] grid
+- [X] stack (overlay)
+- [ ] rich text (parse outside hot loop)
+- [X] text bold
+- [X] text italic
+- [ ] probably add bold and italic to rich text. so we need fonts to be packaged
+  with all three and make bold and italics optional, and fall back to default
+- [ ] automatic interpolated values for ui elements
 - [ ] you should be able to delete textures and images and stuff
 - [ ] fix issue of current_z sometimes exceeding 1.0 in draw queue
 - [ ] scissor example

@@ -2,6 +2,7 @@ use crate::prelude::draw_rounded_rect_with_outline;
 
 use super::*;
 
+#[derive(Debug)]
 pub struct RoundedFill {
     fill_color: Color,
     outline_color: Color,
@@ -59,6 +60,7 @@ impl UiNode for RoundedFill {
     }
 }
 
+#[derive(Debug)]
 pub struct RoundedHoverFill {
     base_color: Color,
     hovered_color: Color,

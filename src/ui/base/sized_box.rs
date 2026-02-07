@@ -4,6 +4,10 @@ use bevy_math::vec2;
 
 use super::*;
 
+/// be careful with what order you place sized boxes and other nodes
+///
+/// for example, always place a border node inside a sized box and not the other way around
+#[derive(Debug)]
 pub struct SizedBox {
     pub dimensions: Vec2,
     pub child: Child,
@@ -71,6 +75,7 @@ impl UiNode for SizedBox {
     }
 }
 
+#[derive(Debug)]
 pub struct ConstrainedBox {
     max_size: Vec2,
     min_size: Vec2,
@@ -157,6 +162,7 @@ impl UiNode for ConstrainedBox {
     }
 }
 
+#[derive(Debug)]
 pub struct EmptyBox {
     height: f32,
     width: f32,

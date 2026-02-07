@@ -2,6 +2,7 @@ use crate::prelude::draw_rounded_rect_with_outline;
 
 use super::*;
 
+#[derive(Debug)]
 pub struct FillStyle {
     pub fill: Color,
     pub outline: Color,
@@ -9,6 +10,7 @@ pub struct FillStyle {
     pub outline_thickness: f32,
 }
 
+#[derive(Debug)]
 pub struct ActiveFill {
     base: FillStyle,
     hover: FillStyle,

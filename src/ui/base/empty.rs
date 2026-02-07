@@ -2,6 +2,7 @@ use super::*;
 
 pub const EMPTY: UiRef = UiRef(0);
 
+#[derive(Debug)]
 pub(crate) struct Empty;
 
 impl UiNode for Empty {

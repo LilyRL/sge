@@ -154,6 +154,7 @@ pub(crate) struct EngineStorage {
     images: Vec<Image>,
     ui_nodes: Vec<SomeNode>,
     ui_states: HashMap<StateRef, SomeState>,
+    button_clicked: Option<usize>,
 }
 
 impl EngineStorage {
@@ -170,6 +171,7 @@ impl EngineStorage {
             images: vec![],
             ui_nodes: vec![],
             ui_states: HashMap::new(),
+            button_clicked: None,
         }
     }
 }

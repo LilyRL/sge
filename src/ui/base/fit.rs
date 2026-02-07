@@ -1,5 +1,6 @@
 use super::*;
 
+#[derive(Debug)]
 pub struct Fit {
     child: Child,
 }

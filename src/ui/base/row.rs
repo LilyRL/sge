@@ -2,7 +2,7 @@ use std::cmp::Ordering;
 
 use super::*;
 
-#[derive(Default)]
+#[derive(Default, Debug)]
 pub struct Row {
     pub gap: f32,
     pub children: Vec<Child>,

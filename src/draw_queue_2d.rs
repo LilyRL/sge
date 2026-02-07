@@ -11,6 +11,7 @@ use bevy_math::{Mat4, Rect, Vec2, Vec3};
 use glium::vertex::Vertex as GliumVertex;
 use glium::{Blend, DrawParameters, IndexBuffer, Surface, VertexBuffer, uniform};
 use glium::{Depth, DepthTest, implement_vertex};
+use log::info;
 
 pub struct DrawQueue2D {
     shape_batches: Vec<ShapeBatch>,
@@ -262,17 +263,13 @@ impl DrawQueue2D {
         }
     }
 
-    pub fn current_z(&self) -> f32 {
-        self.current_z
-    }
-
-    pub fn set_z(&mut self, z: f32) {
-        self.current_z = z;
-    }
-
-    pub fn next_z(&mut self) -> f32 {
+    pub fn step_z(&mut self) {
         self.current_z += self.z_increment;
-        self.current_z
+
+        if self.current_z >= 0.998 {
+            // get_state().new_draw_queues();
+            // info!("max z-index exceeded. creating new draw queue");
+        }
     }
 
     fn ensure_shape_batch(&mut self) {
@@ -325,7 +322,7 @@ impl DrawQueue2D {
 
     pub fn add_shape(&mut self, shape: &impl Shape2D) {
         self.add_shape_at_z(shape, self.current_z);
-        self.current_z += self.z_increment;
+        self.step_z();
     }
 
     pub fn add_shape_at_z(&mut self, shape: &impl Shape2D, z: f32) {
@@ -352,7 +349,7 @@ impl DrawQueue2D {
 
     pub fn add_circle(&mut self, center: Vec2, radius: Vec2, color: Color) {
         self.add_circle_at_z(center, radius, color, self.current_z);
-        self.current_z += self.z_increment;
+        self.step_z();
     }
 
     pub fn add_circle_with_outline(
@@ -371,7 +368,7 @@ impl DrawQueue2D {
             outline_color,
             self.current_z,
         );
-        self.current_z += self.z_increment;
+        self.step_z();
     }
 
     pub fn add_circle_at_z(&mut self, center: Vec2, radius: Vec2, color: Color, z: f32) {
@@ -441,7 +438,7 @@ impl DrawQueue2D {
             outline_color,
             self.current_z,
         );
-        self.current_z += self.z_increment;
+        self.step_z();
     }
 
     pub fn add_rounded_rectangle_at_z(
@@ -488,12 +485,12 @@ impl DrawQueue2D {
         region: Option<Rect>,
     ) {
         self.add_sprite_at_z(texture, transform, color, region, self.current_z);
-        self.current_z += self.z_increment;
+        self.step_z();
     }
 
     pub fn add_mesh(&mut self, vertices: &[Vertex2D], indices: &[u32]) {
         self.add_mesh_at_z(vertices, indices, self.current_z);
-        self.current_z += self.z_increment;
+        self.step_z();
     }
 
     pub fn add_mesh_at_z(&mut self, vertices: &[Vertex2D], indices: &[u32], z: f32) {

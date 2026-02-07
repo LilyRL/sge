@@ -48,6 +48,12 @@ pub struct Glyph {
 
 gen_ref_type!(EngineFont, FontRef, fonts);
 
+impl ::std::fmt::Debug for FontRef {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        self.0.fmt(f)
+    }
+}
+
 #[allow(unused)]
 impl FontRef {
     pub fn draw_text(&self, text: impl AsRef<str>, position: Vec2, size: usize) -> TextDimensions {
@@ -377,11 +383,17 @@ impl Default for TextDrawParams {
 pub const MONO: FontRef = FontRef(0);
 pub const SANS: FontRef = FontRef(1);
 pub const SANS_DISPLAY: FontRef = FontRef(2);
+pub const SANS_ITALIC: FontRef = FontRef(3);
+pub const SANS_BOLD: FontRef = FontRef(4);
+pub const SANS_BOLD_ITALIC: FontRef = FontRef(5);
 
 pub(crate) fn init_fonts() -> Result<(), FontError> {
     load_font(include_bytes!("../../assets/fonts/jetbrains.ttf")).map(|_| ())?;
     load_font(include_bytes!("../../assets/fonts/inter.ttf")).map(|_| ())?;
     load_font(include_bytes!("../../assets/fonts/inter-display-bold.ttf")).map(|_| ())?;
+    load_font(include_bytes!("../../assets/fonts/inter-italic.ttf")).map(|_| ())?;
+    load_font(include_bytes!("../../assets/fonts/inter-bold.ttf")).map(|_| ())?;
+    load_font(include_bytes!("../../assets/fonts/inter-bold-italic.ttf")).map(|_| ())?;
 
     Ok(())
 }
