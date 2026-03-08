@@ -78,7 +78,7 @@ fn main() {
   - [ ] needs gouraud shading
 - [ ] sphere SDF
 - [ ] video
-- [ ] particle system
+- [X] particle system
 - [ ] screenshake
 - [ ] proper sound
 - [ ] sepia
@@ -201,7 +201,9 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord) {
     a compute shader like for game of life.
     - [X] Or render to a lower resolution texture and scale it up for a pixelated effect.
 - [X] draw hexagon poly thing
-- [ ] arbritrary rotation and custom material for all 2d shapes
+- [-] arbritrary rotation and custom material for all 2d shapes
+  - [X] rotation
+  - [ ] custom material
 - [X] good api for creating and managing and drawing spritesheets
 - [-] TEXT RENDERING!!!
   - [X] fonts

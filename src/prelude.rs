@@ -91,8 +91,9 @@ pub use sge_rendering::pipeline::new_draw_queues;
 pub use sge_rendering::post_processing::{
     PostProcessingEffect, PostProcessingError, RenderFullscreenQuadError,
     add_post_processing_effect, bloom_screen, blur_screen, brighten_screen,
-    chromatic_abberation_screen, contrast_screen, greyscale_screen, hue_rotate_screen,
-    invert_screen, pixelate_screen, saturate_screen, vignette_screen,
+    chromatic_abberation_screen, contrast_screen, film_grain_screen, greyscale_screen,
+    hue_rotate_screen, invert_screen, pixelate_screen, saturate_screen, sharpen_screen,
+    vignette_screen,
 };
 pub use sge_rendering::scissor::{
     clear_scissor_stack, current_scissor, get_scissor_stack, pop_scissor, push_scissor,

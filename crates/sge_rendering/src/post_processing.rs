@@ -3,12 +3,12 @@ use error_union::ErrorUnion;
 use glium::{
     IndexBuffer, Program, Surface, VertexBuffer,
     framebuffer::SimpleFrameBuffer,
-    texture::{Texture2d, TextureCreationError},
+    texture::{DepthTexture2d, Texture2d, TextureCreationError},
     uniform,
 };
 use sge_color::Color;
 use sge_config::get_dithering;
-use sge_programs::{ProgramRef, load_program};
+use sge_programs::{COPY_PROGRAM, ProgramRef, load_program};
 use sge_shapes::d2::QUAD_INDICES;
 use sge_textures::TextureRef;
 use sge_types::TexturedVertex2D;
@@ -18,8 +18,10 @@ use sge_window::{SgeDisplay, get_display};
 pub enum PostProcessingEffect {
     Bloom {
         threshold: f32,
+        knee: f32,
         intensity: f32,
         blur_radius: f32,
+        iterations: u32,
     },
     GaussianBlur {
         sigma: f32,
@@ -40,6 +42,13 @@ pub enum PostProcessingEffect {
     ChromaticAberration {
         strength: f32,
     },
+    Sharpen {
+        strength: f32,
+    },
+    FilmGrain {
+        strength: f32,
+        seed: f32,
+    },
 }
 
 #[derive(ErrorUnion, Debug)]
@@ -59,12 +68,19 @@ impl PostProcessingEffect {
         let display = get_display();
 
         match self {
+            Self::Sharpen { strength } => {
+                let program = get_or_create_sharpen_program();
+                let uniforms = uniform! {
+                    tex: source.get().gl_texture.sampled(),
+                    strength: *strength,
+                    screen_size: [screen_size.x, screen_size.y],
+                };
+                render_fullscreen_quad(target, program.get(), &uniforms)?;
+            }
             Self::GaussianBlur { sigma } => {
-                // Two-pass separable Gaussian blur
                 let temp_texture = create_temp_texture(display, screen_size)?;
                 let mut temp_fb = SimpleFrameBuffer::new(display, &temp_texture)?;
 
-                // Horizontal pass
                 let program = get_or_create_gaussian_blur_program();
                 let uniforms = uniform! {
                     tex: source.get().gl_texture.sampled(),
@@ -74,7 +90,6 @@ impl PostProcessingEffect {
                 };
                 render_fullscreen_quad(&mut temp_fb, program.get(), &uniforms)?;
 
-                // Vertical pass
                 let uniforms = uniform! {
                     tex: temp_texture.sampled(),
                     sigma: *sigma,
@@ -128,45 +143,65 @@ impl PostProcessingEffect {
             }
             Self::Bloom {
                 threshold,
+                knee,
                 intensity,
                 blur_radius,
+                iterations,
             } => {
                 let bright_texture = create_temp_texture(display, screen_size)?;
-                let mut bright_fb = SimpleFrameBuffer::new(display, &bright_texture)?;
+                {
+                    let mut bright_fb = SimpleFrameBuffer::new(display, &bright_texture)?;
+                    let bright_program = get_or_create_bright_pass_program();
+                    let uniforms = uniform! {
+                        tex: source.get().gl_texture.sampled(),
+                        threshold: *threshold,
+                        knee: *knee,
+                    };
+                    render_fullscreen_quad(&mut bright_fb, bright_program.get(), &uniforms)?;
+                }
 
-                let bright_program = get_or_create_bright_pass_program();
-                let uniforms = uniform! {
-                    tex: source.get().gl_texture.sampled(),
-                    threshold: *threshold,
-                };
-                render_fullscreen_quad(&mut bright_fb, bright_program.get(), &uniforms)?;
+                let ping_texture = create_temp_texture(display, screen_size)?;
+                let pong_texture = create_temp_texture(display, screen_size)?;
 
-                let temp_texture = create_temp_texture(display, screen_size)?;
-                let mut temp_fb = SimpleFrameBuffer::new(display, &temp_texture)?;
+                {
+                    let mut ping_fb = SimpleFrameBuffer::new(display, &ping_texture)?;
+                    let copy_program = COPY_PROGRAM;
+                    let uniforms = uniform! { tex: bright_texture.sampled() };
+                    render_fullscreen_quad(&mut ping_fb, copy_program.get(), &uniforms)?;
+                }
 
-                let blur_program = get_or_create_gaussian_blur_program();
+                for i in 0..*iterations {
+                    let current_radius = *blur_radius * (1.0 - (i as f32 / *iterations as f32));
 
-                let uniforms = uniform! {
-                    tex: bright_texture.sampled(),
-                    sigma: *blur_radius,
-                    direction: [1.0f32, 0.0f32],
-                    screen_size: [screen_size.x, screen_size.y],
-                };
-                render_fullscreen_quad(&mut temp_fb, blur_program.get(), &uniforms)?;
+                    {
+                        let mut pong_fb = SimpleFrameBuffer::new(display, &pong_texture)?;
+                        let blur_program = get_or_create_gaussian_blur_program();
+                        let uniforms = uniform! {
+                            tex: ping_texture.sampled(),
+                            sigma: current_radius,
+                            direction: [1.0f32, 0.0f32],
+                            screen_size: [screen_size.x, screen_size.y],
+                        };
+                        render_fullscreen_quad(&mut pong_fb, blur_program.get(), &uniforms)?;
+                    }
 
-                bright_fb.clear_color(0.0, 0.0, 0.0, 0.0);
-                let uniforms = uniform! {
-                    tex: temp_texture.sampled(),
-                    sigma: *blur_radius,
-                    direction: [0.0f32, 1.0f32],
-                    screen_size: [screen_size.x, screen_size.y],
-                };
-                render_fullscreen_quad(&mut bright_fb, blur_program.get(), &uniforms)?;
+                    {
+                        let mut ping_fb = SimpleFrameBuffer::new(display, &ping_texture)?;
+                        let blur_program = get_or_create_gaussian_blur_program();
+                        let uniforms = uniform! {
+                            tex: pong_texture.sampled(),
+                            sigma: current_radius,
+                            direction: [0.0f32, 1.0f32],
+                            screen_size: [screen_size.x, screen_size.y],
+                        };
+                        render_fullscreen_quad(&mut ping_fb, blur_program.get(), &uniforms)?;
+                    }
+                }
 
                 let combine_program = get_or_create_bloom_combine_program();
                 let uniforms = uniform! {
                     tex: source.get().gl_texture.sampled(),
-                    bloom_tex: bright_texture.sampled(),
+                    bloom_tex: ping_texture.sampled(),
                     intensity: *intensity,
                 };
                 render_fullscreen_quad(target, combine_program.get(), &uniforms)?;
@@ -198,6 +233,16 @@ impl PostProcessingEffect {
                 let uniforms = uniform! {
                     tex: source.get().gl_texture.sampled(),
                     strength: *strength,
+                    screen_size: [screen_size.x, screen_size.y],
+                };
+                render_fullscreen_quad(target, program.get(), &uniforms)?;
+            }
+            Self::FilmGrain { strength, seed } => {
+                let program = get_or_create_film_grain_program();
+                let uniforms = uniform! {
+                    tex: source.get().gl_texture.sampled(),
+                    strength: *strength,
+                    seed: *seed,
                     screen_size: [screen_size.x, screen_size.y],
                 };
                 render_fullscreen_quad(target, program.get(), &uniforms)?;
@@ -283,6 +328,8 @@ static CONTRAST_PROGRAM: OnceLock<ProgramRef> = OnceLock::new();
 static GRAYSCALE_PROGRAM: OnceLock<ProgramRef> = OnceLock::new();
 static INVERT_PROGRAM: OnceLock<ProgramRef> = OnceLock::new();
 static CHROMATIC_ABERRATION_PROGRAM: OnceLock<ProgramRef> = OnceLock::new();
+static SHARPEN_PROGRAM: OnceLock<ProgramRef> = OnceLock::new();
+static FILM_GRAIN_PROGRAM: OnceLock<ProgramRef> = OnceLock::new();
 
 fn get_or_create_gaussian_blur_program() -> &'static ProgramRef {
     GAUSSIAN_BLUR_PROGRAM.get_or_init(|| {
@@ -353,6 +400,17 @@ fn get_or_create_chromatic_aberration_program() -> &'static ProgramRef {
     })
 }
 
+fn get_or_create_sharpen_program() -> &'static ProgramRef {
+    SHARPEN_PROGRAM
+        .get_or_init(|| load_program(POSTPROCESS_VERTEX_SHADER, SHARPEN_FRAGMENT_SHADER).unwrap())
+}
+
+fn get_or_create_film_grain_program() -> &'static ProgramRef {
+    FILM_GRAIN_PROGRAM.get_or_init(|| {
+        load_program(POSTPROCESS_VERTEX_SHADER, FILM_GRAIN_FRAGMENT_SHADER).unwrap()
+    })
+}
+
 const POSTPROCESS_VERTEX_SHADER: &str = r#"
 #version 140
 in vec2 position;
@@ -398,6 +456,34 @@ void main() {
     }
 
     color = result / weight_sum;
+}
+"#;
+
+const FILM_GRAIN_FRAGMENT_SHADER: &str = r#"
+#version 140
+in vec2 v_tex_coords;
+out vec4 color;
+uniform sampler2D tex;
+uniform float strength;
+uniform float seed;
+uniform vec2 screen_size;
+
+// Pseudo-random function
+float random(vec2 st) {
+    return fract(sin(dot(st.xy, vec2(12.9898, 78.233))) * 43758.5453123 + seed);
+}
+
+void main() {
+    vec4 tex_color = texture(tex, v_tex_coords);
+
+    // Generate grain
+    vec2 st = gl_FragCoord.xy / screen_size.xy;
+    float grain = random(st) * 2.0 - 1.0;
+
+    // Apply grain
+    vec3 result = tex_color.rgb + grain * strength;
+
+    color = vec4(result, tex_color.a);
 }
 "#;
 
@@ -498,22 +584,26 @@ in vec2 v_tex_coords;
 out vec4 color;
 uniform sampler2D tex;
 uniform float threshold;
+uniform float knee;  // Soft threshold transition
 
 void main() {
     vec4 tex_color = texture(tex, v_tex_coords);
     float brightness = dot(tex_color.rgb, vec3(0.2126, 0.7152, 0.0722));
 
-    if (brightness > threshold) {
-        // Soft threshold
-        float soft = (brightness - threshold) / (1.0 - threshold);
-        color = tex_color * soft;
-    } else {
-        color = vec4(0.0);
-    }
+    // Soft threshold with smooth transition
+    float soft = brightness - threshold + knee;
+    soft = clamp(soft, 0.0, 2.0 * knee);
+    soft = soft * soft / (4.0 * knee + 0.0001);
+
+    // Only keep bright areas
+    float contribution = max(soft, brightness - threshold);
+    contribution = max(contribution, 0.0);
+
+    color = vec4(tex_color.rgb * contribution, tex_color.a);
 }
 "#;
 
-// Combine original + bloom
+// Improved bloom combine shader with tone mapping
 const BLOOM_COMBINE_FRAGMENT_SHADER: &str = r#"
 #version 140
 in vec2 v_tex_coords;
@@ -522,10 +612,27 @@ uniform sampler2D tex;
 uniform sampler2D bloom_tex;
 uniform float intensity;
 
+// ACES tone mapping
+vec3 ACESFilmicToneMapping(vec3 color) {
+    float a = 2.51;
+    float b = 0.03;
+    float c = 2.43;
+    float d = 0.59;
+    float e = 0.14;
+    return clamp((color*(a*color+b))/(color*(c*color+d)+e), 0.0, 1.0);
+}
+
 void main() {
     vec4 original = texture(tex, v_tex_coords);
     vec4 bloom = texture(bloom_tex, v_tex_coords);
-    color = original + bloom * intensity;
+
+    // Add bloom with intensity
+    vec3 result = original.rgb + bloom.rgb * intensity;
+
+    // Apply tone mapping
+    result = ACESFilmicToneMapping(result);
+
+    color = vec4(result, original.a);
 }
 "#;
 
@@ -588,6 +695,35 @@ void main() {
 }
 "#;
 
+const SHARPEN_FRAGMENT_SHADER: &str = r#"
+#version 140
+in vec2 v_tex_coords;
+out vec4 color;
+uniform sampler2D tex;
+uniform float strength;
+uniform vec2 screen_size;
+
+void main() {
+    vec2 texel_size = 1.0 / screen_size;
+
+    // Sample neighboring pixels
+    vec4 center = texture(tex, v_tex_coords);
+    vec4 top = texture(tex, v_tex_coords + vec2(0.0, -texel_size.y));
+    vec4 bottom = texture(tex, v_tex_coords + vec2(0.0, texel_size.y));
+    vec4 left = texture(tex, v_tex_coords + vec2(-texel_size.x, 0.0));
+    vec4 right = texture(tex, v_tex_coords + vec2(texel_size.x, 0.0));
+
+    // Apply sharpening kernel
+    vec3 result = center.rgb * (1.0 + 4.0 * strength);
+    result -= top.rgb * strength;
+    result -= bottom.rgb * strength;
+    result -= left.rgb * strength;
+    result -= right.rgb * strength;
+
+    color = vec4(result, center.a);
+}
+"#;
+
 pub fn add_post_processing_effect(effect: PostProcessingEffect) {
     current_render_pipeline().add_effect(effect);
 }
@@ -617,11 +753,13 @@ pub fn vignette_screen(color: Color, intensity: f32) {
     add_post_processing_effect(PostProcessingEffect::Vignette { color, intensity });
 }
 
-pub fn bloom_screen(threshold: f32, intensity: f32, radius: f32) {
+pub fn bloom_screen(threshold: f32, knee: f32, intensity: f32, radius: f32, iterations: u32) {
     add_post_processing_effect(PostProcessingEffect::Bloom {
         threshold,
+        knee,
         intensity,
         blur_radius: radius,
+        iterations,
     });
 }
 
@@ -639,4 +777,12 @@ pub fn invert_screen() {
 
 pub fn chromatic_abberation_screen(strength: f32) {
     add_post_processing_effect(PostProcessingEffect::ChromaticAberration { strength });
+}
+
+pub fn sharpen_screen(strength: f32) {
+    add_post_processing_effect(PostProcessingEffect::Sharpen { strength });
+}
+
+pub fn film_grain_screen(strength: f32, seed: f32) {
+    add_post_processing_effect(PostProcessingEffect::FilmGrain { strength, seed });
 }

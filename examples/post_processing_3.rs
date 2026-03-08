@@ -16,7 +16,7 @@ fn main() -> anyhow::Result<()> {
 
         obj.draw();
 
-        bloom_screen(0.5, 1.0, 0.6, 20.0, 5);
+        sharpen_screen(100.0);
 
         run_egui(|ui| {
             draw_debug_info(ui);
