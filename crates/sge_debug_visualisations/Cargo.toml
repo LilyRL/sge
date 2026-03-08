@@ -9,6 +9,8 @@ egui_glium.workspace = true
 egui_plot.workspace = true
 error_union.workspace = true
 glium.workspace = true
+sge_api = { version = "0.1.0", path = "../sge_api" }
+sge_camera = { version = "0.1.0", path = "../sge_camera" }
 sge_color.workspace = true
 sge_debugging = { version = "0.1.0", path = "../sge_debugging" }
 sge_math.workspace = true

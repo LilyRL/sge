@@ -44,6 +44,15 @@ impl<T, const N: usize> RotatingArray<T, N> {
     }
 }
 
+impl<T, const N: usize> IntoIterator for RotatingArray<T, N> {
+    type Item = T;
+    type IntoIter = std::array::IntoIter<T, N>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.arr.into_iter()
+    }
+}
+
 impl<T, const N: usize> Index<usize> for RotatingArray<T, N> {
     type Output = T;
 

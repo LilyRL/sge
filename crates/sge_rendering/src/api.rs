@@ -157,3 +157,19 @@ pub fn dont_clear_screen() {
 pub fn draw_fullscreen_texture(texture: TextureRef) {
     draw_texture_scaled(texture, Vec2::ZERO, window_size());
 }
+
+pub fn freeze_z_index() {
+    current_render_pipeline().draw_queue_2d().z_increment = 0.0;
+}
+
+pub fn reset_z_index() {
+    current_render_pipeline().draw_queue_2d().z_increment = 0.001;
+}
+
+pub fn freeze_z_index_world() {
+    current_render_pipeline().world_draw_queue_2d().z_increment = 0.0;
+}
+
+pub fn reset_z_index_world() {
+    current_render_pipeline().world_draw_queue_2d().z_increment = 0.001;
+}

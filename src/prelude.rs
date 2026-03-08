@@ -24,7 +24,6 @@ pub use glium::{
 pub use image::{self, ImageFormat};
 pub use include_folder::include_folder;
 pub use log::{self, Level, LevelFilter, debug, error, info, trace, warn};
-pub use nalgebra::vector;
 pub use sge_animation::*;
 pub use sge_api::area::AreaExt;
 pub use sge_api::shapes_2d::*;
@@ -44,7 +43,7 @@ pub use sge_config::{
     set_wait_for_events, toggle_wait_for_events, use_default_filtering, use_linear_filtering,
     use_mipmaps, use_nearest_filtering, wait_for_events,
 };
-pub use sge_debug_visualisations::grid::create_infinite_grid;
+pub use sge_debug_visualisations::grid::{create_infinite_grid, draw_2d_grid_world};
 pub use sge_debug_visualisations::*;
 pub use sge_debugging::{
     avg_fps, get_draw_calls, get_drawn_objects, get_engine_time, get_index_count,
@@ -58,9 +57,9 @@ pub use sge_input::keys::KeyToString;
 pub use sge_input::{
     Action, Button, Input, action_held, action_pressed, action_pressed_os, action_released, bind,
     bind_button, bind_key, bind_mouse, button_held, button_pressed, button_released,
-    close_requested, cursor, cursor_diff, cursor_movements, destroyed, dropped_file, gamepad_input,
-    get_all_binds, get_binding, get_input, get_key_binding, get_mouse_binding, held_alt,
-    held_control, held_shift, input_text, key_held, key_held_logical, key_pressed,
+    close_requested, cursor, cursor_diff, cursor_movements, cursor_prev, destroyed, dropped_file,
+    gamepad_input, get_all_binds, get_binding, get_input, get_key_binding, get_mouse_binding,
+    held_alt, held_control, held_shift, input_text, key_held, key_held_logical, key_pressed,
     key_pressed_logical, key_pressed_os, key_pressed_os_logical, key_released,
     key_released_logical, last_cursor_pos, mouse_diff, mouse_held, mouse_pressed, mouse_released,
     resolution, scale_factor, scale_factor_changed, scroll_diff, should_quit, window_resized,
@@ -71,7 +70,7 @@ pub use sge_logging::{
 };
 pub use sge_macros::include_texture;
 pub use sge_macros::{actions, bind};
-pub use sge_math::collision::{self, IntersectsWith};
+pub use sge_math::collision::{self, Aabb2d, IntersectsWith};
 pub use sge_math::transform::{Transform2D, Transform3D};
 pub use sge_math::usize_rect::USizeRect;
 pub use sge_particles::*;

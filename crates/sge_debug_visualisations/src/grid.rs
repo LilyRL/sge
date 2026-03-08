@@ -1,9 +1,13 @@
+use bevy_math::Vec2;
 use error_union::ErrorUnion;
 use glium::{IndexBuffer, ProgramCreationError, VertexBuffer, implement_vertex};
+use sge_api::shapes_2d::{draw_line, draw_line_world};
+use sge_camera::{get_camera_2d, get_camera_2d_mut};
 use sge_color::Color;
 use sge_math::transform::Transform3D;
 use sge_programs::{ProgramRef, load_program};
 use sge_rendering::{
+    api::{freeze_z_index_world, reset_z_index_world},
     materials::Material,
     object_3d::{Mesh, Object3D, Object3DRef},
 };
@@ -100,4 +104,43 @@ fn load_grid_program() -> Result<ProgramRef, ProgramCreationError> {
     let fragment_shader = include_str!("../../sge_programs/shaders/grid/fragment.glsl");
 
     load_program(vertex_shader, fragment_shader)
+}
+
+pub fn draw_2d_grid_world(color: Color) {
+    let (min, max) = get_camera_2d_mut().visible_bounds();
+    let size = max - min;
+
+    let rough_spacing = size.x / 5.0;
+    let log = rough_spacing.log10();
+    let large_scale = 10_f32.powi(log.ceil() as i32);
+    let small_scale = 10_f32.powi(log.floor() as i32);
+
+    let t = (1.0 - log.fract().rem_euclid(1.0));
+
+    let small_alpha = t;
+    let large_alpha = 1.0;
+
+    draw_grid(min, max, large_scale, large_alpha, 2.0, color);
+    draw_grid(min, max, small_scale, small_alpha, 1.0, color);
+}
+
+fn draw_grid(min: Vec2, max: Vec2, scale: f32, alpha: f32, thickness_mult: f32, color: Color) {
+    let size = max - min;
+    let width = (size.x / scale).ceil() as usize + 1;
+    let height = (size.y / scale).ceil() as usize + 1;
+    let tl = (min / scale).floor() * scale;
+
+    let faded = Color::from_rgba(color.r, color.g, color.b, color.a * alpha);
+    let thickness = thickness_mult / get_camera_2d().scale;
+
+    freeze_z_index_world();
+    for x in 0..width {
+        let x = x as f32 * scale + tl.x;
+        draw_line_world(Vec2::new(x, min.y), Vec2::new(x, max.y), thickness, faded);
+    }
+    for y in 0..height {
+        let y = y as f32 * scale + tl.y;
+        draw_line_world(Vec2::new(min.x, y), Vec2::new(max.x, y), thickness, faded);
+    }
+    reset_z_index_world();
 }

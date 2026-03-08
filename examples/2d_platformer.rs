@@ -23,8 +23,7 @@ fn main() -> anyhow::Result<()> {
 
     const PREV_LEN: usize = 100;
     const PREV_REPEAT: usize = 10;
-    let mut prev_pos = [Vec2::ZERO; PREV_LEN];
-    let mut write_head: usize = 0;
+    let mut prev_pos = RotatingArray::new([Vec2::ZERO; PREV_LEN]);
 
     player
         .controller
@@ -92,14 +91,24 @@ fn main() -> anyhow::Result<()> {
 
     let mut debug_mode = false;
 
+    let mut camera_controller = PanningCameraController {
+        allow_panning: false,
+        ..Default::default()
+    };
+
     loop {
         ps.update();
+        camera_controller.update();
         clear_screen(Color::NEUTRAL_900);
         draw_multiline_text(
             "Press D to toggle debug mode\nSpace to jump\nA to move right\nF to move left",
             Vec2::splat(10.0),
             1.0,
         );
+
+        if !debug_mode {
+            draw_2d_grid_world(Color::NEUTRAL_800);
+        }
 
         if key_pressed(KeyCode::KeyD) {
             debug_mode = !debug_mode;
@@ -150,16 +159,14 @@ fn main() -> anyhow::Result<()> {
                 .controller
                 .position_last_frame()
                 .lerp(player.controller.position(), ratio);
-            prev_pos[write_head % PREV_LEN] = pos;
-            write_head += 1;
+            prev_pos.push(pos);
         }
 
         if !debug_mode {
-            for i in 0..PREV_LEN {
-                let idx = (write_head + i) % PREV_LEN;
+            for (i, pos) in prev_pos.iter().enumerate() {
                 let age = i as f32 / PREV_LEN as f32;
                 draw_circle_world(
-                    prev_pos[idx],
+                    *pos,
                     PLAYER_RADIUS * age,
                     player.color.darken(0.2).desaturate(0.5),
                 );
