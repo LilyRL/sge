@@ -7,7 +7,6 @@ use sge_math::{collision::Aabb2d, transform::Transform2D};
 use sge_programs::{
     BLINN_PHONG_3D_PROGRAM, FLAT_3D_PROGRAM, GOURAUD_3D_PROGRAM, TEXTURED_3D_PROGRAM,
 };
-use sge_shapes::d2::Poly;
 use sge_textures::TextureRef;
 use sge_window::window_size;
 

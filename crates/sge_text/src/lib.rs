@@ -2,7 +2,7 @@ use std::{collections::HashMap, hash::Hash};
 
 use bevy_math::{IVec2, Rect, Vec2};
 use error_union::ErrorUnion;
-use fontdue::{Font, Metrics, layout::TextStyle};
+use fontdue::{Metrics, layout::TextStyle};
 use glium::uniforms::{MagnifySamplerFilter, MinifySamplerFilter};
 use sge_color::{Color, u8::Pixel};
 use sge_image::Image;
@@ -783,7 +783,7 @@ pub fn init() -> Result<(), FontError> {
         map: HashMap::new(),
     });
     init_fonts_storage();
-    init_fonts();
+    init_fonts()?;
 
     Ok(())
 }

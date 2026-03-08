@@ -171,5 +171,5 @@ members = [
     "crates/sge_texture_atlas",
     "crates/sge_animation",
     "crates/sge_audio"
-, "crates/sge_ui", "crates/sge_egui", "crates/sge_physics"]
+, "crates/sge_ui", "crates/sge_egui", "crates/sge_physics", "crates/sge_particles"]
 resolver = "3"

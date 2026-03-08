@@ -10,8 +10,7 @@ use glium::{
     texture::{DepthTexture2d, TextureCreationError},
     uniform,
 };
-use log::warn;
-use sge_camera::{Cameras, cameras_for_resolution, get_cameras};
+use sge_camera::{Cameras, get_cameras};
 use sge_color::Color;
 use sge_macros::gen_ref_type;
 use sge_programs::COPY_PROGRAM;

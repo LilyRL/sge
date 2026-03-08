@@ -90,6 +90,7 @@ impl CollisionType {
 }
 
 impl World {
+    #[allow(clippy::new_ret_no_self)]
     pub fn new() -> WorldRef {
         Self {
             id: get_worlds_state().len(),
@@ -124,8 +125,10 @@ impl World {
 
         self.update_players();
 
-        let mut integration_parameters = IntegrationParameters::default();
-        integration_parameters.dt = dt;
+        let integration_parameters = IntegrationParameters {
+            dt,
+            ..Default::default()
+        };
 
         let (collision_send, collision_recv) = std::sync::mpsc::channel();
         let (contact_force_send, _contact_force_recv) = std::sync::mpsc::channel();
@@ -218,15 +221,15 @@ impl World {
                         Some(k) => *k,
                         None => continue,
                     };
-                    if let Some(infos) = self.collisions.get_mut(&key1) {
-                        if let Some(info) = infos.iter_mut().find(|i| i.other.key == key2) {
-                            info.event = CollisionType::Stopped;
-                        }
+                    if let Some(infos) = self.collisions.get_mut(&key1)
+                        && let Some(info) = infos.iter_mut().find(|i| i.other.key == key2)
+                    {
+                        info.event = CollisionType::Stopped;
                     }
-                    if let Some(infos) = self.collisions.get_mut(&key2) {
-                        if let Some(info) = infos.iter_mut().find(|i| i.other.key == key1) {
-                            info.event = CollisionType::Stopped;
-                        }
+                    if let Some(infos) = self.collisions.get_mut(&key2)
+                        && let Some(info) = infos.iter_mut().find(|i| i.other.key == key1)
+                    {
+                        info.event = CollisionType::Stopped;
                     }
                 }
             }

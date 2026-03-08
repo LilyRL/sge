@@ -91,6 +91,8 @@ impl World {
         let object = self.create_kinematic(bounds).key;
 
         let player = Player {
+            #[allow(clippy::uninit_assumed_init)]
+            #[allow(invalid_value)]
             key: unsafe { MaybeUninit::uninit().assume_init() },
             kcc: KinematicCharacterController::default(),
             floor_max_angle: FRAC_PI_4,

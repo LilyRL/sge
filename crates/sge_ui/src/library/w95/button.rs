@@ -1,5 +1,3 @@
-use sge_color::Color;
-
 use crate::{
     Child, UiRef,
     base::{BoxFill, Fit, Padding, Text},

@@ -3,7 +3,7 @@ use std::{fmt::Debug, io::Cursor};
 use bevy_math::{UVec2, Vec2};
 use error_union::ErrorUnion;
 use glium::{
-    Texture2d, implement_vertex,
+    Texture2d,
     texture::{RawImage2d, TextureCreationError},
     uniforms::{MagnifySamplerFilter, MinifySamplerFilter},
 };

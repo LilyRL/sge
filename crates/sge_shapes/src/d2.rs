@@ -1,4 +1,4 @@
-use bevy_math::Vec2;
+use bevy_math::{Mat3, Vec2, vec2};
 use sge_color::Color;
 use sge_math::collision::{Aabb2d, HasBounds2D};
 use sge_types::Vertex2D;
@@ -9,6 +9,7 @@ pub trait Shape2D: HasBounds2D {
     fn is_visible_in_world(&self) -> bool {
         self.bounds().is_visible_in_world()
     }
+    fn set_rotation(&mut self, angle: f32);
 }
 
 #[derive(Clone, Copy, Debug)]
@@ -22,6 +23,8 @@ impl Shape2D for Circle {
     fn points(&self, _starting_index: u32) -> (Vec<u32>, Vec<Vertex2D>) {
         unimplemented!();
     }
+
+    fn set_rotation(&mut self, _: f32) {}
 }
 
 impl HasBounds2D for Circle {
@@ -63,6 +66,8 @@ impl Shape2D for CircleOutline {
     fn points(&self, _starting_index: u32) -> (Vec<u32>, Vec<Vertex2D>) {
         unimplemented!();
     }
+
+    fn set_rotation(&mut self, _: f32) {}
 }
 
 pub struct RoundedRectangle {
@@ -84,6 +89,8 @@ impl Shape2D for RoundedRectangle {
     fn points(&self, _: u32) -> (Vec<u32>, Vec<Vertex2D>) {
         unimplemented!();
     }
+
+    fn set_rotation(&mut self, _: f32) {}
 }
 
 impl RoundedRectangle {
@@ -170,6 +177,7 @@ pub struct Rect {
     pub top_left: Vec2,
     pub size: Vec2,
     pub color: Color,
+    pub rot: f32,
 }
 
 impl HasBounds2D for Rect {
@@ -184,7 +192,13 @@ impl Rect {
             top_left,
             size,
             color,
+            rot: 0.0,
         }
+    }
+
+    pub fn with_rotation(mut self, rot: f32) -> Self {
+        self.rot = rot;
+        self
     }
 
     pub fn from_center(center: Vec2, size: Vec2, color: Color) -> Self {
@@ -204,15 +218,29 @@ impl Rect {
     }
 
     fn gen_quad(&self) -> Vec<Vertex2D> {
-        let tl = self.top_left;
-        let br = self.top_left + self.size;
+        if self.rot == 0.0 {
+            let tl = self.top_left;
+            let br = self.top_left + self.size;
+            let tr = vec2(br.x, tl.y);
+            let bl = vec2(tl.x, br.y);
 
-        vec![
-            Vertex2D::new(tl.x, tl.y, self.color),
-            Vertex2D::new(br.x, tl.y, self.color),
-            Vertex2D::new(tl.x, br.y, self.color),
-            Vertex2D::new(br.x, br.y, self.color),
-        ]
+            [tl, tr, bl, br]
+                .map(|v| Vertex2D::new(v.x, v.y, self.color))
+                .to_vec()
+        } else {
+            let rot = self.rot;
+            let half_size = self.size / 2.0;
+            let mat = Mat3::from_translation(self.top_left + half_size) * Mat3::from_angle(rot);
+            let x = half_size.x;
+            let y = half_size.y;
+
+            [vec2(-x, -y), vec2(x, -y), vec2(-x, y), vec2(x, y)]
+                .map(|v| {
+                    let v = mat.transform_point2(v);
+                    Vertex2D::new(v.x, v.y, self.color)
+                })
+                .to_vec()
+        }
     }
 }
 
@@ -222,27 +250,69 @@ impl Shape2D for Rect {
         let indices = QUAD_INDICES.map(|n| n + starting_index).to_vec();
         (indices, quad)
     }
+
+    fn set_rotation(&mut self, angle: f32) {
+        self.rot = angle;
+    }
 }
 
 #[derive(Clone, Copy, Debug)]
 pub struct Triangle {
     pub points: [Vec2; 3],
     pub color: Color,
+    pub rot: f32,
+}
+
+impl Triangle {
+    pub fn new(points: [Vec2; 3], color: Color) -> Self {
+        Self {
+            points,
+            color,
+            rot: 0.0,
+        }
+    }
+
+    pub fn with_rotation(mut self, rot: f32) -> Self {
+        self.rot = rot;
+        self
+    }
+
+    pub fn center(&self) -> Vec2 {
+        (self.points[0] + self.points[1] + self.points[2]) / 3.0
+    }
+
+    fn rotated_points(&self) -> [Vec2; 3] {
+        if self.rot == 0.0 {
+            return self.points;
+        }
+        let center = self.center();
+        let mat = Mat3::from_translation(center)
+            * Mat3::from_angle(self.rot)
+            * Mat3::from_translation(-center);
+        self.points.map(|p| mat.transform_point2(p))
+    }
 }
 
 impl HasBounds2D for Triangle {
     fn bounds(&self) -> Aabb2d {
-        let min = self.points[0].min(self.points[1]).min(self.points[2]);
-        let max = self.points[0].max(self.points[1]).max(self.points[2]);
+        let pts = self.rotated_points();
+        let min = pts[0].min(pts[1]).min(pts[2]);
+        let max = pts[0].max(pts[1]).max(pts[2]);
         Aabb2d::new(min, max)
     }
 }
 
 impl Shape2D for Triangle {
     fn points(&self, starting_index: u32) -> (Vec<u32>, Vec<Vertex2D>) {
-        let tri = self.points.map(|p| Vertex2D::new(p.x, p.y, self.color));
+        let tri = self
+            .rotated_points()
+            .map(|p| Vertex2D::new(p.x, p.y, self.color));
         let indices = starting_index..starting_index + 3;
         (indices.collect(), tri.to_vec())
+    }
+
+    fn set_rotation(&mut self, angle: f32) {
+        self.rot = angle;
     }
 }
 
@@ -252,21 +322,59 @@ pub struct Line2D {
     pub end: Vec2,
     pub thickness: f32,
     pub color: Color,
+    pub rot: f32,
+}
+
+impl Line2D {
+    pub fn new(start: Vec2, end: Vec2, thickness: f32, color: Color) -> Self {
+        Self {
+            start,
+            end,
+            thickness,
+            color,
+            rot: 0.0,
+        }
+    }
+
+    pub fn with_rotation(mut self, rot: f32) -> Self {
+        self.rot = rot;
+        self
+    }
+
+    pub fn center(&self) -> Vec2 {
+        (self.start + self.end) / 2.0
+    }
+
+    fn rotated_endpoints(&self) -> (Vec2, Vec2) {
+        if self.rot == 0.0 {
+            return (self.start, self.end);
+        }
+        let center = self.center();
+        let mat = Mat3::from_translation(center)
+            * Mat3::from_angle(self.rot)
+            * Mat3::from_translation(-center);
+        (
+            mat.transform_point2(self.start),
+            mat.transform_point2(self.end),
+        )
+    }
 }
 
 impl HasBounds2D for Line2D {
     fn bounds(&self) -> Aabb2d {
+        let (start, end) = self.rotated_endpoints();
         let half_thick = self.thickness * 0.5;
         Aabb2d::new(
-            self.start.min(self.end) - Vec2::splat(half_thick),
-            self.start.max(self.end) + Vec2::splat(half_thick),
+            start.min(end) - Vec2::splat(half_thick),
+            start.max(end) + Vec2::splat(half_thick),
         )
     }
 }
 
 impl Line2D {
     fn gen_mesh(&self) -> Option<Vec<Vertex2D>> {
-        let direction = self.end - self.start;
+        let (start, end) = self.rotated_endpoints();
+        let direction = end - start;
         let length = direction.length();
 
         if length == 0.0 {
@@ -278,25 +386,17 @@ impl Line2D {
 
         Some(vec![
             Vertex2D::new(
-                self.start.x - perpendicular.x,
-                self.start.y - perpendicular.y,
+                start.x - perpendicular.x,
+                start.y - perpendicular.y,
                 self.color,
             ),
+            Vertex2D::new(end.x - perpendicular.x, end.y - perpendicular.y, self.color),
             Vertex2D::new(
-                self.end.x - perpendicular.x,
-                self.end.y - perpendicular.y,
+                start.x + perpendicular.x,
+                start.y + perpendicular.y,
                 self.color,
             ),
-            Vertex2D::new(
-                self.start.x + perpendicular.x,
-                self.start.y + perpendicular.y,
-                self.color,
-            ),
-            Vertex2D::new(
-                self.end.x + perpendicular.x,
-                self.end.y + perpendicular.y,
-                self.color,
-            ),
+            Vertex2D::new(end.x + perpendicular.x, end.y + perpendicular.y, self.color),
         ])
     }
 }
@@ -308,6 +408,10 @@ impl Shape2D for Line2D {
         } else {
             (vec![], vec![])
         }
+    }
+
+    fn set_rotation(&mut self, angle: f32) {
+        self.rot = angle;
     }
 }
 
@@ -353,6 +457,10 @@ impl Shape2D for Poly {
         let indices = indices.iter().map(|n| n + starting_index).collect();
         (indices, vertices)
     }
+
+    fn set_rotation(&mut self, angle: f32) {
+        self.rotation = angle;
+    }
 }
 
 #[derive(Clone, Debug)]
@@ -384,6 +492,10 @@ impl Shape2D for CustomShape {
         let (vertices, indices) = gen_mesh_from_points(&self.points, self.color);
         let indices = indices.iter().map(|n| n + starting_index).collect();
         (indices, vertices)
+    }
+
+    fn set_rotation(&mut self, _: f32) {
+        unimplemented!()
     }
 }
 

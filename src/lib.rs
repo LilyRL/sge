@@ -131,7 +131,7 @@ fn handle_window_event(event: &WindowEvent, event_loop_window_target: &ActiveEve
     let egui = egui();
     let input = get_input();
     let window = &get_window_state().window;
-    let gui_response = egui.on_event(&window, event);
+    let gui_response = egui.on_event(window, event);
     if gui_response.consumed {
         return false;
     }

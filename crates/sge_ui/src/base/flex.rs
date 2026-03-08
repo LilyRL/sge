@@ -14,12 +14,6 @@ impl FlexBox {
             Self::Fixed(c) | Self::Flex(c) => c,
         }
     }
-
-    fn child_mut(&mut self) -> &mut Child {
-        match self {
-            Self::Fixed(c) | Self::Flex(c) => c,
-        }
-    }
 }
 
 #[derive(Debug)]

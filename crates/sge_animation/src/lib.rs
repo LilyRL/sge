@@ -184,6 +184,7 @@ impl Animatable for Rect {
             top_left: Vec2::lerp(a.top_left, b.top_left, progress),
             size: Vec2::lerp(a.size, b.size, progress),
             color: Color::lerp(a.color, b.color, progress),
+            rot: a.rot.lerp(b.rot, progress),
         }
     }
 }

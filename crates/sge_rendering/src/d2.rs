@@ -146,14 +146,7 @@ impl DrawQueue2D {
     }
 
     pub fn add_shape_at_z(&mut self, shape: &impl Shape2D, z: f32) {
-        #[cfg(feature = "debugging")]
-        {
-            use crate::debugging::get_debug_info_mut;
-
-            let debug = get_debug_info_mut();
-            let frame = debug.current_frame_mut();
-            frame.drawn_objects += 1;
-        }
+        debugger_add_drawn_objects(1);
 
         self.ensure_shape_batch();
 
@@ -192,14 +185,7 @@ impl DrawQueue2D {
     }
 
     pub fn add_circle_at_z(&mut self, center: Vec2, radius: Vec2, color: Color, z: f32) {
-        #[cfg(feature = "debugging")]
-        {
-            use crate::debugging::get_debug_info_mut;
-
-            let debug = get_debug_info_mut();
-            let frame = debug.current_frame_mut();
-            frame.drawn_objects += 1;
-        }
+        debugger_add_drawn_objects(1);
 
         self.ensure_circle_batch();
 
@@ -217,14 +203,7 @@ impl DrawQueue2D {
         outline_color: Color,
         z: f32,
     ) {
-        #[cfg(feature = "debugging")]
-        {
-            use crate::debugging::get_debug_info_mut;
-
-            let debug = get_debug_info_mut();
-            let frame = debug.current_frame_mut();
-            frame.drawn_objects += 1;
-        }
+        debugger_add_drawn_objects(1);
 
         self.ensure_circle_batch();
 
@@ -261,6 +240,7 @@ impl DrawQueue2D {
         self.step_z();
     }
 
+    #[allow(clippy::too_many_arguments)]
     pub fn add_rounded_rectangle_at_z(
         &mut self,
         center: Vec2,
@@ -271,14 +251,7 @@ impl DrawQueue2D {
         outline_color: Color,
         z: f32,
     ) {
-        #[cfg(feature = "debugging")]
-        {
-            use crate::debugging::get_debug_info_mut;
-
-            let debug = get_debug_info_mut();
-            let frame = debug.current_frame_mut();
-            frame.drawn_objects += 1;
-        }
+        debugger_add_drawn_objects(1);
 
         self.ensure_rounded_batch();
 
@@ -554,16 +527,8 @@ impl DrawQueue2D {
             transform: projection.to_cols_array_2d(),
         };
 
-        #[cfg(feature = "debugging")]
-        {
-            use crate::debugging::get_debug_info_mut;
-            let debug = get_debug_info_mut();
-            let frame_dbg = debug.current_frame_mut();
-            frame_dbg.draw_calls += 1;
-
-            frame_dbg.vertex_count += quad_buffer.len() * instances.len();
-            frame_dbg.index_count += index_buffer.len() * instances.len();
-        }
+        debugger_add_vertices(quad_buffer.len() * instances.len());
+        debugger_add_indices(index_buffer.len() * instances.len());
 
         frame
             .draw(
@@ -628,13 +593,5 @@ impl DrawQueue2D {
         self.current_rounded_batch = RoundedBatch::new(None);
         self.sprite_draws.clear();
         self.current_z = self.start_z;
-    }
-
-    pub fn rounded_batches(&self) -> &[RoundedBatch] {
-        &self.rounded_batches
-    }
-
-    pub fn sprite_draws(&self) -> &[SpriteBatch] {
-        &self.sprite_draws
     }
 }

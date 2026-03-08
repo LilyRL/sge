@@ -1,5 +1,4 @@
 use bevy_math::Vec2;
-use fontdue::layout::{CoordinateSystem, Layout, TextStyle};
 use sge_color::Color;
 use sge_types::Area;
 use sge_window::dpi_scaling;
@@ -108,7 +107,7 @@ pub fn wrap_text_to_width(
     lines
 }
 
-fn get_space_width(font: &mut SgeFont, font_size: usize) -> f32 {
+pub fn get_space_width(font: &mut SgeFont, font_size: usize) -> f32 {
     let space_glyph = Glyph {
         character: ' ',
         size: font_size,

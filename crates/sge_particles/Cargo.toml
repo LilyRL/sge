@@ -1,0 +1,9 @@
+[package]
+name = "sge_particles"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+sge_api = { version = "0.1.0", path = "../sge_api" }
+sge_shapes.workspace = true
+sge_time = { version = "0.1.0", path = "../sge_time" }

@@ -7,20 +7,11 @@ use super::*;
 #[derive(Debug)]
 pub struct CircleFill {
     color: Color,
-    child: Child,
 }
 
 impl CircleFill {
     pub fn new(color: Color) -> UiRef {
-        Self {
-            color,
-            child: EMPTY,
-        }
-        .to_ref()
-    }
-
-    pub fn with_child(color: Color, child: Child) -> UiRef {
-        Self { color, child }.to_ref()
+        Self { color }.to_ref()
     }
 }
 

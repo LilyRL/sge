@@ -101,10 +101,13 @@ macro_rules! define_draw_functions {
 
 #[rustfmt::skip]
 define_draw_functions!(
-    draw_rect: top_left: Vec2, size: Vec2, color: Color => Rect { top_left, size, color },
-    draw_square: top_left: Vec2, size: f32, color: Color => Rect { top_left, size: Vec2::splat(size), color },
-    draw_tri: a: Vec2, b: Vec2, c: Vec2, color: Color => Triangle { points: [a, b, c], color },
-    draw_line: start: Vec2, end: Vec2, thickness: f32, color: Color => Line2D { start, end, thickness, color },
+    draw_rect: top_left: Vec2, size: Vec2, color: Color => Rect { top_left, size, color, rot: 0.0, },
+    draw_rect_rotation: top_left: Vec2, size: Vec2, color: Color, rot: f32 => Rect { top_left, size, color, rot },
+    draw_square_rotation: top_left: Vec2, size: f32, color: Color, rot: f32 => Rect { top_left, size: Vec2::splat(size), color, rot },
+    draw_tri: a: Vec2, b: Vec2, c: Vec2, color: Color => Triangle { points: [a, b, c], color, rot: 0.0 },
+    draw_tri_rotation: a: Vec2, b: Vec2, c: Vec2, color: Color, rot: f32 => Triangle { points: [a, b, c], color, rot },
+    draw_line: start: Vec2, end: Vec2, thickness: f32, color: Color => Line2D { start, end, thickness, color, rot: 0.0 },
+    draw_line_rotation: start: Vec2, end: Vec2, thickness: f32, color: Color, rot: f32 => Line2D { start, end, thickness, color, rot },
     draw_poly: center: Vec2, sides: usize, radius: f32, rotation: f32, color: Color => Poly { center, sides, radius, rotation, color },
     draw_custom_shape: points: Vec<Vec2>, color: Color => CustomShape { points, color },
     draw_hexagon: center: Vec2, radius: f32, color: Color => Poly { center, sides: 6, radius, rotation: 0.0, color },
@@ -272,11 +275,11 @@ pub fn draw_ellipse_with_outline_world(
     }
 }
 
-pub fn draw_shape(shape: &(impl Shape2D + Shape2DExt)) {
+pub fn draw_shape(shape: &impl Shape2DExt) {
     shape.draw();
 }
 
-pub fn draw_shape_world(shape: &(impl Shape2D + Shape2DExt)) {
+pub fn draw_shape_world(shape: &impl Shape2DExt) {
     shape.draw_world();
 }
 
@@ -358,6 +361,7 @@ pub fn draw_line_gradient_extra(
         end,
         thickness,
         color: Color::TRANSPARENT,
+        rot: 0.0,
     }
     .points(0)
     .1
@@ -376,6 +380,7 @@ pub fn draw_triangle_gradient_world(a: Vec2, b: Vec2, c: Vec2, ca: Color, cb: Co
     let tri = Triangle {
         points: [a, b, c],
         color: Color::TRANSPARENT,
+        rot: 0.0,
     };
 
     if !tri.bounds().is_visible_in_world() {
@@ -405,6 +410,7 @@ pub fn draw_rect_gradient_world(
         top_left,
         size,
         color: Color::TRANSPARENT,
+        rot: 0.0,
     };
 
     if !rect.bounds().is_visible_in_world() {
@@ -469,6 +475,7 @@ pub fn draw_line_gradient_extra_world(
         end,
         thickness,
         color: Color::TRANSPARENT,
+        rot: 0.0,
     };
 
     if !line.bounds().is_visible_in_world() {
