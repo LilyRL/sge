@@ -18,6 +18,8 @@ fn main() -> anyhow::Result<()> {
     let mut show_debug_info = false;
 
     loop {
+        println!("{}", get_drawn_objects());
+
         camera_controller.update();
 
         if key_pressed(KeyCode::Space) {

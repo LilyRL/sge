@@ -147,3 +147,96 @@ impl ShapeBatch {
         }
     }
 }
+
+/// ///////////////////////////////////////////////////////////////////////////
+//                              Radial gradient                              //
+///////////////////////////////////////////////////////////////////////////////
+
+#[derive(Copy, Clone, Debug)]
+pub struct RadialGradientInstance {
+    pub center: [f32; 3],
+    pub radius: [f32; 2],
+    pub outline_thickness: f32,
+    pub inner_color: [f32; 4],
+    pub outer_color: [f32; 4],
+    pub outline_color: [f32; 4],
+    pub gradient_offset: [f32; 2],
+}
+
+implement_vertex!(
+    RadialGradientInstance,
+    center,
+    radius,
+    outline_thickness,
+    inner_color,
+    outer_color,
+    outline_color,
+    gradient_offset
+);
+
+impl RadialGradientInstance {
+    pub fn new(center: Vec2, z: f32, radius: Vec2, inner: Color, outer: Color) -> Self {
+        Self {
+            center: [center.x, center.y, z],
+            radius: [radius.x, radius.y],
+            outline_thickness: 0.0,
+            inner_color: inner.for_gpu(),
+            outer_color: outer.for_gpu(),
+            outline_color: [0.0; 4],
+            gradient_offset: [0.0; 2],
+        }
+    }
+
+    pub fn new_with_outline(
+        center: Vec2,
+        z: f32,
+        radius: Vec2,
+        inner: Color,
+        outer: Color,
+        outline_thickness: f32,
+        outline_color: Color,
+    ) -> Self {
+        Self {
+            center: [center.x, center.y, z],
+            radius: [radius.x, radius.y],
+            outline_thickness,
+            inner_color: inner.for_gpu(),
+            outer_color: outer.for_gpu(),
+            outline_color: outline_color.for_gpu(),
+            gradient_offset: [0.0; 2],
+        }
+    }
+
+    pub fn new_offset(
+        center: Vec2,
+        z: f32,
+        radius: Vec2,
+        inner: Color,
+        outer: Color,
+        gradient_offset: Vec2,
+    ) -> Self {
+        Self {
+            center: [center.x, center.y, z],
+            radius: [radius.x, radius.y],
+            outline_thickness: 0.0,
+            inner_color: inner.for_gpu(),
+            outer_color: outer.for_gpu(),
+            outline_color: [0.0; 4],
+            gradient_offset: [gradient_offset.x, gradient_offset.y],
+        }
+    }
+}
+
+pub struct RadialGradientBatch {
+    pub instances: Vec<RadialGradientInstance>,
+    pub scissor: Option<glium::Rect>,
+}
+
+impl RadialGradientBatch {
+    pub fn new(scissor: Option<glium::Rect>) -> Self {
+        Self {
+            instances: Vec::new(),
+            scissor,
+        }
+    }
+}

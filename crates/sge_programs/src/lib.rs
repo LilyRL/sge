@@ -29,6 +29,7 @@ pub const TEXTURED_3D_PROGRAM: ProgramRef = ProgramRef(5);
 pub const BLINN_PHONG_3D_PROGRAM: ProgramRef = ProgramRef(6);
 pub const ROUNDED_PROGRAM: ProgramRef = ProgramRef(7);
 pub const COPY_PROGRAM: ProgramRef = ProgramRef(8);
+pub const RADIAL_PROGRAM: ProgramRef = ProgramRef(9);
 
 pub struct SgeProgram {
     glium: Program,
@@ -128,6 +129,13 @@ pub fn init() -> Result<(), ProgramCreationError> {
         display,
         "../shaders/copy/vertex.glsl",
         "../shaders/copy/fragment.glsl"
+    )?;
+    storage.push(program);
+
+    let program = include_program_internal!(
+        display,
+        "../shaders/radial/vertex.glsl",
+        "../shaders/radial/fragment.glsl"
     )?;
     storage.push(program);
 

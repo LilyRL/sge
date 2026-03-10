@@ -6,10 +6,15 @@ use sge_color::Color;
 use sge_config::get_dithering;
 use sge_debugging::*;
 use sge_math::transform::Transform2D;
-use sge_programs::{CIRCLE_PROGRAM, FLAT_PROGRAM, ROUNDED_PROGRAM, TEXTURED_PROGRAM};
+use sge_programs::{
+    CIRCLE_PROGRAM, FLAT_PROGRAM, RADIAL_PROGRAM, ROUNDED_PROGRAM, TEXTURED_PROGRAM,
+};
 use sge_shapes::d2::{QUAD_INDICES, Shape2D, UNIT_QUAD};
 use sge_textures::TextureRef;
-use sge_types::{CircleBatch, CircleInstance, RoundedBatch, RoundedInstance, ShapeBatch, Vertex2D};
+use sge_types::{
+    CircleBatch, CircleInstance, RadialGradientBatch, RadialGradientInstance, RoundedBatch,
+    RoundedInstance, ShapeBatch, Vertex2D,
+};
 use sge_window::get_display;
 
 use crate::pipeline::draw_queue_2d;
@@ -24,6 +29,9 @@ pub struct DrawQueue2D {
 
     rounded_batches: Vec<RoundedBatch>,
     current_rounded_batch: RoundedBatch,
+
+    radial_batches: Vec<RadialGradientBatch>,
+    current_radial_batch: RadialGradientBatch,
 
     sprite_draws: Vec<SpriteBatch>,
 
@@ -59,6 +67,8 @@ impl DrawQueue2D {
             current_shape_batch: ShapeBatch::new(None),
             circle_batches: Vec::new(),
             current_circle_batch: CircleBatch::new(None),
+            radial_batches: Vec::new(),
+            current_radial_batch: RadialGradientBatch::new(None),
             rounded_batches: Vec::new(),
             current_rounded_batch: RoundedBatch::new(None),
             sprite_draws: Vec::new(),
@@ -74,6 +84,8 @@ impl DrawQueue2D {
             current_shape_batch: ShapeBatch::new(None),
             circle_batches: Vec::new(),
             current_circle_batch: CircleBatch::new(None),
+            radial_batches: Vec::new(),
+            current_radial_batch: RadialGradientBatch::new(None),
             rounded_batches: Vec::new(),
             current_rounded_batch: RoundedBatch::new(None),
             sprite_draws: Vec::new(),
@@ -86,10 +98,10 @@ impl DrawQueue2D {
     pub fn step_z(&mut self) {
         self.current_z += self.z_increment;
 
-        if self.current_z >= 0.998 {
-            // get_state().new_draw_queues();
-            // info!("max z-index exceeded. creating new draw queue");
-        }
+        // if self.current_z >= 0.998 {
+        //     new_draw_queues();
+        //     info!("max z-index exceeded. creating new draw queue");
+        // }
     }
 
     fn ensure_shape_batch(&mut self) {
@@ -104,6 +116,21 @@ impl DrawQueue2D {
                 self.shape_batches.push(old_batch);
             } else {
                 self.current_shape_batch.scissor = current_scissor;
+            }
+        }
+    }
+
+    fn ensure_radial_batch(&mut self) {
+        let current_scissor = current_scissor();
+        if self.current_radial_batch.scissor != current_scissor {
+            if !self.current_radial_batch.instances.is_empty() {
+                let old = std::mem::replace(
+                    &mut self.current_radial_batch,
+                    RadialGradientBatch::new(current_scissor),
+                );
+                self.radial_batches.push(old);
+            } else {
+                self.current_radial_batch.scissor = current_scissor;
             }
         }
     }
@@ -217,6 +244,56 @@ impl DrawQueue2D {
                 outline_thickness,
                 outline_color,
             ));
+    }
+
+    pub fn add_radial_gradient(
+        &mut self,
+        center: Vec2,
+        radius: Vec2,
+        inner_color: Color,
+        outer_color: Color,
+        outline_thickness: f32,
+        outline_color: Color,
+        gradient_offset: Vec2,
+    ) {
+        let z = self.current_z;
+        self.add_radial_gradient_at_z(
+            center,
+            radius,
+            inner_color,
+            outer_color,
+            outline_thickness,
+            outline_color,
+            gradient_offset,
+            z,
+        );
+        self.step_z();
+    }
+
+    pub fn add_radial_gradient_at_z(
+        &mut self,
+        center: Vec2,
+        radius: Vec2,
+        inner_color: Color,
+        outer_color: Color,
+        outline_thickness: f32,
+        outline_color: Color,
+        gradient_offset: Vec2,
+        z: f32,
+    ) {
+        debugger_add_drawn_objects(1);
+        self.ensure_radial_batch();
+        self.current_radial_batch
+            .instances
+            .push(RadialGradientInstance {
+                center: [center.x, center.y, z],
+                radius: [radius.x, radius.y],
+                outline_thickness,
+                inner_color: inner_color.for_gpu(),
+                outer_color: outer_color.for_gpu(),
+                outline_color: outline_color.for_gpu(),
+                gradient_offset: [gradient_offset.x, gradient_offset.y],
+            });
     }
 
     pub fn add_rounded_rectangle(
@@ -398,6 +475,14 @@ impl DrawQueue2D {
             self.circle_batches.push(batch);
         }
 
+        if !self.current_radial_batch.instances.is_empty() {
+            let batch = std::mem::replace(
+                &mut self.current_radial_batch,
+                RadialGradientBatch::new(None),
+            );
+            self.radial_batches.push(batch);
+        }
+
         if !self.current_rounded_batch.instances.is_empty() {
             let batch = std::mem::replace(&mut self.current_rounded_batch, RoundedBatch::new(None));
             self.rounded_batches.push(batch);
@@ -419,6 +504,19 @@ impl DrawQueue2D {
                 projection,
                 &batch.instances,
                 CIRCLE_PROGRAM.get(),
+                batch.scissor,
+            );
+        }
+
+        for batch in &self.radial_batches {
+            if batch.instances.is_empty() {
+                continue;
+            }
+            self.draw_quad_instanced(
+                frame,
+                projection,
+                &batch.instances,
+                RADIAL_PROGRAM.get(),
                 batch.scissor,
             );
         }
@@ -589,6 +687,8 @@ impl DrawQueue2D {
         self.current_shape_batch = ShapeBatch::new(None);
         self.circle_batches.clear();
         self.current_circle_batch = CircleBatch::new(None);
+        self.radial_batches.clear();
+        self.current_radial_batch = RadialGradientBatch::new(None);
         self.rounded_batches.clear();
         self.current_rounded_batch = RoundedBatch::new(None);
         self.sprite_draws.clear();

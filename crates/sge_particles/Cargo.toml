@@ -7,6 +7,7 @@ edition = "2024"
 bevy_math.workspace = true
 bon.workspace = true
 dyn-clone = "1.0.20"
+rayon.workspace = true
 sge_api = { version = "0.1.0", path = "../sge_api" }
 sge_color.workspace = true
 sge_rendering = { version = "0.1.0", path = "../sge_rendering" }

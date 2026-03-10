@@ -3,10 +3,7 @@ use std::collections::HashMap;
 use bevy_math::Vec2;
 use player::{Player, PlayerKey};
 use rapier2d::prelude::*;
-use sge_api::shapes_2d::{
-    draw_arrow, draw_arrow_world, draw_circle, draw_circle_outline, draw_circle_outline_world,
-    draw_circle_world, draw_rect_outline, draw_rect_outline_world,
-};
+use sge_api::shapes_2d::*;
 use sge_color::Color;
 use sge_macros::gen_ref_type;
 use sge_time::physics_delta_time;
@@ -33,6 +30,291 @@ fn pos_from_rapier(iso: &Isometry<Real>) -> Vec2 {
         iso.translation.x * PIXELS_PER_METRE,
         -iso.translation.y * PIXELS_PER_METRE,
     )
+}
+
+#[derive(Clone, Debug)]
+pub enum Bounds {
+    Point,
+    /// full size from center
+    Rect(Vec2),
+    Circle(f32),
+    Capsule {
+        half_height: f32,
+        radius: f32,
+    },
+    CapsuleX {
+        half_width: f32,
+        radius: f32,
+    },
+    Triangle(Vec2, Vec2, Vec2),
+    /// build from point cloud
+    ConvexHull(Vec<Vec2>),
+    Polyline(Vec<Vec2>),
+    Line {
+        a: Vec2,
+        b: Vec2,
+    },
+    Compound(Vec<(Vec2, Box<Bounds>)>),
+}
+
+impl Bounds {
+    pub fn rect(w: f32, h: f32) -> Self {
+        Self::Rect(Vec2::new(w, h))
+    }
+
+    pub fn circle(radius: f32) -> Self {
+        Self::Circle(radius)
+    }
+
+    pub fn capsule(half_height: f32, radius: f32) -> Self {
+        Self::Capsule {
+            half_height,
+            radius,
+        }
+    }
+
+    pub fn capsule_x(half_width: f32, radius: f32) -> Self {
+        Self::CapsuleX { half_width, radius }
+    }
+
+    pub fn triangle(a: Vec2, b: Vec2, c: Vec2) -> Self {
+        Self::Triangle(a, b, c)
+    }
+
+    pub fn convex_hull(points: impl Into<Vec<Vec2>>) -> Self {
+        Self::ConvexHull(points.into())
+    }
+
+    pub fn polyline(points: impl Into<Vec<Vec2>>) -> Self {
+        Self::Polyline(points.into())
+    }
+
+    pub fn line(a: Vec2, b: Vec2) -> Self {
+        Self::Line { a, b }
+    }
+
+    pub fn compound(children: impl Into<Vec<(Vec2, Bounds)>>) -> Self {
+        Self::Compound(
+            children
+                .into()
+                .into_iter()
+                .map(|(offset, b)| (offset, Box::new(b)))
+                .collect(),
+        )
+    }
+}
+
+#[derive(Clone, Debug)]
+pub struct ColliderConfig {
+    pub restitution: f32,
+    pub friction: f32,
+    pub density: f32,
+    pub sensor: bool,
+}
+
+impl Default for ColliderConfig {
+    fn default() -> Self {
+        Self {
+            restitution: 0.0,
+            friction: 0.5,
+            density: 1.0,
+            sensor: false,
+        }
+    }
+}
+
+impl ColliderConfig {
+    pub fn restitution(mut self, v: f32) -> Self {
+        self.restitution = v;
+        self
+    }
+
+    pub fn friction(mut self, v: f32) -> Self {
+        self.friction = v;
+        self
+    }
+
+    pub fn density(mut self, v: f32) -> Self {
+        self.density = v;
+        self
+    }
+
+    pub fn sensor(mut self, v: bool) -> Self {
+        self.sensor = v;
+        self
+    }
+}
+
+fn vec2_to_point(v: Vec2) -> rapier2d::math::Point<Real> {
+    rapier2d::math::Point::new(v.x / PIXELS_PER_METRE, -v.y / PIXELS_PER_METRE)
+}
+
+fn bounds_to_rapier_collider(
+    bounds: &Bounds,
+    cfg: &ColliderConfig,
+) -> rapier2d::geometry::Collider {
+    let base = bounds_to_builder(bounds);
+    base.restitution(cfg.restitution)
+        .friction(cfg.friction)
+        .density(cfg.density)
+        .sensor(cfg.sensor)
+        .active_events(ActiveEvents::COLLISION_EVENTS)
+        .build()
+}
+
+fn bounds_to_builder(bounds: &Bounds) -> ColliderBuilder {
+    match bounds {
+        Bounds::Point => ColliderBuilder::ball(0.001 / PIXELS_PER_METRE),
+
+        Bounds::Rect(size) => ColliderBuilder::cuboid(
+            size.x * 0.5 / PIXELS_PER_METRE,
+            size.y * 0.5 / PIXELS_PER_METRE,
+        ),
+
+        Bounds::Circle(r) => ColliderBuilder::ball(r / PIXELS_PER_METRE),
+
+        Bounds::Capsule {
+            half_height,
+            radius,
+        } => ColliderBuilder::capsule_y(half_height / PIXELS_PER_METRE, radius / PIXELS_PER_METRE),
+
+        Bounds::CapsuleX { half_width, radius } => {
+            ColliderBuilder::capsule_x(half_width / PIXELS_PER_METRE, radius / PIXELS_PER_METRE)
+        }
+
+        Bounds::Triangle(a, b, c) => {
+            let pa = vec2_to_point(*a);
+            let pb = vec2_to_point(*b);
+            let pc = vec2_to_point(*c);
+            ColliderBuilder::triangle(pa, pb, pc)
+        }
+
+        Bounds::ConvexHull(pts) => {
+            let rapier_pts: Vec<_> = pts.iter().map(|v| vec2_to_point(*v)).collect();
+            ColliderBuilder::convex_hull(&rapier_pts).expect(
+                "ConvexHull: could not compute convex hull (need at least 3 non-collinear points)",
+            )
+        }
+
+        Bounds::Polyline(pts) => {
+            let rapier_pts: Vec<_> = pts.iter().map(|v| vec2_to_point(*v)).collect();
+            let indices: Vec<[u32; 2]> = (0..rapier_pts.len() as u32 - 1)
+                .map(|i| [i, i + 1])
+                .collect();
+            ColliderBuilder::polyline(rapier_pts, Some(indices))
+        }
+
+        Bounds::Line { a, b } => ColliderBuilder::segment(vec2_to_point(*a), vec2_to_point(*b)),
+
+        Bounds::Compound(children) => {
+            let shapes: Vec<(Isometry<Real>, SharedShape)> = children
+                .iter()
+                .map(|(offset, child_bounds)| {
+                    let iso = Isometry::translation(
+                        offset.x / PIXELS_PER_METRE,
+                        -offset.y / PIXELS_PER_METRE,
+                    );
+                    let shape = bounds_to_builder(child_bounds)
+                        .build()
+                        .shared_shape()
+                        .clone();
+                    (iso, shape)
+                })
+                .collect();
+            ColliderBuilder::compound(shapes)
+        }
+    }
+}
+
+fn draw_bounds(pos: Vec2, bounds: &Bounds, color: Color, thickness: f32, world: bool) {
+    match bounds {
+        Bounds::Point => draw_circle_to(pos, 2.0, color, world),
+        Bounds::Circle(r) => draw_circle_outline_to(pos, *r, color, thickness, world), // needs a _to variant
+        Bounds::Rect(size) => {
+            draw_rect_outline_to(pos - *size * 0.5, *size, thickness, color, world)
+        }
+        Bounds::Capsule {
+            half_height,
+            radius,
+        } => {
+            draw_rect_outline_to(
+                pos - Vec2::new(*radius, half_height + radius),
+                Vec2::new(radius * 2.0, (half_height + radius) * 2.0),
+                thickness,
+                color,
+                world,
+            );
+            draw_circle_outline_to(
+                pos + Vec2::new(0.0, *half_height),
+                *radius,
+                color,
+                thickness,
+                world,
+            );
+            draw_circle_outline_to(
+                pos - Vec2::new(0.0, *half_height),
+                *radius,
+                color,
+                thickness,
+                world,
+            );
+        }
+        Bounds::CapsuleX { half_width, radius } => {
+            draw_rect_outline_to(
+                pos - Vec2::new(half_width + radius, *radius),
+                Vec2::new((half_width + radius) * 2.0, radius * 2.0),
+                thickness,
+                color,
+                world,
+            );
+            draw_circle_outline_to(
+                pos + Vec2::new(*half_width, 0.0),
+                *radius,
+                color,
+                thickness,
+                world,
+            );
+            draw_circle_outline_to(
+                pos - Vec2::new(*half_width, 0.0),
+                *radius,
+                color,
+                thickness,
+                world,
+            );
+        }
+        Bounds::Triangle(a, b, c) => {
+            let pts = [pos + *a, pos + *b, pos + *c];
+            for i in 0..3 {
+                draw_line_to(pts[i], pts[(i + 1) % 3], thickness, color, world);
+            }
+        }
+        Bounds::ConvexHull(pts) if pts.len() >= 2 => {
+            let world_pts: Vec<_> = pts.iter().map(|p| pos + *p).collect();
+            for i in 0..world_pts.len() {
+                draw_line_to(
+                    world_pts[i],
+                    world_pts[(i + 1) % world_pts.len()],
+                    thickness,
+                    color,
+                    world,
+                );
+            }
+        }
+        Bounds::Polyline(pts) if pts.len() >= 2 => {
+            for i in 0..pts.len() - 1 {
+                draw_line_to(pos + pts[i], pos + pts[i + 1], thickness, color, world);
+            }
+        }
+        Bounds::Line { a, b } => {
+            draw_line_to(pos + *a, pos + *b, thickness, color, world);
+        }
+        Bounds::Compound(children) => {
+            for (offset, child) in children {
+                draw_bounds(pos + *offset, child, color, thickness, world);
+            }
+        }
+        _ => {}
+    }
 }
 
 gen_ref_type!(World, WorldRef, worlds);
@@ -120,7 +402,6 @@ impl World {
 
     pub fn update(&mut self) {
         let dt = physics_delta_time();
-
         let gravity = vector![0.0, -self.gravity / PIXELS_PER_METRE];
 
         self.update_players();
@@ -247,14 +528,12 @@ impl World {
             for manifold in &pair.manifolds {
                 let normal_rapier = manifold.data.normal;
                 let normal = Vec2::new(normal_rapier.x, -normal_rapier.y);
-
                 let depth = manifold
                     .points
                     .iter()
                     .filter(|p| p.dist < 0.0)
                     .map(|p| -p.dist * PIXELS_PER_METRE)
                     .fold(0.0_f32, f32::max);
-
                 if depth > 0.0 {
                     return CollisionPoints {
                         normal,
@@ -282,11 +561,16 @@ impl World {
         pos_from_rapier(self.rigid_body_set[rb_handle].position())
     }
 
-    fn insert_object(&mut self, bounds: Bounds, rigid_body: RigidBody) -> ObjectKey {
+    fn insert_object(
+        &mut self,
+        bounds: Bounds,
+        rigid_body: RigidBody,
+        cfg: ColliderConfig,
+    ) -> ObjectKey {
         let is_dynamic = rigid_body.is_dynamic();
         let rb_handle = self.rigid_body_set.insert(rigid_body);
 
-        let rapier_collider = bounds_to_rapier_collider(&bounds);
+        let rapier_collider = bounds_to_rapier_collider(&bounds, &cfg);
         let col_handle = self.collider_set.insert_with_parent(
             rapier_collider,
             rb_handle,
@@ -304,29 +588,40 @@ impl World {
     }
 
     pub fn create_dynamic(&mut self, bounds: Bounds) -> ObjectRef {
-        let rb = RigidBodyBuilder::dynamic().build();
-        let key = self.insert_object(bounds, rb);
-        ObjectRef {
-            world: WorldRef(self.id),
-            key,
-        }
+        self.create_dynamic_with(bounds, ColliderConfig::default())
     }
 
     pub fn create_fixed(&mut self, bounds: Bounds) -> ObjectRef {
-        let rb = RigidBodyBuilder::fixed().build();
-        let key = self.insert_object(bounds, rb);
+        self.create_fixed_with(bounds, ColliderConfig::default())
+    }
+
+    pub fn create_kinematic(&mut self, bounds: Bounds) -> ObjectRef {
+        self.create_kinematic_with(bounds, ColliderConfig::default())
+    }
+
+    pub fn create_dynamic_with(&mut self, bounds: Bounds, cfg: ColliderConfig) -> ObjectRef {
+        let rb = RigidBodyBuilder::dynamic().build();
+        let key = self.insert_object(bounds, rb, cfg);
         ObjectRef {
             world: WorldRef(self.id),
             key,
         }
     }
 
-    pub fn create_kinematic(&mut self, bounds: Bounds) -> crate::ObjectRef {
-        use rapier2d::prelude::RigidBodyBuilder;
+    pub fn create_fixed_with(&mut self, bounds: Bounds, cfg: ColliderConfig) -> ObjectRef {
+        let rb = RigidBodyBuilder::fixed().build();
+        let key = self.insert_object(bounds, rb, cfg);
+        ObjectRef {
+            world: WorldRef(self.id),
+            key,
+        }
+    }
+
+    pub fn create_kinematic_with(&mut self, bounds: Bounds, cfg: ColliderConfig) -> ObjectRef {
         let rb = RigidBodyBuilder::kinematic_position_based().build();
-        let key = self.insert_object(bounds, rb);
-        crate::ObjectRef {
-            world: crate::WorldRef(self.id),
+        let key = self.insert_object(bounds, rb, cfg);
+        ObjectRef {
+            world: WorldRef(self.id),
             key,
         }
     }
@@ -355,11 +650,9 @@ impl World {
     pub fn set_gravity(&mut self, gravity: f32) {
         self.gravity = gravity;
     }
-
     pub fn get_gravity(&self) -> f32 {
         self.gravity
     }
-
     pub fn get_gravity_mut(&mut self) -> &mut f32 {
         &mut self.gravity
     }
@@ -370,8 +663,7 @@ impl World {
 
     fn set_position(&mut self, key: ObjectKey, pos: Vec2) {
         let rb_handle = self.objects[key].rigid_body;
-        let rb = &mut self.rigid_body_set[rb_handle];
-        rb.set_position(pos_to_rapier(pos), true);
+        self.rigid_body_set[rb_handle].set_position(pos_to_rapier(pos), true);
     }
 
     fn get_velocity(&self, key: ObjectKey) -> Vec2 {
@@ -404,8 +696,8 @@ impl World {
         self.set_position(key, current + offset);
     }
 
-    fn get_bounds(&self, key: ObjectKey) -> Bounds {
-        self.objects[key].bounds
+    fn get_bounds(&self, key: ObjectKey) -> &Bounds {
+        &self.objects[key].bounds
     }
 
     fn is_dynamic(&self, key: ObjectKey) -> bool {
@@ -413,57 +705,17 @@ impl World {
     }
 
     pub fn draw_colliders(&self) {
-        for handles in self.objects.values() {
-            let pos = pos_from_rapier(self.rigid_body_set[handles.rigid_body].position());
-            match handles.bounds {
-                Bounds::Circle(r) => draw_circle_outline(pos, r, Color::RED_500, 1.5),
-                Bounds::Rect(size) => {
-                    draw_rect_outline(pos - size * 0.5, size, 1.0, Color::RED_500)
-                }
-                Bounds::Point => draw_circle(pos, 2.0, Color::RED_500),
-            }
-        }
-
-        for (a, infos) in &self.collisions {
-            let a = &self.objects[*a];
-            let pos = pos_from_rapier(self.rigid_body_set[a.rigid_body].position());
-
-            for info in infos {
-                let display_length = if info.points.depth > 0.0 {
-                    info.points.depth
-                } else {
-                    60.0
-                };
-                draw_arrow(
-                    pos,
-                    pos + info.points.normal * display_length,
-                    2.0,
-                    Color::NEUTRAL_500.with_alpha(0.3),
-                );
-            }
-
-            if !infos.is_empty() {
-                match a.bounds {
-                    Bounds::Circle(r) => draw_circle_outline(pos, r, Color::YELLOW_500, 3.0),
-                    Bounds::Rect(size) => {
-                        draw_rect_outline(pos - size * 0.5, size, 2.0, Color::YELLOW_500)
-                    }
-                    Bounds::Point => draw_circle(pos, 2.0, Color::YELLOW_500),
-                }
-            }
-        }
+        self.draw_colliders_to(false);
     }
 
     pub fn draw_colliders_world(&self) {
+        self.draw_colliders_to(true);
+    }
+
+    fn draw_colliders_to(&self, world: bool) {
         for handles in self.objects.values() {
             let pos = pos_from_rapier(self.rigid_body_set[handles.rigid_body].position());
-            match handles.bounds {
-                Bounds::Circle(r) => draw_circle_outline_world(pos, r, Color::RED_500, 1.5),
-                Bounds::Rect(size) => {
-                    draw_rect_outline_world(pos - size * 0.5, size, 1.0, Color::RED_500)
-                }
-                Bounds::Point => draw_circle_world(pos, 2.0, Color::RED_500),
-            }
+            draw_bounds(pos, &handles.bounds, Color::RED_500, 1.5, world);
         }
 
         for (a, infos) in &self.collisions {
@@ -476,60 +728,25 @@ impl World {
                 } else {
                     60.0
                 };
-                draw_arrow_world(
+                draw_arrow_to(
                     pos,
                     pos + info.points.normal * display_length,
                     2.0,
                     Color::NEUTRAL_500.with_alpha(0.3),
+                    world,
                 );
             }
 
             if !infos.is_empty() {
-                match a.bounds {
-                    Bounds::Circle(r) => draw_circle_outline_world(pos, r, Color::YELLOW_500, 3.0),
-                    Bounds::Rect(size) => {
-                        draw_rect_outline_world(pos - size * 0.5, size, 2.0, Color::YELLOW_500)
-                    }
-                    Bounds::Point => draw_circle_world(pos, 2.0, Color::YELLOW_500),
-                }
+                draw_bounds(pos, &a.bounds, Color::YELLOW_500, 3.0, world);
             }
         }
-    }
-}
-
-fn bounds_to_rapier_collider(bounds: &Bounds) -> rapier2d::geometry::Collider {
-    match bounds {
-        Bounds::Circle(r) => ColliderBuilder::ball(r / PIXELS_PER_METRE)
-            .restitution(0.0)
-            .friction(0.5)
-            .active_events(ActiveEvents::COLLISION_EVENTS)
-            .build(),
-        Bounds::Rect(size) => ColliderBuilder::cuboid(
-            size.x * 0.5 / PIXELS_PER_METRE,
-            size.y * 0.5 / PIXELS_PER_METRE,
-        )
-        .restitution(0.0)
-        .friction(0.5)
-        .active_events(ActiveEvents::COLLISION_EVENTS)
-        .build(),
-        Bounds::Point => ColliderBuilder::ball(0.001 / PIXELS_PER_METRE)
-            .restitution(0.0)
-            .friction(0.5)
-            .active_events(ActiveEvents::COLLISION_EVENTS)
-            .build(),
     }
 }
 
 fn invert(mut c: CollisionPoints) -> CollisionPoints {
     c.normal = -c.normal;
     c
-}
-
-#[derive(Clone, Copy, Debug)]
-pub enum Bounds {
-    Point,
-    Rect(Vec2),
-    Circle(f32),
 }
 
 #[derive(Clone, Copy, Debug)]
@@ -554,39 +771,30 @@ impl ObjectRef {
     pub fn get_position(&self) -> Vec2 {
         self.world.get_position(self.key)
     }
-
     pub fn set_position(&mut self, pos: Vec2) {
         self.world.set_position(self.key, pos);
     }
-
     pub fn get_velocity(&self) -> Vec2 {
         self.world.get_velocity(self.key)
     }
-
     pub fn set_velocity(&mut self, vel: Vec2) {
         self.world.set_velocity(self.key, vel);
     }
-
     pub fn add_velocity(&mut self, vel: Vec2) {
         self.world.add_velocity(self.key, vel);
     }
-
     pub fn add_force(&mut self, force: Vec2) {
         self.world.add_force(self.key, force);
     }
-
     pub fn get_mass(&self) -> f32 {
         self.world.get_mass(self.key)
     }
-
     pub fn move_by(&mut self, offset: Vec2) {
         self.world.move_by(self.key, offset);
     }
-
-    pub fn get_bounds(&self) -> Bounds {
+    pub fn get_bounds(&self) -> &Bounds {
         self.world.get_bounds(self.key)
     }
-
     pub fn is_dynamic(&self) -> bool {
         self.world.is_dynamic(self.key)
     }
@@ -617,7 +825,6 @@ impl ObjectRef {
     pub fn remove(mut self) {
         self.world.remove(self.key);
     }
-
     pub fn key(&self) -> ObjectKey {
         self.key
     }

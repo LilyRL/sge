@@ -423,14 +423,13 @@ void main() {
 }
 "#;
 
-// Separable Gaussian blur (optimized)
 const GAUSSIAN_BLUR_FRAGMENT_SHADER: &str = r#"
 #version 140
 in vec2 v_tex_coords;
 out vec4 color;
 uniform sampler2D tex;
 uniform float sigma;
-uniform vec2 direction; // [1,0] for horizontal, [0,1] for vertical
+uniform vec2 direction;
 uniform vec2 screen_size;
 
 const float PI = 3.14159265359;
@@ -440,14 +439,14 @@ float gaussian(float x, float sigma) {
 }
 
 void main() {
-    // Calculate kernel radius (3 sigma covers 99.7% of the distribution)
+
     int radius = int(ceil(3.0 * sigma));
 
     vec2 tex_offset = direction / screen_size;
     vec4 result = vec4(0.0);
     float weight_sum = 0.0;
 
-    // Sample along the specified direction
+
     for(int i = -radius; i <= radius; ++i) {
         float weight = gaussian(float(i), sigma);
         vec2 offset = tex_offset * float(i);
@@ -468,7 +467,7 @@ uniform float strength;
 uniform float seed;
 uniform vec2 screen_size;
 
-// Pseudo-random function
+
 float random(vec2 st) {
     return fract(sin(dot(st.xy, vec2(12.9898, 78.233))) * 43758.5453123 + seed);
 }
@@ -476,11 +475,11 @@ float random(vec2 st) {
 void main() {
     vec4 tex_color = texture(tex, v_tex_coords);
 
-    // Generate grain
+
     vec2 st = gl_FragCoord.xy / screen_size.xy;
     float grain = random(st) * 2.0 - 1.0;
 
-    // Apply grain
+
     vec3 result = tex_color.rgb + grain * strength;
 
     color = vec4(result, tex_color.a);
@@ -568,34 +567,52 @@ uniform vec4 vignette_color;
 uniform float vignette_intensity;
 uniform vec2 screen_size;
 
+const float BAYER_8X8[64] = float[64](
+     0.0/64.0, 32.0/64.0,  8.0/64.0, 40.0/64.0,  2.0/64.0, 34.0/64.0, 10.0/64.0, 42.0/64.0,
+    48.0/64.0, 16.0/64.0, 56.0/64.0, 24.0/64.0, 50.0/64.0, 18.0/64.0, 58.0/64.0, 26.0/64.0,
+    12.0/64.0, 44.0/64.0,  4.0/64.0, 36.0/64.0, 14.0/64.0, 46.0/64.0,  6.0/64.0, 38.0/64.0,
+    60.0/64.0, 28.0/64.0, 52.0/64.0, 20.0/64.0, 62.0/64.0, 30.0/64.0, 54.0/64.0, 22.0/64.0,
+     3.0/64.0, 35.0/64.0, 11.0/64.0, 43.0/64.0,  1.0/64.0, 33.0/64.0,  9.0/64.0, 41.0/64.0,
+    51.0/64.0, 19.0/64.0, 59.0/64.0, 27.0/64.0, 49.0/64.0, 17.0/64.0, 57.0/64.0, 25.0/64.0,
+    15.0/64.0, 47.0/64.0,  7.0/64.0, 39.0/64.0, 13.0/64.0, 45.0/64.0,  5.0/64.0, 37.0/64.0,
+    63.0/64.0, 31.0/64.0, 55.0/64.0, 23.0/64.0, 61.0/64.0, 29.0/64.0, 53.0/64.0, 21.0/64.0
+);
+
 void main() {
     vec4 tex_color = texture(tex, v_tex_coords);
     vec2 center = vec2(0.5, 0.5);
     float dist = distance(v_tex_coords, center);
-    float vignette = smoothstep(0.8, 0.2 * vignette_intensity, dist);
+
+    float outer = 0.5 + (1.0 - vignette_intensity) * 0.5;
+    float inner = outer * 0.5;
+    float vignette = smoothstep(outer, inner, dist);
+
+    ivec2 pixel = ivec2(gl_FragCoord.xy) % 8;
+    float threshold = BAYER_8X8[pixel.y * 8 + pixel.x];
+    vignette = step(threshold, vignette);
+
     color = mix(vignette_color, tex_color, vignette);
 }
 "#;
 
-// Bright pass for bloom
 const BRIGHT_PASS_FRAGMENT_SHADER: &str = r#"
 #version 140
 in vec2 v_tex_coords;
 out vec4 color;
 uniform sampler2D tex;
 uniform float threshold;
-uniform float knee;  // Soft threshold transition
+uniform float knee;
 
 void main() {
     vec4 tex_color = texture(tex, v_tex_coords);
     float brightness = dot(tex_color.rgb, vec3(0.2126, 0.7152, 0.0722));
 
-    // Soft threshold with smooth transition
+
     float soft = brightness - threshold + knee;
     soft = clamp(soft, 0.0, 2.0 * knee);
     soft = soft * soft / (4.0 * knee + 0.0001);
 
-    // Only keep bright areas
+
     float contribution = max(soft, brightness - threshold);
     contribution = max(contribution, 0.0);
 
@@ -603,7 +620,6 @@ void main() {
 }
 "#;
 
-// Improved bloom combine shader with tone mapping
 const BLOOM_COMBINE_FRAGMENT_SHADER: &str = r#"
 #version 140
 in vec2 v_tex_coords;
@@ -612,7 +628,7 @@ uniform sampler2D tex;
 uniform sampler2D bloom_tex;
 uniform float intensity;
 
-// ACES tone mapping
+
 vec3 ACESFilmicToneMapping(vec3 color) {
     float a = 2.51;
     float b = 0.03;
@@ -626,10 +642,10 @@ void main() {
     vec4 original = texture(tex, v_tex_coords);
     vec4 bloom = texture(bloom_tex, v_tex_coords);
 
-    // Add bloom with intensity
+
     vec3 result = original.rgb + bloom.rgb * intensity;
 
-    // Apply tone mapping
+
     result = ACESFilmicToneMapping(result);
 
     color = vec4(result, original.a);
@@ -706,14 +722,14 @@ uniform vec2 screen_size;
 void main() {
     vec2 texel_size = 1.0 / screen_size;
 
-    // Sample neighboring pixels
+
     vec4 center = texture(tex, v_tex_coords);
     vec4 top = texture(tex, v_tex_coords + vec2(0.0, -texel_size.y));
     vec4 bottom = texture(tex, v_tex_coords + vec2(0.0, texel_size.y));
     vec4 left = texture(tex, v_tex_coords + vec2(-texel_size.x, 0.0));
     vec4 right = texture(tex, v_tex_coords + vec2(texel_size.x, 0.0));
 
-    // Apply sharpening kernel
+
     vec3 result = center.rgb * (1.0 + 4.0 * strength);
     result -= top.rgb * strength;
     result -= bottom.rgb * strength;
@@ -732,7 +748,6 @@ pub fn blur_screen(sigma: f32) {
     add_post_processing_effect(PostProcessingEffect::GaussianBlur { sigma });
 }
 
-/// does not render less textures. if you care about efficency, draw to a smaller render texture and then draw that to the screen
 pub fn pixelate_screen(pixel_size: f32) {
     add_post_processing_effect(PostProcessingEffect::Pixelate { pixel_size });
 }

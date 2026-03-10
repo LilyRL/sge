@@ -2,6 +2,7 @@ use std::f32::consts::TAU;
 
 use bevy_math::Vec2;
 use bon::bon;
+use rayon::{iter::ParallelIterator, slice::ParallelSliceMut};
 use sge_api::shapes_2d::Shape2DExt;
 use sge_color::Color;
 use sge_rendering::api::{
@@ -54,9 +55,11 @@ impl ParticleSystem {
     }
 
     fn step_all(&mut self) {
-        for particle in &mut self.particles {
-            particle.step();
-        }
+        self.particles.par_chunks_mut(1000).for_each(|particles| {
+            for p in particles {
+                p.step();
+            }
+        });
     }
 
     pub fn num_particles(&self) -> usize {
@@ -67,7 +70,10 @@ impl ParticleSystem {
 pub struct Particle {
     pub shape: Box<dyn Shape2DExt>,
     pub pos: Vec2,
-    pub velocity: Vec2,
+    pub additional_velocity: Vec2,
+    pub angular_velocity: f32,
+    pub speed: f32,
+    pub direction: f32,
     pub acceleration: Vec2,
     pub rotation: f32,
     pub rotation_speed: f32,
@@ -77,6 +83,9 @@ pub struct Particle {
     pub end_color: Color,
 }
 
+unsafe impl Sync for Particle {}
+unsafe impl Send for Particle {}
+
 impl Particle {
     fn current_color(&self) -> Color {
         let time_alive = time() - self.spawn_time;
@@ -85,8 +94,10 @@ impl Particle {
     }
 
     fn step(&mut self) {
-        self.velocity += self.acceleration;
-        self.pos += self.velocity;
+        self.direction += self.angular_velocity;
+        self.additional_velocity += self.acceleration;
+        self.pos += self.additional_velocity;
+        self.pos += Vec2::new(self.direction.cos(), self.direction.sin()) * self.speed;
         self.rotation += self.rotation_speed;
         self.shape.set_color(self.current_color());
         self.shape.set_rotation(self.rotation);
@@ -119,6 +130,9 @@ pub struct ParticleBatch<T: Shape2DExt> {
     pub lifetime: f32,
     pub lifetime_randomness: f32,
     pub end_color: Color,
+    pub angular_velocity: f32,
+    pub angular_velocity_randomness: f32,
+    pub position_randomness: Vec2,
 }
 
 #[bon]
@@ -142,6 +156,9 @@ impl<T: Shape2DExt + 'static> ParticleBatch<T> {
         lifetime: Option<f32>,
         lifetime_randomness: Option<f32>,
         end_color: Option<Color>,
+        angular_velocity: Option<f32>,
+        angular_velocity_randomness: Option<f32>,
+        position_randomness: Option<Vec2>,
     ) -> Self {
         Self {
             shape,
@@ -160,6 +177,9 @@ impl<T: Shape2DExt + 'static> ParticleBatch<T> {
             lifetime: lifetime.unwrap_or(1.0),
             lifetime_randomness: lifetime_randomness.unwrap_or(0.0),
             end_color: end_color.unwrap_or(Color::BLACK),
+            angular_velocity: angular_velocity.unwrap_or(0.0),
+            angular_velocity_randomness: angular_velocity_randomness.unwrap_or(0.0),
+            position_randomness: position_randomness.unwrap_or(Vec2::ZERO),
         }
     }
 
@@ -193,10 +213,19 @@ impl<T: Shape2DExt + 'static> ParticleBatch<T> {
                     (rand::<f32>() - 0.5) * self.acceleration_randomness.y,
                 );
             let lifetime = self.lifetime + (rand::<f32>() - 0.5) * self.lifetime_randomness;
+            let angular_velocity =
+                self.angular_velocity + (rand::<f32>() - 0.5) * self.angular_velocity_randomness;
+            let pos = pos
+                + Vec2::new(
+                    (rand::<f32>() - 0.5) * self.position_randomness.x,
+                    (rand::<f32>() - 0.5) * self.position_randomness.y,
+                );
 
             let particle = Particle {
                 shape: Box::new(shape),
-                velocity: Vec2::new(direction.cos(), direction.sin()) * speed,
+                additional_velocity: Vec2::ZERO,
+                direction,
+                speed,
                 acceleration,
                 rotation: initial_rotation,
                 rotation_speed,
@@ -205,6 +234,7 @@ impl<T: Shape2DExt + 'static> ParticleBatch<T> {
                 end_color: self.end_color,
                 start_color: color,
                 pos,
+                angular_velocity,
             };
 
             vec.push(particle);

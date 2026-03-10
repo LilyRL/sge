@@ -19,11 +19,28 @@
 - [X] ui multiline text
 - [ ] text bg function that doesnt measure before but uses the dimensions returned
   from the drawing function and slots it in with a lower Z
+- [ ] different 3d projections for high fov (pannini)
+- [ ] particle stress test. spawn particles until AVG FPS drops below 60. print number
+- [ ] test if it works on windows
+  - [ ] compile
+  - [ ] run
+- [ ] i think we need to refactor shapes into something that is just for math, and then a rendering (color) layer on top
 - [X] ui text wrapping
 - [ ] ui scroll culling (?)
 - [ ] custom post processing
-- [ ] fix bloom (should be easy for someone like me)
-- [ ] convert colors/data to a build.rs script using quote/prettyplease so that i
+- [X] fix bloom (should be easy for someone like me)
+- [X] more collision shapes
+- [ ] include folder should convert meshes objects (maybe some way of including materials) and textures and tile maps/ scenes when we get there and sounds when we get there
+- [ ] allow user to use all collision shapes supported by rapier2d
+- [ ] just put the scissor and culling on row/col. problem solved
+- [ ] maybe create a raw row/col that works as it does currently
+- [ ] camera shake controller. there's no reason you couldn't use this with another camera controller, but we may want to just create a master camera controller for 2D and 3D
+- [ ] 3d physics
+- [ ] 3d FPS controller and camera
+- [ ] pannini can just be a post processing effect
+- [ ] bundled fonts should be togglable with a feature flag, at least until we get a build system
+- [ ] ooh for the build system what if you have an engine.toml file where you can include stuff and that gets parsed by a build.rs file or a macro
+- [X] convert colors/data to a build.rs script using quote/prettyplease so that i
   can use real palette
 - [X] easier physics
 - [X] physics could look like this
@@ -89,6 +106,7 @@ fn main() {
 - [X] rename compoenents and widgets to base and library
   - [X] w95 library
 - [X] gradient fill ui node
+- [X] radial gradient
 - [ ] loading spinner
   - [ ] needs arcs
 - [ ] player controllers

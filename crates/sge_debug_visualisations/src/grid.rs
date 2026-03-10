@@ -115,7 +115,7 @@ pub fn draw_2d_grid_world(color: Color) {
     let large_scale = 10_f32.powi(log.ceil() as i32);
     let small_scale = 10_f32.powi(log.floor() as i32);
 
-    let t = (1.0 - log.fract().rem_euclid(1.0));
+    let t = ((1.0 - log.fract().rem_euclid(1.0)) * 2.0).clamp(0.0, 1.0);
 
     let small_alpha = t;
     let large_alpha = 1.0;

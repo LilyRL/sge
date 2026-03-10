@@ -75,7 +75,7 @@ pub use sge_math::transform::{Transform2D, Transform3D};
 pub use sge_math::usize_rect::USizeRect;
 pub use sge_particles::*;
 pub use sge_physics::{
-    Bounds, CollisionPoints, ObjectRef, World, WorldRef, player::PlayerBindBuilder,
+    Bounds, ColliderConfig, CollisionPoints, ObjectRef, World, WorldRef, player::PlayerBindBuilder,
     player::PlayerController,
 };
 pub use sge_programs::include_program;

@@ -100,6 +100,7 @@ fn main() -> anyhow::Result<()> {
         ps.update();
         camera_controller.update();
         clear_screen(Color::NEUTRAL_900);
+        vignette_screen(Color::NEUTRAL_950, 0.5);
         draw_multiline_text(
             "Press D to toggle debug mode\nSpace to jump\nA to move right\nF to move left",
             Vec2::splat(10.0),
