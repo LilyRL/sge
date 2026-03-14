@@ -7,7 +7,6 @@ use sge_color::Color;
 use sge_math::transform::Transform3D;
 use sge_programs::{ProgramRef, load_program};
 use sge_rendering::{
-    api::{freeze_z_index_world, reset_z_index_world},
     materials::Material,
     object_3d::{Mesh, Object3D, Object3DRef},
 };
@@ -133,7 +132,6 @@ fn draw_grid(min: Vec2, max: Vec2, scale: f32, alpha: f32, thickness_mult: f32, 
     let faded = Color::from_rgba(color.r, color.g, color.b, color.a * alpha);
     let thickness = thickness_mult / get_camera_2d().scale;
 
-    freeze_z_index_world();
     for x in 0..width {
         let x = x as f32 * scale + tl.x;
         draw_line_world(Vec2::new(x, min.y), Vec2::new(x, max.y), thickness, faded);
@@ -142,5 +140,4 @@ fn draw_grid(min: Vec2, max: Vec2, scale: f32, alpha: f32, thickness_mult: f32, 
         let y = y as f32 * scale + tl.y;
         draw_line_world(Vec2::new(min.x, y), Vec2::new(max.x, y), thickness, faded);
     }
-    reset_z_index_world();
 }

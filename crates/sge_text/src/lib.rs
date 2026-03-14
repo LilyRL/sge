@@ -455,10 +455,6 @@ fn draw_text_to(
         return TextDimensions::default();
     }
 
-    let previous_increment = draw_queue.z_increment;
-    draw_queue.current_z += draw_queue.z_increment;
-    draw_queue.z_increment = 0.0;
-
     let dpi_scaling = if do_dpi_scaling { dpi_scaling() } else { 1.0 };
     let font_size = (font_size as f32 * dpi_scaling).ceil();
     let mut font = font.unwrap_or(default_font());
@@ -494,8 +490,6 @@ fn draw_text_to(
 
         draw_queue.add_sprite(font.atlas.texture().unwrap(), transform, color, Some(rectf));
     }
-
-    draw_queue.z_increment = previous_increment;
 
     let size = Vec2::new(width, layout.height());
     TextDimensions {

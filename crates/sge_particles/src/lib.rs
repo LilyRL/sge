@@ -5,9 +5,6 @@ use bon::bon;
 use rayon::{iter::ParallelIterator, slice::ParallelSliceMut};
 use sge_api::shapes_2d::Shape2DExt;
 use sge_color::Color;
-use sge_rendering::api::{
-    freeze_z_index, freeze_z_index_world, reset_z_index, reset_z_index_world,
-};
 use sge_rng::rand;
 use sge_time::time;
 
@@ -34,19 +31,15 @@ impl ParticleSystem {
     }
 
     pub fn draw(&mut self) {
-        freeze_z_index();
         for particle in &self.particles {
             particle.draw();
         }
-        reset_z_index();
     }
 
     pub fn draw_world(&mut self) {
-        freeze_z_index_world();
         for particle in &self.particles {
             particle.draw_world();
         }
-        reset_z_index_world();
     }
 
     fn remove_dead(&mut self) {

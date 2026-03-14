@@ -46,14 +46,3 @@ pub fn debugger_add_drawn_objects(count: usize) {
 #[cfg(not(feature = "debugging"))]
 #[inline]
 pub fn debugger_add_drawn_objects(_count: usize) {}
-
-#[cfg(feature = "debugging")]
-#[inline]
-pub fn debugger_set_z_index(index: f32) {
-    let debug = get_debug_info();
-    debug.current_frame_mut().z_index = index.max(debug.current_frame().z_index);
-}
-
-#[cfg(not(feature = "debugging"))]
-#[inline]
-pub fn debugger_set_z_index(_index: f32) {}

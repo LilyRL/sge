@@ -18,8 +18,6 @@ pub struct FrameInfo {
     pub draw_calls: usize,
     pub drawn_objects: usize,
     pub engine_time: f64,
-    pub z_index: f32,
-    pub world_z_index: f32,
 }
 
 impl FrameInfo {
@@ -29,8 +27,6 @@ impl FrameInfo {
         draw_calls: 0,
         drawn_objects: 0,
         engine_time: 0.0,
-        z_index: 0.0,
-        world_z_index: 0.0,
     };
 }
 

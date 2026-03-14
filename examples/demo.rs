@@ -70,7 +70,7 @@ fn main() -> anyhow::Result<()> {
                     Vec2::new(x as f32 * 500.0 - 50.0, y as f32 * 500.0 - 50.0),
                     500.0,
                     if x % 2 == y % 2 {
-                        Color::NEUTRAL_100
+                        Color::NEUTRAL_200
                     } else {
                         Color::BLACK
                     },
@@ -79,10 +79,7 @@ fn main() -> anyhow::Result<()> {
         }
 
         let cursor_pos = last_cursor_pos();
-        // useful to do when drawing a lot of object that won't overlap
-        // ensures z index does not exceed 1.0
         for y in 0..100 {
-            freeze_z_index_world();
             for x in 0..100 {
                 let x = x as f32 * 100.0;
                 let y = y as f32 * 100.0;
@@ -124,7 +121,6 @@ fn main() -> anyhow::Result<()> {
                     }
                 }
             }
-            reset_z_index_world();
         }
 
         draw_texture_world(guy_texture, Vec2::new(0.0, 0.0), 50.0);
