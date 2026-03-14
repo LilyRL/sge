@@ -465,6 +465,8 @@ impl DrawQueue2D {
     }
 
     pub fn draw<T: Surface>(&mut self, frame: &mut T, projection: &Mat4) {
+        debugger_set_z_index(self.current_z);
+
         if !self.current_shape_batch.vertices.is_empty() {
             let batch = std::mem::replace(&mut self.current_shape_batch, ShapeBatch::new(None));
             self.shape_batches.push(batch);

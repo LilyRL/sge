@@ -47,12 +47,19 @@ pub fn draw_debug_info(ui: &egui_glium::egui_winit::egui::Context) {
             [i as f64, frame.engine_time]
         })
         .collect();
+    let z_index_points: PlotPoints = (0..FRAME_BACKLOG)
+        .map(|i| {
+            let frame = &debug.frames[(i + debug.frame_offset) % FRAME_BACKLOG];
+            [i as f64, frame.z_index as f64]
+        })
+        .collect();
 
     let vertex_line = Line::new(vertex_points);
     let index_line = Line::new(index_points);
     let draw_call_line = Line::new(draw_call_points);
     let drawn_object_line = Line::new(drawn_object_points);
     let engine_time_line = Line::new(engine_time_points);
+    let z_index_line = Line::new(z_index_points);
 
     Window::new("Debug info").show(ui, |ui| {
         for (id, max, label, line) in [
@@ -82,9 +89,15 @@ pub fn draw_debug_info(ui: &egui_glium::egui_winit::egui::Context) {
             ),
             (
                 "engine_time_plot",
-                debug.max.engine_time as usize,
+                debug.max.engine_time.ceil() as usize,
                 "Engine time (ms)",
                 engine_time_line,
+            ),
+            (
+                "z_index_plot",
+                debug.max.z_index.ceil() as usize,
+                "Max z index",
+                z_index_line,
             ),
         ] {
             Plot::new(id)
