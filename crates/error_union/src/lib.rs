@@ -99,15 +99,15 @@ pub fn derive_error_union(tokens: TokenStream) -> TokenStream {
     quote! {
         #from_impls
 
-        impl std::fmt::Display for #enum_name {
-            fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> Result<(), std::fmt::Error> {
+        impl ::std::fmt::Display for #enum_name {
+            fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> ::std::result::Result<(), ::std::fmt::Error> {
                 match self {
                     #(#match_entries),*
                 }
             }
         }
 
-        impl std::error::Error for #enum_name {}
+        impl ::std::error::Error for #enum_name {}
     }
     .into()
 }

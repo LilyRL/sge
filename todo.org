@@ -8,14 +8,35 @@
   - [X] draw queue with consecutive poly and circle draw calls grouped together so
     that they can be batch drawn together. use instancing for grouped circles
 - [ ] toggle using positive y up
-- [ ] macro based wrappers around structs for persistent (fs) storage and network sync
+- [ ] space invaders using some new features
+- [ ] constant particle emitters
+- [ ] texture/atlas particles
+- [ ] have a look at texture atlasses and see if we can make somethjng good for 2d platformer levels. maybe an add colliders toggle
+- [ ] mini quad backend + web
+- [ ] add post frame callback
+- [ ] add mf draw wireframe and shit
+- [ ] load_sound
+- [ ] load_sound_from_bytes
+- [ ] play_sound
+- [ ] play_sound_once
+- [ ] set_sound_volume
+- [ ] stop_sound
+- [ ] coroutines, some kind of future management so that the user can ask to run some code at the end of the frame, in some number of frames, after some time, or when something next happens
+- [ ] crates.io
+- [-] macro based wrappers around structs for persistent (fs) storage and network sync
+  - [-] fs
+    - [X] implement macro
+    - [ ] add support for engine types
+  - [ ] network
+- [ ] make the ui more performant
+- [ ] re-add profiling
 - [ ] measure startup and runtime performance
   - [ ] make sure things arent using up performance when the user isnt even using
        that part of the engine
 - [ ] revamp should add tests
-- [ ] make API consistent
-- [ ] outline on shape trait with rotation and everything
-- [ ] macro as much as possible based on traits
+- [X] make API consistent
+- [X] outline on shape trait with rotation and everything
+- [X] macro as much as possible based on traits
 - [X] poly circles as new function / optional
 - [X] cache projection matrix
 - [X] cull off screen world draws

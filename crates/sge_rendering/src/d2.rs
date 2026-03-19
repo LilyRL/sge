@@ -533,16 +533,7 @@ impl DrawQueue2D {
             projection: projection.to_cols_array_2d()
         };
 
-        let params = DrawParameters {
-            blend: Blend::alpha_blending(),
-            depth: Depth {
-                test: DepthTest::Overwrite,
-                write: false,
-                ..Default::default()
-            },
-            scissor: batch.scissor,
-            ..Default::default()
-        };
+        let params = Self::common_draw_params(batch.scissor);
 
         debugger_add_draw_calls(1);
         debugger_add_indices(index_buffer.len());

@@ -107,10 +107,10 @@ pub use sge_text::{
     SgeFont, TextDimensions, TextDrawParams, TextMeasureCache, create_ttf_font, default_font,
     draw_colored_text, draw_colored_text_world, draw_multiline_text, draw_multiline_text_ex,
     draw_multiline_text_size, draw_multiline_text_size_world, draw_multiline_text_world,
-    draw_multiline_text_world_ex, draw_text, draw_text_ex, draw_text_size, draw_text_size_world,
-    draw_text_world, draw_text_world_ex, draw_wrapped_text_in_area, icons, load_font,
-    measure_multiline_text, measure_multiline_text_ex, measure_text, measure_text_ex,
-    measure_wrapped_text, wrap_text_to_width, wrapped_text,
+    draw_multiline_text_world_ex, draw_text, draw_text_custom, draw_text_ex, draw_text_size,
+    draw_text_size_world, draw_text_world, draw_text_world_custom, draw_text_world_ex,
+    draw_wrapped_text_in_area, icons, load_font, measure_multiline_text, measure_multiline_text_ex,
+    measure_text, measure_text_ex, measure_wrapped_text, wrap_text_to_width, wrapped_text,
 };
 pub use sge_texture_atlas::{
     LoadImageError, Sprite, SpriteKey, TextureAtlas, TextureAtlasRef, create_spritesheet,
@@ -140,4 +140,6 @@ pub mod gamepad {
     pub use sge_input::gamepad_input as input;
     pub use sge_input::gilrs::*;
 }
+pub use glium::winit::dpi::{LogicalSize, PhysicalSize};
+pub use persistence::{Error as PersistenceError, persistent, rkyv};
 pub use sge_math::Vec2Ext;

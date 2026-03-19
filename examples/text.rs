@@ -60,7 +60,7 @@ fn main() -> anyhow::Result<()> {
 
             let position = vec2(10.0, 30.0);
             if text.is_empty() {
-                draw_text_ex(
+                draw_text_custom(
                     "Start typing...",
                     TextDrawParams {
                         position,
@@ -101,7 +101,7 @@ fn main() -> anyhow::Result<()> {
             let dimensions = measure_text_ex(text, params);
             params.position -= dimensions.size / 2.0;
             draw_rect_world(params.position, dimensions.size, Color::GRAY_800);
-            draw_text_world_ex(text, params);
+            draw_text_world_custom(text, params);
         }
 
         if should_quit() {

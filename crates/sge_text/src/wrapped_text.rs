@@ -3,7 +3,7 @@ use sge_color::Color;
 use sge_types::Area;
 use sge_window::dpi_scaling;
 
-use crate::{FontRef, Glyph, MONO, SgeFont, TextDrawParams, draw_text_ex, measure_text_ex};
+use crate::{FontRef, Glyph, MONO, SgeFont, TextDrawParams, draw_text_custom, measure_text_ex};
 
 pub fn wrap_text_to_width(
     text: &str,
@@ -155,7 +155,7 @@ pub fn draw_wrapped_text_in_area(
     for line in &wrapped_lines {
         let mut line_params = params;
         line_params.position = area.top_left() + Vec2::new(0.0, y_offset);
-        let line_size = draw_text_ex(line, line_params).size;
+        let line_size = draw_text_custom(line, line_params).size;
         max_width = max_width.max(line_size.x);
         y_offset += line_height;
     }

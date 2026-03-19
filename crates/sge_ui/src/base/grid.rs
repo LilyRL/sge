@@ -35,7 +35,11 @@ impl Grid {
 
 impl UiNode for Grid {
     fn preferred_dimensions(&self) -> Vec2 {
-        Vec2::ZERO
+        Vec2::INFINITY
+    }
+
+    fn size(&self, area: Area) -> Vec2 {
+        area.size
     }
 
     fn draw(&self, area: Area, ui: &UiState) -> Vec2 {

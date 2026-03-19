@@ -1,25 +1,20 @@
-use std::mem::MaybeUninit;
-
+use icons::*;
 use sge::prelude::*;
 use ui::prelude::*;
 
 fn main() -> anyhow::Result<()> {
-    init("UI")?;
+    let opts = Opts::builder()
+        .swap_interval(SwapInterval::DontWait)
+        .title("UI".to_string())
+        .build();
+    init_custom(opts)?;
+
     // wait_for_events(); // can be useful for increasing performance in ui only apps
 
     let texture = include_texture!("../assets/textures/guy.jpg");
     let mut progress: f32 = rand();
     let mut show_message = false;
     let mut clear_color = w95::PRIMARY;
-
-    let node = Text::title("Hello");
-    println!(
-        "Measured: {}\nDrawn: {}",
-        node.size(Area::new(Vec2::ZERO, window_size())),
-        node.draw(Area::new(Vec2::ZERO, window_size()), unsafe {
-            MaybeUninit::zeroed().assume_init()
-        }),
-    );
 
     loop {
         clear_screen(clear_color);
@@ -149,6 +144,13 @@ fn text_window() -> UiRef {
                     Text::body("Lorem ipsum dolor sit amet."),
                     Text::h2("Heading 1"),
                     Text::body("Lorem ipsum dolor sit amet."),
+                    Text::mono_sized(
+                        format!(
+                            "{} {} {} {}",
+                            ICON_PLUS_CIRCLE, ICON_BOMB, ICON_CARET_DOWN, ICON_CIRCLE_NOTCH
+                        ),
+                        40,
+                    ),
                     Text::h3("Heading 1"),
                     Text::body("Lorem ipsum dolor sit amet."),
                     Text::italic("Lorem ipsum dolor sit amet."),

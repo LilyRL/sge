@@ -1,6 +1,7 @@
 use bevy_math::Vec4;
 use egui_glium::egui_winit::egui::Color32;
 use palette::{Hsl, IntoColor, LinSrgb, LinSrgba, Oklch, Srgb, Srgba};
+use rkyv::{Archive, Deserialize, Serialize};
 use u8::Pixel;
 
 mod data;
@@ -12,7 +13,7 @@ pub mod u8;
 pub use data::*;
 
 #[repr(C)]
-#[derive(Copy, Clone, Debug, PartialEq, PartialOrd)]
+#[derive(Copy, Clone, Debug, PartialEq, PartialOrd, Archive, Serialize, Deserialize)]
 pub struct Color {
     pub r: f32,
     pub g: f32,

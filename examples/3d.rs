@@ -6,7 +6,7 @@ fn main() -> anyhow::Result<()> {
     init("3D?")?;
     wait_for_events();
 
-    let mut clear_color = Color::PURPLE_200;
+    let mut clear_color = Color::PURPLE_300;
 
     mutate_camera_3d(|c| {
         c.fovy = 80.0;
@@ -40,21 +40,21 @@ fn main() -> anyhow::Result<()> {
         let ui = {
             use ui::prelude::*;
             let len = min_window_dimension() / 6.0;
-            let color = Color::NEUTRAL_900;
+            let color = Color::NEUTRAL_950;
 
             FlexCol::new([
                 FlexBox::Fixed(
                     Col::new([
-                        Text::new("M - show many suzannes"),
-                        Text::new("Y - change color to yellow"),
-                        Text::new("G - change color to grey"),
-                        Text::new("B - change color to blue"),
-                        Text::new("hold R - rainbow background"),
-                        Text::new("K - mirror on the y axis"),
-                        Text::new(", - mirror on the z axis"),
-                        Text::new("I - toggle isometric camera"),
-                        Text::new("L - toggle locking light position to camera position"),
-                        Text::new("X - toggle grid"),
+                        Text::mono("M - show many suzannes"),
+                        Text::mono("Y - change color to yellow"),
+                        Text::mono("G - change color to grey"),
+                        Text::mono("B - change color to blue"),
+                        Text::mono("hold R - rainbow background"),
+                        Text::mono("K - mirror on the y axis"),
+                        Text::mono(", - mirror on the z axis"),
+                        Text::mono("I - toggle isometric camera"),
+                        Text::mono("L - toggle locking light position to camera position"),
+                        Text::mono("X - toggle grid"),
                     ])
                     .padding_xy(len - 50.0, (len / 5.0).floor())
                     .fill(color)

@@ -3,7 +3,7 @@ use glium::winit::keyboard::{Key, NamedKey};
 use sge_api::{area::AreaExt, shapes_2d::draw_rect};
 use sge_input::input_text;
 use sge_rendering::scissor::{pop_scissor, push_scissor};
-use sge_text::{FontRef, TextDrawParams, draw_text, draw_text_ex, measure_text};
+use sge_text::{FontRef, TextDrawParams, draw_text, draw_text_custom, measure_text};
 use sge_time::toggle_every_n_seconds;
 
 use super::*;
@@ -117,7 +117,7 @@ impl UiNode for TextInput {
         inner.top_left += self.offset();
 
         let dimensions = if state.value.is_empty() {
-            draw_text_ex(
+            draw_text_custom(
                 &self.prompt,
                 TextDrawParams {
                     color: self.color.with_alpha(0.5),
@@ -128,7 +128,7 @@ impl UiNode for TextInput {
                 },
             )
         } else {
-            draw_text_ex(
+            draw_text_custom(
                 text,
                 TextDrawParams {
                     color: self.color,

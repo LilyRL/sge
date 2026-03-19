@@ -10,6 +10,7 @@ egui_glium = { workspace = true }
 palette = { workspace = true }
 phf = { workspace = true }
 image = { workspace = true }
+rkyv = "0.8.15"
 
 [build-dependencies]
 palette = "0.7"

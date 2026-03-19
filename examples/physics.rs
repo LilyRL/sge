@@ -9,25 +9,13 @@ const FORCE_STRENGTH: f32 = 100.0;
 enum ShapeType {
     Circle,
     Square,
-    Rectangle,
-    Capsule,
-    CapsuleX,
-    Triangle,
-    Hexagon,
-    Star,
 }
 
 impl ShapeType {
     fn from_index(i: usize) -> Self {
-        match i % 8 {
+        match i % 2 {
             0 => Self::Circle,
-            1 => Self::Square,
-            2 => Self::Rectangle,
-            3 => Self::Capsule,
-            4 => Self::CapsuleX,
-            5 => Self::Triangle,
-            6 => Self::Hexagon,
-            _ => Self::Star,
+            _ => Self::Square,
         }
     }
 
@@ -35,48 +23,6 @@ impl ShapeType {
         match self {
             Self::Circle => Bounds::Circle(15.0),
             Self::Square => Bounds::Rect(Vec2::splat(30.0)),
-            Self::Rectangle => Bounds::Rect(Vec2::new(44.0, 22.0)),
-            Self::Capsule => Bounds::Capsule {
-                half_height: 14.0,
-                radius: 8.0,
-            },
-            Self::CapsuleX => Bounds::CapsuleX {
-                half_width: 14.0,
-                radius: 8.0,
-            },
-            Self::Triangle => {
-                let r = 18.0_f32;
-                let a = Vec2::new(0.0, -r);
-                let b = Vec2::new(r * 0.866, r * 0.5);
-                let c = Vec2::new(-r * 0.866, r * 0.5);
-                Bounds::ConvexHull(vec![a, b, c])
-            }
-            Self::Hexagon => {
-                let r = 16.0_f32;
-                let pts = (0..6)
-                    .map(|i| {
-                        let angle = std::f32::consts::FRAC_PI_3 * i as f32;
-                        Vec2::new(angle.cos() * r, angle.sin() * r)
-                    })
-                    .collect();
-                Bounds::ConvexHull(pts)
-            }
-            Self::Star => {
-                let r_outer = 18.0_f32;
-                let tri = |rot_offset: f32| {
-                    let pts = (0..3)
-                        .map(|i| {
-                            let angle = std::f32::consts::FRAC_PI_3 * 2.0 * i as f32 + rot_offset;
-                            Vec2::new(angle.cos() * r_outer, angle.sin() * r_outer)
-                        })
-                        .collect::<Vec<_>>();
-                    Bounds::ConvexHull(pts)
-                };
-                Bounds::compound(vec![
-                    (Vec2::ZERO, tri(0.0)),
-                    (Vec2::ZERO, tri(std::f32::consts::FRAC_PI_3)),
-                ])
-            }
         }
     }
 
@@ -84,48 +30,6 @@ impl ShapeType {
         match self {
             Self::Circle => draw_circle(pos, 15.0, color),
             Self::Square => draw_square(pos - Vec2::splat(15.0), 30.0, color),
-            Self::Rectangle => draw_rect(pos - Vec2::new(22.0, 11.0), Vec2::new(44.0, 22.0), color),
-            Self::Capsule => {
-                draw_rect(pos - Vec2::new(8.0, 14.0), Vec2::new(16.0, 28.0), color);
-                draw_circle(pos + Vec2::new(0.0, 14.0), 8.0, color);
-                draw_circle(pos - Vec2::new(0.0, 14.0), 8.0, color);
-            }
-            Self::CapsuleX => {
-                draw_rect(pos - Vec2::new(14.0, 8.0), Vec2::new(28.0, 16.0), color);
-                draw_circle(pos + Vec2::new(14.0, 0.0), 8.0, color);
-                draw_circle(pos - Vec2::new(14.0, 0.0), 8.0, color);
-            }
-            Self::Triangle => {
-                let r = 18.0_f32;
-                draw_tri(
-                    pos + Vec2::new(0.0, -r),
-                    pos + Vec2::new(r * 0.866, r * 0.5),
-                    pos + Vec2::new(-r * 0.866, r * 0.5),
-                    color,
-                );
-            }
-            Self::Hexagon => {
-                let r = 16.0_f32;
-                let pts: Vec<Vec2> = (0..6)
-                    .map(|i| {
-                        let angle = std::f32::consts::FRAC_PI_3 * i as f32;
-                        pos + Vec2::new(angle.cos() * r, angle.sin() * r)
-                    })
-                    .collect();
-                draw_poly(pos, 6, r, 0.0, color);
-            }
-            Self::Star => {
-                let r_outer = 18.0_f32;
-                for rot in [0.0_f32, std::f32::consts::FRAC_PI_3] {
-                    let pts: Vec<Vec2> = (0..3)
-                        .map(|i| {
-                            let angle = std::f32::consts::FRAC_PI_3 * 2.0 * i as f32 + rot;
-                            pos + Vec2::new(angle.cos() * r_outer, angle.sin() * r_outer)
-                        })
-                        .collect();
-                    draw_tri(pts[0], pts[1], pts[2], color);
-                }
-            }
         }
     }
 }
@@ -226,6 +130,29 @@ fn main() -> anyhow::Result<()> {
             Color::NEUTRAL_800,
         );
 
+        {
+            use ui::prelude::*;
+            let ui = Fit::new(Fill::new(
+                Color::NEUTRAL_800,
+                Padding::all(
+                    50.0,
+                    Col::new([
+                        Text::title_nowrap("Physics Showcase"),
+                        Text::mono(format!("Objects: {}", objects.len())),
+                        Text::mono(format!("FPS: {:.2}", avg_fps())),
+                        Text::h2("Controls"),
+                        Text::body("• Left Click: Spawn object"),
+                        Text::body("• Right Click (hold): Apply force"),
+                        Text::body("• D: Toggle collider debug"),
+                        Text::h2("Shapes"),
+                        Text::body("Circle, Square, Rect, Capsule (Y/X),"),
+                        Text::body("Triangle, Hexagon, Star (compound)"),
+                    ]),
+                ),
+            ));
+            ui::draw_ui(ui, vec2(0.0, BOUNDS_SIZE.y - BOUNDS_THICKNESS));
+        }
+
         draw_tri(
             ramp_pos + Vec2::new(-120.0, 40.0),
             ramp_pos + Vec2::new(120.0, 40.0),
@@ -293,29 +220,6 @@ fn main() -> anyhow::Result<()> {
 
         if key_pressed(KeyCode::KeyD) {
             show_colliders = !show_colliders;
-        }
-
-        {
-            use ui::prelude::*;
-            let ui = Fit::new(Fill::new(
-                Color::NEUTRAL_800,
-                Padding::all(
-                    50.0,
-                    Col::new([
-                        Text::title_nowrap("Physics Showcase"),
-                        Text::mono(format!("Objects: {}", objects.len())),
-                        Text::mono(format!("FPS: {:.2}", avg_fps())),
-                        Text::h2("Controls"),
-                        Text::body("• Left Click: Spawn object"),
-                        Text::body("• Right Click (hold): Apply force"),
-                        Text::body("• D: Toggle collider debug"),
-                        Text::h2("Shapes"),
-                        Text::body("Circle, Square, Rect, Capsule (Y/X),"),
-                        Text::body("Triangle, Hexagon, Star (compound)"),
-                    ]),
-                ),
-            ));
-            ui::draw_ui(ui, vec2(0.0, BOUNDS_SIZE.y - BOUNDS_THICKNESS));
         }
 
         if should_quit() {

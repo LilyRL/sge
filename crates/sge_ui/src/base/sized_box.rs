@@ -235,6 +235,10 @@ impl UiNode for EmptyBox {
         Vec2::new(self.width, self.height)
     }
 
+    fn size(&self, area: Area) -> Vec2 {
+        self.preferred_dimensions().max(area.size)
+    }
+
     fn draw(&self, _: Area, _: &UiState) -> Vec2 {
         self.preferred_dimensions()
     }

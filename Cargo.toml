@@ -9,7 +9,7 @@ description = "Simple game engine"
 [workspace.dependencies]
 egui_plot = "0.31"
 anyhow = "1.0.100"
-bevy_math = "0.17.2"
+bevy_math = { path = "./crates/bevy_math" }
 bon = "3.8.1"
 bumpalo = { version = "3.19.0", features = ["collections"] }
 color-eyre = "0.6.5"
@@ -106,6 +106,8 @@ sge_texture_atlas = { version = "0.1.0", path = "crates/sge_texture_atlas" }
 sge_utils = { version = "0.1.0", path = "crates/sge_utils" }
 sge_particles = { version = "0.1.0", path = "crates/sge_particles" }
 include_assets = { version = "0.1.0", path = "crates/include_assets" }
+persistence = { version = "0.1.0", path = "crates/persistence" }
+rkyv = "0.8.15"
 
 [profile.release]
 # Compile the entire crate as one unit.
@@ -167,6 +169,13 @@ members = [
     "crates/sge_time",
     "crates/sge_texture_atlas",
     "crates/sge_animation",
-    "crates/sge_audio"
-, "crates/sge_ui", "crates/sge_egui", "crates/sge_physics", "crates/sge_particles", "crates/include_assets"]
+    "crates/sge_audio",
+    "crates/sge_ui",
+    "crates/sge_egui",
+    "crates/sge_physics",
+    "crates/sge_particles",
+    "crates/include_assets",
+    "crates/bevy_math",
+    "crates/persistence"
+, "crates/sge_async"]
 resolver = "3"

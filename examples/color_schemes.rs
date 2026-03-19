@@ -1,6 +1,6 @@
 use sge::prelude::*;
 
-const COLORS: ColorScheme = ColorScheme::GRUVBOX_DARK;
+const COLORS: ColorScheme = ColorScheme::LACKLUSTER;
 
 fn main() -> anyhow::Result<()> {
     init("Color schemes")?;
@@ -13,14 +13,13 @@ fn main() -> anyhow::Result<()> {
     };
 
     loop {
-        draw_rect(Vec2::ZERO, Vec2::splat(1000.0), COLORS.bg0);
         clear_screen(COLORS.bg0);
 
         text_params.position = draw_palette() + Vec2::splat(20.0);
 
         let dimensions = measure_text_ex(text, text_params);
         draw_rect(text_params.position, dimensions.size, COLORS.bg1);
-        draw_text_ex(text, text_params);
+        draw_text_custom(text, text_params);
 
         if should_quit() {
             break;

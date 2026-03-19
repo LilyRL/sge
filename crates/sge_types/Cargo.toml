@@ -8,6 +8,7 @@ bevy_math.workspace = true
 error_union.workspace = true
 glium.workspace = true
 obj-rs.workspace = true
+rkyv = "0.8.15"
 sge_color.workspace = true
 sge_macros.workspace = true
 sge_window = { version = "0.1.0", path = "../sge_window" }

@@ -2,7 +2,19 @@ use std::{fmt::Debug, hash::Hash};
 
 use super::Color;
 
-#[derive(Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord, Debug)]
+#[derive(
+    Clone,
+    Copy,
+    PartialEq,
+    Eq,
+    Hash,
+    PartialOrd,
+    Ord,
+    Debug,
+    rkyv::Serialize,
+    rkyv::Deserialize,
+    rkyv::Archive,
+)]
 #[repr(C)]
 pub struct Rgba {
     pub r: u8,

@@ -1,7 +1,7 @@
 use bevy_math::{BVec2, Mat4, Quat, Vec2, Vec4Swizzles};
 use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Sub, SubAssign};
 
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy)]
 pub struct Transform2D {
     mat: Mat4,
     dirty: bool,
@@ -20,6 +20,10 @@ impl Transform2D {
         translation: Vec2::ZERO,
         mirror: BVec2::FALSE,
     };
+
+    pub const fn new() -> Self {
+        Self::IDENTITY
+    }
 
     pub fn update_matrix(&mut self) {
         if !self.dirty {
@@ -515,5 +519,16 @@ impl Mul<Vec2> for Transform2D {
 impl MulAssign for Transform2D {
     fn mul_assign(&mut self, rhs: Self) {
         *self = *self * rhs;
+    }
+}
+
+impl std::fmt::Debug for Transform2D {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("Transform2D")
+            .field("scale", &(self.scale.x, self.scale.y))
+            .field("translation", &(self.translation.x, self.translation.y))
+            .field("mirror_x", &self.mirror.x)
+            .field("mirror_y", &self.mirror.x)
+            .finish()
     }
 }

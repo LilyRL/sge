@@ -5,7 +5,8 @@ use sge_color::Color;
 use super::*;
 use sge_text::{
     FontRef, MONO, SANS, SANS_BOLD, SANS_BOLD_ITALIC, SANS_DISPLAY, SANS_ITALIC, TextDrawParams,
-    draw_text_ex, measure_text_ex, measure_wrapped_text, wrapped_text::draw_wrapped_text_in_area,
+    draw_text_custom, measure_text_ex, measure_wrapped_text,
+    wrapped_text::draw_wrapped_text_in_area,
 };
 
 #[derive(Debug)]
@@ -95,6 +96,16 @@ impl Text {
         Self {
             text: text.to_string(),
             font: MONO,
+            ..Default::default()
+        }
+        .to_ref()
+    }
+
+    pub fn mono_sized(text: impl ToString, font_size: usize) -> UiRef {
+        Self {
+            text: text.to_string(),
+            font: MONO,
+            font_size,
             ..Default::default()
         }
         .to_ref()
@@ -275,6 +286,19 @@ impl Text {
         }
         .to_ref()
     }
+
+    pub fn from_params(text: impl ToString, params: TextDrawParams, wrap: bool) -> UiRef {
+        Self {
+            text: text.to_string(),
+            font: params.font.unwrap_or(SANS),
+            font_size: params.font_size,
+            color: params.color,
+            do_dpi_scaling: params.do_dpi_scaling,
+            line_spacing: 1.0,
+            wrap,
+        }
+        .to_ref()
+    }
 }
 
 impl UiNode for Text {
@@ -320,7 +344,7 @@ impl UiNode for Text {
         } else {
             let mut params: TextDrawParams = self.into();
             params.position = area.top_left;
-            draw_text_ex(&self.text, params).size
+            draw_text_custom(&self.text, params).size
         }
     }
 }

@@ -73,7 +73,7 @@ pub fn default_font() -> FontRef {
 #[allow(unused)]
 impl FontRef {
     pub fn draw_text(&self, text: impl AsRef<str>, position: Vec2, size: usize) -> TextDimensions {
-        draw_text_ex(
+        draw_text_custom(
             text,
             TextDrawParams {
                 font: Some(*self),
@@ -90,7 +90,7 @@ impl FontRef {
         position: Vec2,
         size: usize,
     ) -> TextDimensions {
-        draw_text_world_ex(
+        draw_text_world_custom(
             text,
             TextDrawParams {
                 font: Some(*self),
@@ -109,7 +109,7 @@ impl FontRef {
         color: Color,
         do_dpi_scaling: bool,
     ) -> TextDimensions {
-        draw_text_world_ex(
+        draw_text_world_custom(
             text,
             TextDrawParams {
                 font: Some(*self),
@@ -129,7 +129,7 @@ impl FontRef {
         color: Color,
         do_dpi_scaling: bool,
     ) -> TextDimensions {
-        draw_text_ex(
+        draw_text_custom(
             text,
             TextDrawParams {
                 font: Some(*self),
@@ -498,8 +498,44 @@ fn draw_text_to(
     }
 }
 
-pub fn draw_text_ex(text: impl AsRef<str>, params: TextDrawParams) -> TextDimensions {
+pub fn draw_text_custom(text: impl AsRef<str>, params: TextDrawParams) -> TextDimensions {
     draw_text_to(text, params, draw_queue_2d())
+}
+
+pub fn draw_text_ex(
+    text: impl AsRef<str>,
+    position: Vec2,
+    color: Color,
+    font_size: usize,
+) -> TextDimensions {
+    draw_text_to(
+        text,
+        TextDrawParams {
+            position,
+            color,
+            font_size,
+            ..Default::default()
+        },
+        draw_queue_2d(),
+    )
+}
+
+pub fn draw_text_world_ex(
+    text: impl AsRef<str>,
+    position: Vec2,
+    color: Color,
+    font_size: usize,
+) -> TextDimensions {
+    draw_text_to(
+        text,
+        TextDrawParams {
+            position,
+            color,
+            font_size,
+            ..Default::default()
+        },
+        world_draw_queue_2d(),
+    )
 }
 
 pub fn draw_text(text: impl AsRef<str>, position: Vec2) -> TextDimensions {
@@ -553,7 +589,7 @@ pub fn draw_text_size(text: impl AsRef<str>, position: Vec2, size: usize) -> Tex
     )
 }
 
-pub fn draw_text_world_ex(text: impl AsRef<str>, params: TextDrawParams) -> TextDimensions {
+pub fn draw_text_world_custom(text: impl AsRef<str>, params: TextDrawParams) -> TextDimensions {
     draw_text_to(text, params, world_draw_queue_2d())
 }
 
