@@ -82,7 +82,7 @@ fn w95_window(texture: TextureRef, progress: f32, clear_color: &mut Color) -> Ui
     let wait_button = id!();
 
     if button_clicked_last_frame(color_button) {
-        *clear_color = random_color();
+        *clear_color = rand_color();
     }
 
     if button_clicked_last_frame(wait_button) {

@@ -1,7 +1,10 @@
-use bevy_math::Vec2;
+use bevy_math::{Vec2, vec2};
 use sge_color::Color;
 use sge_macros::draw_shape_variants;
-use sge_math::collision::{self, HasBounds2D, Polygon};
+use sge_math::{
+    Vec2Ext,
+    collision::{self, HasBounds2D, Polygon},
+};
 use sge_rendering::{
     d2::DrawQueue2D,
     pipeline::{draw_queue_2d, world_draw_queue_2d},
@@ -309,7 +312,6 @@ macro_rules! draw_variants {
 }
 
 draw_shape_variants! {
-    // ---- filled primitives with rotation + outline -------------------------
 
     rect [rotation, outline, with_outline]:
         top_left: Vec2, size: Vec2, color: Color
@@ -323,13 +325,9 @@ draw_shape_variants! {
         a: Vec2, b: Vec2, c: Vec2, color: Color
         => Triangle { points: [a, b, c], color, rot },
 
-    // ---- line: no outline (draw_outline_to_draw_queue is unimplemented) ----
-
     line [rotation]:
         start: Vec2, end: Vec2, thickness: f32, color: Color
         => Line2D { start, end, thickness, color, rot },
-
-    // ---- poly-based shapes: outline makes sense, rotation via `rotation` field
 
     poly [outline, with_outline]:
         center: Vec2, sides: usize, radius: f32, rotation: f32, color: Color
@@ -346,8 +344,6 @@ draw_shape_variants! {
     hexagon_pointy [outline, with_outline]:
         center: Vec2, radius: f32, color: Color
         => Poly { center, sides: 6, radius, rotation: std::f32::consts::FRAC_PI_6, color },
-
-    // ---- radial gradient: outline is unimplemented -------------------------
 
     radial_gradient []:
         center: Vec2, radius: Vec2, inner_color: Color, outer_color: Color,
@@ -480,25 +476,164 @@ draw_variants! {
     }
 }
 
-draw_variants! {
-    fn arrow(start: Vec2, end: Vec2, thickness: f32, color: Color) {
-        screen {
-            draw_line(start, end, thickness, color);
-            let dir = (end - start).normalize();
-            let perp = Vec2::new(-dir.y, dir.x);
-            let h = thickness * 4.0;
-            draw_line(end, end - dir * h + perp * h / 2.0, thickness, color);
-            draw_line(end, end - dir * h - perp * h / 2.0, thickness, color);
-        }
-        world {
-            draw_line_world(start, end, thickness, color);
-            let dir = (end - start).normalize();
-            let perp = Vec2::new(-dir.y, dir.x);
-            let h = thickness * 4.0;
-            draw_line_world(end, end - dir * h + perp * h / 2.0, thickness, color);
-            draw_line_world(end, end - dir * h - perp * h / 2.0, thickness, color);
-        }
-    }
+pub fn draw_arrow_to(start: Vec2, end: Vec2, thickness: f32, color: Color, world: bool) {
+    let dir = (end - start).normalize();
+    let perp = Vec2::new(-dir.y, dir.x);
+    let w = thickness * 2.0;
+    let d = thickness * 4.0;
+    let mult = ((d / w) * 2.0).sqrt();
+
+    let tip = end;
+    let out_left = tip + perp * w - dir * d;
+    let out_right = tip - perp * w - dir * d;
+    let in_left = out_left - perp * thickness;
+    let in_right = out_right + perp * thickness;
+    let notch = end - dir * thickness * mult;
+
+    draw_line_to(start, notch, thickness, color, world);
+
+    draw_tri_to(out_left, in_left, notch, color, world);
+    draw_tri_to(out_left, notch, tip, color, world);
+    draw_tri_to(out_right, in_right, notch, color, world);
+    draw_tri_to(out_right, notch, tip, color, world);
+}
+
+pub fn draw_arrow(start: Vec2, end: Vec2, thickness: f32, color: Color) {
+    draw_arrow_to(start, end, thickness, color, false);
+}
+
+pub fn draw_arrow_world(start: Vec2, end: Vec2, thickness: f32, color: Color) {
+    draw_arrow_to(start, end, thickness, color, true);
+}
+
+fn draw_right_angled_arrow_internal(
+    start: Vec2,
+    end: Vec2,
+    thickness: f32,
+    color: Color,
+    world: bool,
+    f: impl Fn(Vec2, Vec2, f32, Color, bool),
+) {
+    let delta = end - start;
+    let horizontal = delta.x.abs() > delta.y.abs();
+
+    let (half_main, cross) = if horizontal {
+        (vec2(delta.x / 2.0, 0.0), vec2(0.0, delta.y))
+    } else {
+        (vec2(0.0, delta.y / 2.0), vec2(delta.x, 0.0))
+    };
+
+    let mut cursor = start;
+
+    draw_line_to(cursor, cursor + half_main, thickness, color, world);
+    cursor += half_main;
+
+    draw_capped_line_to(cursor, cursor + cross, thickness, color, world);
+    cursor += cross;
+
+    f(cursor, cursor + half_main, thickness, color, world);
+    cursor += half_main;
+}
+
+pub fn draw_right_angled_arrow_to(
+    start: Vec2,
+    end: Vec2,
+    thickness: f32,
+    color: Color,
+    world: bool,
+) {
+    draw_right_angled_arrow_internal(start, end, thickness, color, world, draw_arrow_to);
+}
+
+pub fn draw_right_angled_arrow(start: Vec2, end: Vec2, thickness: f32, color: Color) {
+    draw_right_angled_arrow_to(start, end, thickness, color, false);
+}
+
+pub fn draw_right_angled_arrow_world(start: Vec2, end: Vec2, thickness: f32, color: Color) {
+    draw_right_angled_arrow_to(start, end, thickness, color, true);
+}
+
+pub fn draw_right_angled_solid_arrow_to(
+    start: Vec2,
+    end: Vec2,
+    thickness: f32,
+    color: Color,
+    world: bool,
+) {
+    draw_right_angled_arrow_internal(start, end, thickness, color, world, draw_solid_arrow_to);
+}
+
+pub fn draw_right_angled_solid_arrow(start: Vec2, end: Vec2, thickness: f32, color: Color) {
+    draw_right_angled_solid_arrow_to(start, end, thickness, color, false);
+}
+
+pub fn draw_right_angled_solid_arrow_world(start: Vec2, end: Vec2, thickness: f32, color: Color) {
+    draw_right_angled_solid_arrow_to(start, end, thickness, color, true);
+}
+
+pub fn draw_right_angled_sharp_arrow_to(
+    start: Vec2,
+    end: Vec2,
+    thickness: f32,
+    color: Color,
+    world: bool,
+) {
+    draw_right_angled_arrow_internal(start, end, thickness, color, world, draw_sharp_arrow_to);
+}
+
+pub fn draw_right_angled_sharp_arrow(start: Vec2, end: Vec2, thickness: f32, color: Color) {
+    draw_right_angled_sharp_arrow_to(start, end, thickness, color, false);
+}
+
+pub fn draw_right_angled_sharp_arrow_world(start: Vec2, end: Vec2, thickness: f32, color: Color) {
+    draw_right_angled_sharp_arrow_to(start, end, thickness, color, true);
+}
+
+pub fn draw_solid_arrow_to(start: Vec2, end: Vec2, thickness: f32, color: Color, world: bool) {
+    let dir = (end - start).normalize();
+    let perp = Vec2::new(-dir.y, dir.x);
+    let h = thickness * 4.0;
+    let points = [
+        end,
+        end - dir * h + perp * h / 2.0,
+        end - dir * h - perp * h / 2.0,
+    ];
+    draw_line_to(start, end - dir * h, thickness, color, world);
+    draw_tri_to(points[0], points[1], points[2], color, world);
+}
+
+pub fn draw_solid_arrow(start: Vec2, end: Vec2, thickness: f32, color: Color) {
+    draw_solid_arrow_to(start, end, thickness, color, false);
+}
+
+pub fn draw_solid_arrow_world(start: Vec2, end: Vec2, thickness: f32, color: Color) {
+    draw_solid_arrow_to(start, end, thickness, color, true);
+}
+
+pub fn draw_sharp_arrow_to(start: Vec2, end: Vec2, thickness: f32, color: Color, world: bool) {
+    let dir = (end - start).normalize();
+    let perp = Vec2::new(-dir.y, dir.x);
+    let w = thickness * 2.0;
+    let d = thickness * 4.0;
+    let mult = ((d / w) * 2.0).sqrt();
+
+    let tip = end;
+    let out_left = tip + perp * w - dir * d;
+    let out_right = tip - perp * w - dir * d;
+    let notch = end - dir * thickness * mult;
+
+    draw_line_to(start, notch, thickness, color, world);
+
+    draw_tri_to(out_left, notch, tip, color, world);
+    draw_tri_to(out_right, notch, tip, color, world);
+}
+
+pub fn draw_sharp_arrow(start: Vec2, end: Vec2, thickness: f32, color: Color) {
+    draw_sharp_arrow_to(start, end, thickness, color, false);
+}
+
+pub fn draw_sharp_arrow_world(start: Vec2, end: Vec2, thickness: f32, color: Color) {
+    draw_sharp_arrow_to(start, end, thickness, color, true);
 }
 
 draw_variants! {
@@ -901,3 +1036,18 @@ fn draw_circle_outline_path(
         color,
     ));
 }
+
+draw_variants!(
+    fn circle_line(start: Vec2, end: Vec2, thickness: f32, color: Color) {
+        screen {
+            draw_circle(start, thickness / 2.0, color);
+            draw_circle(end, thickness / 2.0, color);
+            draw_line(start, end, thickness, color);
+        }
+        world {
+            draw_circle_world(start, thickness / 2.0, color);
+            draw_circle_world(end, thickness / 2.0, color);
+            draw_line_world(start, end, thickness, color);
+        }
+    }
+);

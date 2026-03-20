@@ -4,6 +4,7 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+bevy_math.workspace = true
 global = { version = "0.1.0", path = "../global" }
 log.workspace = true
 rand.workspace = true

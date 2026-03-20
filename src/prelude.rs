@@ -4,8 +4,9 @@ pub use crate::{init, init_custom};
 pub use anyhow;
 pub use bevy_math::{
     IVec2, IVec3, IVec4, Mat2, Mat3, Mat4, Quat, USizeVec2, USizeVec3, USizeVec4, UVec2, UVec3,
-    UVec4, Vec2, Vec3, Vec4, VectorSpace, ivec2, ivec3, ivec4, mat2, mat3, mat4, ops::*, usizevec2,
-    usizevec3, usizevec4, uvec2, uvec3, uvec4, vec2, vec3, vec4,
+    UVec4, Vec2, Vec2Swizzles, Vec3, Vec3Swizzles, Vec4, Vec4Swizzles, VectorSpace, ivec2, ivec3,
+    ivec4, mat2, mat3, mat4, ops::*, usizevec2, usizevec3, usizevec4, uvec2, uvec3, uvec4, vec2,
+    vec3, vec4,
 };
 pub use glium::winit::event::MouseButton;
 pub use glium::winit::keyboard::{Key, KeyCode, NamedKey};
@@ -42,7 +43,7 @@ pub use sge_config::{
     EngineConfig, EngineCreationOptions, Opts, OptsBuilder, dont_wait_for_events, get_config,
     get_wait_for_events, get_wait_for_events_mut, set_magnify_filter, set_minify_filter,
     set_wait_for_events, toggle_wait_for_events, use_default_filtering, use_linear_filtering,
-    use_mipmaps, use_nearest_filtering, wait_for_events,
+    use_mipmaps, use_nearest_filtering, use_positive_y_down, use_positive_y_up, wait_for_events,
 };
 pub use sge_debug_visualisations::grid::{create_infinite_grid, draw_2d_grid_world};
 pub use sge_debug_visualisations::*;
@@ -99,7 +100,7 @@ pub use sge_rendering::scissor::{
     clear_scissor_stack, current_scissor, get_scissor_stack, pop_scissor, push_scissor,
 };
 pub use sge_rendering::shapes_3d::*;
-pub use sge_rng::{rand, rand_usize, random_bool, random_color, random_range, random_ratio};
+pub use sge_rng::{rand, rand_bool, rand_color, rand_range, rand_ratio, rand_usize};
 pub use sge_shapes::d2::*;
 pub use sge_text::rich_text::*;
 pub use sge_text::{
@@ -143,3 +144,7 @@ pub mod gamepad {
 pub use glium::winit::dpi::{LogicalSize, PhysicalSize};
 pub use persistence::{Error as PersistenceError, persistent, rkyv};
 pub use sge_math::Vec2Ext;
+pub mod graph_networks {
+    pub use sge_graph_networks::*;
+}
+pub use anyhow::Result as AResult;

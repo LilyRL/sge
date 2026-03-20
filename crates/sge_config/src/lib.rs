@@ -13,6 +13,7 @@ use glium::{
 };
 use global::global;
 use log::{LevelFilter, info};
+use sge_camera::get_cameras;
 use sge_types::Verbosity;
 use sge_window::WindowOptions;
 
@@ -342,6 +343,7 @@ impl Opts {
             default_minify_filter,
             wait_for_events,
             dithering,
+            use_positive_y_up: false,
         };
 
         EngineCreationOptions {
@@ -389,6 +391,7 @@ pub struct EngineConfig {
     /// makes the engine wait for new events before re-rendering
     pub wait_for_events: bool,
     pub dithering: bool,
+    pub use_positive_y_up: bool,
 }
 
 impl Default for EngineConfig {
@@ -399,6 +402,7 @@ impl Default for EngineConfig {
             default_minify_filter: MinifySamplerFilter::LinearMipmapLinear,
             wait_for_events: false,
             dithering: true,
+            use_positive_y_up: false,
         }
     }
 }
@@ -481,4 +485,16 @@ pub fn get_dithering_mut() -> &'static mut bool {
 
 pub fn get_dithering() -> bool {
     get_config().dithering
+}
+
+/// this is flipped from the default
+pub fn use_positive_y_up() {
+    get_config().use_positive_y_up = true;
+    get_cameras().set_flip_y(true);
+}
+
+/// this is the default
+pub fn use_positive_y_down() {
+    get_config().use_positive_y_up = false;
+    get_cameras().set_flip_y(false);
 }

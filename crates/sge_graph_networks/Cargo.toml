@@ -1,0 +1,14 @@
+[package]
+name = "sge_graph_networks"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+bevy_math.workspace = true
+nalgebra.workspace = true
+sge_api = { version = "0.1.0", path = "../sge_api" }
+sge_camera = { version = "0.1.0", path = "../sge_camera" }
+sge_color.workspace = true
+sge_input.workspace = true
+sge_rng = { version = "0.1.0", path = "../sge_rng" }
+sge_time = { version = "0.1.0", path = "../sge_time" }

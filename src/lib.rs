@@ -71,7 +71,7 @@ pub fn init_custom(mut opts: Opts) -> Result<(), InitError> {
     sge_config::init(opts.config);
     get_window_state().window.request_redraw();
     sge_input::init()?;
-    sge_camera::init(size.width, size.height);
+    sge_camera::init(size.width, size.height, false);
     sge_egui::init();
     sge_debugging::init();
     sge_rng::init();
@@ -83,6 +83,7 @@ pub fn init_custom(mut opts: Opts) -> Result<(), InitError> {
     sge_ui::init_ui();
     user_storage::init();
     sge_physics::init();
+    // sge_routines::init();
 
     info!("Finished initializing engine.");
 
@@ -98,6 +99,7 @@ pub fn next_frame() {
     render_frame();
     sge_egui::update();
     sge_ui::update();
+    // sge_routines::update();
     sge_time::update(has_input_event);
     record_frame_time(engine_start_time);
     request_redraw_if_needed();

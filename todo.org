@@ -7,12 +7,14 @@
  colors and a bit of refactoring.
   - [X] draw queue with consecutive poly and circle draw calls grouped together so
     that they can be batch drawn together. use instancing for grouped circles
-- [ ] toggle using positive y up
+- [X] toggle using positive y up
 - [ ] space invaders using some new features
 - [ ] constant particle emitters
 - [ ] texture/atlas particles
 - [ ] have a look at texture atlasses and see if we can make somethjng good for 2d platformer levels. maybe an add colliders toggle
+- [ ] some kinda mf https://docs.rs/macroquad/latest/macroquad/telemetry/index.html
 - [ ] mini quad backend + web
+- [ ] bitmap fonts
 - [ ] add post frame callback
 - [ ] add mf draw wireframe and shit
 - [ ] load_sound
@@ -20,6 +22,17 @@
 - [ ] play_sound
 - [ ] play_sound_once
 - [ ] set_sound_volume
+- [ ] draggable/resizable floating window
+- [ ] solid triangle arrow functions
+- [ ] expandable <details> type thing
+- [ ] slider
+- [ ] more filters
+  - [ ] crt
+  - [ ] wobbly
+  - [ ] chromatic abboration
+  - [ ] glitch
+  - [ ] fish eye
+  - [ ] custom
 - [ ] stop_sound
 - [ ] coroutines, some kind of future management so that the user can ask to run some code at the end of the frame, in some number of frames, after some time, or when something next happens
 - [ ] crates.io
@@ -28,6 +41,8 @@
     - [X] implement macro
     - [ ] add support for engine types
   - [ ] network
+- [ ] fs/network functions sync/async that taps into the async runtime being
+  worked on
 - [ ] make the ui more performant
 - [ ] re-add profiling
 - [ ] measure startup and runtime performance

@@ -10,10 +10,15 @@ pub fn lerp(a: f32, b: f32, t: f32) -> f32 {
 
 pub trait Vec2Ext {
     fn invert_y(&self) -> Self;
+    fn invert_x(&self) -> Self;
 }
 
 impl Vec2Ext for Vec2 {
     fn invert_y(&self) -> Self {
         Vec2::new(self.x, -self.y)
+    }
+
+    fn invert_x(&self) -> Self {
+        Vec2::new(-self.x, self.y)
     }
 }

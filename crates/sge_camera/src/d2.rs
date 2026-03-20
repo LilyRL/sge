@@ -1,4 +1,4 @@
-use bevy_math::{Mat3, Mat4, Vec2, Vec4};
+use bevy_math::{Mat3, Mat4, Vec2, Vec4, vec2};
 use glium::winit::window::Window;
 
 const BIG_NUMBER: f32 = 9999.9;
@@ -10,6 +10,7 @@ pub struct Camera2D {
     pub rotation: f32,
     /// for temporary translation, like screenshake
     pub offset: Vec2,
+    pub flip_y: bool,
 
     window_size: Vec2,
 
@@ -21,7 +22,7 @@ pub struct Camera2D {
 }
 
 impl Camera2D {
-    pub fn new(window_width: u32, window_height: u32) -> Self {
+    pub fn new(window_width: u32, window_height: u32, flip_y: bool) -> Self {
         let mut camera = Self {
             translation: Vec2::ZERO,
             offset: Vec2::ZERO,
@@ -33,14 +34,15 @@ impl Camera2D {
             projection_matrix: Mat4::IDENTITY,
             visible_bounds: (Vec2::ZERO, Vec2::ZERO),
             needs_update: true,
+            flip_y,
         };
         camera.update_matrices();
         camera
     }
 
-    pub fn from_window(window: &Window) -> Self {
+    pub fn from_window(window: &Window, flip_y: bool) -> Self {
         let size = window.inner_size();
-        Self::new(size.width, size.height)
+        Self::new(size.width, size.height, flip_y)
     }
 
     pub fn update_sizes(&mut self, window_width: u32, window_height: u32) {
@@ -59,9 +61,11 @@ impl Camera2D {
 
         self.needs_update = false;
 
-        let translation_matrix = Mat3::from_translation(-self.translation - self.offset);
-        let rotation_matrix = Mat3::from_angle(-self.rotation);
-        let scale_matrix = Mat3::from_scale(Vec2::splat(self.scale));
+        let sign = if self.flip_y { 1.0 } else { -1.0 };
+        let translation_matrix =
+            Mat3::from_translation((sign * self.translation) + (sign * self.offset));
+        let rotation_matrix = Mat3::from_angle(sign * self.rotation);
+        let scale_matrix = Mat3::from_scale(Vec2::splat(self.scale) * vec2(1.0, -sign));
 
         self.view_matrix = scale_matrix * rotation_matrix * translation_matrix;
         self.inverse_view_matrix = self.view_matrix.inverse();
@@ -173,11 +177,15 @@ impl Camera2D {
     }
 }
 
-pub fn projection_from_window(window: &Window) -> Mat4 {
+pub fn projection_from_window(window: &Window, flip_y: bool) -> Mat4 {
     let size = window.inner_size();
-    projection(size.width, size.height)
+    projection(size.width, size.height, flip_y)
 }
 
-pub fn projection(width: u32, height: u32) -> Mat4 {
-    Mat4::orthographic_rh(0.0, width as f32, height as f32, 0.0, -1.0, 1.0)
+pub fn projection(width: u32, height: u32, flip_y: bool) -> Mat4 {
+    if flip_y {
+        Mat4::orthographic_rh(0.0, width as f32, 0.0, height as f32, -1.0, 1.0)
+    } else {
+        Mat4::orthographic_rh(0.0, width as f32, height as f32, 0.0, -1.0, 1.0)
+    }
 }

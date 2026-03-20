@@ -8,5 +8,6 @@ bon.workspace = true
 glium.workspace = true
 global = { version = "0.1.0", path = "../global" }
 log.workspace = true
+sge_camera = { version = "0.1.0", path = "../sge_camera" }
 sge_types = { version = "0.1.0", path = "../sge_types" }
 sge_window = { version = "0.1.0", path = "../sge_window" }
