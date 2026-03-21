@@ -463,6 +463,20 @@ draw_variants! {
 }
 
 draw_variants! {
+    fn half_capped_line(start: Vec2, end: Vec2, thickness: f32, color: Color) {
+        screen {
+            draw(Line2D::new(start, end, thickness, color).with_half_caps());
+        }
+        world {
+            let line = Line2D::new(start, end, thickness, color).with_half_caps();
+            if line.is_visible_in_world() {
+                draw_world(line);
+            }
+        }
+    }
+}
+
+draw_variants! {
     fn path(points: &[Vec2], thickness: f32, color: Color) {
         screen { points.windows(2).for_each(|p| draw_line(p[0], p[1], thickness, color)); }
         world  { points.windows(2).for_each(|p| draw_line_world(p[0], p[1], thickness, color)); }
@@ -634,6 +648,74 @@ pub fn draw_sharp_arrow(start: Vec2, end: Vec2, thickness: f32, color: Color) {
 
 pub fn draw_sharp_arrow_world(start: Vec2, end: Vec2, thickness: f32, color: Color) {
     draw_sharp_arrow_to(start, end, thickness, color, true);
+}
+
+fn safe_normalize(v: Vec2) -> Option<Vec2> {
+    let len = v.length();
+    if len < 1e-6 { None } else { Some(v / len) }
+}
+
+pub fn draw_zig_zag_to(
+    start: Vec2,
+    end: Vec2,
+    thickness: f32,
+    color: Color,
+    width: f32,
+    num_segments: usize,
+    world: bool,
+) {
+    let delta = end - start;
+    let dir = delta.normalize();
+    let perp = Vec2::new(-dir.y, dir.x);
+    let step = delta / num_segments as f32;
+    let thick = perp * thickness * 0.5;
+
+    let mut spine = Vec::with_capacity(num_segments + 1);
+    for i in 0..=num_segments {
+        let base = start + step * i as f32;
+        let side = if i % 2 == 0 {
+            -width * 0.5
+        } else {
+            width * 0.5
+        };
+        spine.push(base + perp * side);
+    }
+
+    for w in spine.windows(2) {
+        let (a, b) = (w[0], w[1]);
+        draw_tri_to(a - thick, a + thick, b + thick, color, world);
+        draw_tri_to(a - thick, b + thick, b - thick, color, world);
+    }
+}
+
+pub fn draw_zig_zag(start: Vec2, end: Vec2, thickness: f32, color: Color) {
+    draw_zig_zag_to(start, end, thickness, color, 5.0, 10, false);
+}
+
+pub fn draw_zig_zag_ex(
+    start: Vec2,
+    end: Vec2,
+    thickness: f32,
+    color: Color,
+    width: f32,
+    num_segments: usize,
+) {
+    draw_zig_zag_to(start, end, thickness, color, width, num_segments, false);
+}
+
+pub fn draw_zig_zag_world(start: Vec2, end: Vec2, thickness: f32, color: Color) {
+    draw_zig_zag_to(start, end, thickness, color, 5.0, 10, true);
+}
+
+pub fn draw_zig_zag_world_ex(
+    start: Vec2,
+    end: Vec2,
+    thickness: f32,
+    color: Color,
+    width: f32,
+    num_segments: usize,
+) {
+    draw_zig_zag_to(start, end, thickness, color, width, num_segments, true);
 }
 
 draw_variants! {

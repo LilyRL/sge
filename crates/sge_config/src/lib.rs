@@ -1,5 +1,6 @@
 use bon::Builder;
 use glium::{
+    PolygonMode,
     glutin::{
         config::{ColorBufferType, ConfigSurfaceTypes, ConfigTemplateBuilder},
         context::{ContextAttributesBuilder, GlProfile, Priority, ReleaseBehavior, Robustness},
@@ -135,6 +136,8 @@ pub struct Opts {
     pub wait_for_events: Option<bool>,
     pub title: String,
     pub dithering: Option<bool>,
+    pub polygon_mode: Option<PolygonMode>,
+    pub line_width: Option<f32>,
 }
 
 impl Opts {
@@ -336,6 +339,7 @@ impl Opts {
             .wait_for_events
             .unwrap_or(default.config.wait_for_events);
         let dithering = self.dithering.unwrap_or(default.config.dithering);
+        let polygon_mode = self.polygon_mode.unwrap_or(default.config.polygon_mode);
 
         let config = EngineConfig {
             use_mipmaps,
@@ -344,6 +348,8 @@ impl Opts {
             wait_for_events,
             dithering,
             use_positive_y_up: false,
+            polygon_mode,
+            line_width: self.line_width,
         };
 
         EngineCreationOptions {
@@ -392,6 +398,8 @@ pub struct EngineConfig {
     pub wait_for_events: bool,
     pub dithering: bool,
     pub use_positive_y_up: bool,
+    pub polygon_mode: PolygonMode,
+    pub line_width: Option<f32>,
 }
 
 impl Default for EngineConfig {
@@ -403,6 +411,8 @@ impl Default for EngineConfig {
             wait_for_events: false,
             dithering: true,
             use_positive_y_up: false,
+            polygon_mode: PolygonMode::Fill,
+            line_width: None,
         }
     }
 }
@@ -497,4 +507,20 @@ pub fn use_positive_y_up() {
 pub fn use_positive_y_down() {
     get_config().use_positive_y_up = false;
     get_cameras().set_flip_y(false);
+}
+
+pub fn set_polygon_mode(mode: PolygonMode) {
+    get_config().polygon_mode = mode;
+}
+
+pub fn get_polygon_mode() -> PolygonMode {
+    get_config().polygon_mode
+}
+
+pub fn toggle_wireframe() {
+    match get_polygon_mode() {
+        PolygonMode::Fill => set_polygon_mode(PolygonMode::Line),
+        PolygonMode::Line => set_polygon_mode(PolygonMode::Fill),
+        _ => (),
+    }
 }

@@ -262,34 +262,34 @@ impl ColorScheme {
     };
 
     pub const LACKLUSTER: Self = Self {
-        bg0: Color::from_rgba_u8(0x08, 0x08, 0x08, 255), // base-1
-        bg1: Color::from_rgba_u8(0x10, 0x10, 0x10, 255), // base0
-        bg2: Color::from_rgba_u8(0x19, 0x19, 0x19, 255), // base1
-        bg3: Color::from_rgba_u8(0x2a, 0x2a, 0x2a, 255), // base2
-        bg4: Color::from_rgba_u8(0x3a, 0x3a, 0x3a, 255), // base3 / comment
+        bg0: Color::from_rgba_u8(0x08, 0x08, 0x08, 255),
+        bg1: Color::from_rgba_u8(0x10, 0x10, 0x10, 255),
+        bg2: Color::from_rgba_u8(0x19, 0x19, 0x19, 255),
+        bg3: Color::from_rgba_u8(0x2a, 0x2a, 0x2a, 255),
+        bg4: Color::from_rgba_u8(0x3a, 0x3a, 0x3a, 255),
 
-        fg0: Color::from_rgba_u8(0xdd, 0xdd, 0xdd, 255), // base9
-        fg1: Color::from_rgba_u8(0xcc, 0xcc, 0xcc, 255), // base8
-        fg2: Color::from_rgba_u8(0xaa, 0xaa, 0xaa, 255), // base7
-        fg3: Color::from_rgba_u8(0x7a, 0x7a, 0x7a, 255), // base6 / punctuation
-        fg4: Color::from_rgba_u8(0x55, 0x55, 0x55, 255), // base5
+        fg0: Color::from_rgba_u8(0xdd, 0xdd, 0xdd, 255),
+        fg1: Color::from_rgba_u8(0xcc, 0xcc, 0xcc, 255),
+        fg2: Color::from_rgba_u8(0xaa, 0xaa, 0xaa, 255),
+        fg3: Color::from_rgba_u8(0x7a, 0x7a, 0x7a, 255),
+        fg4: Color::from_rgba_u8(0x55, 0x55, 0x55, 255),
 
-        red: Color::from_rgba_u8(0xd7, 0x00, 0x00, 255), // red
-        orange: Color::from_rgba_u8(0xff, 0xaa, 0x88, 255), // orange
-        yellow: Color::from_rgba_u8(0xad, 0xac, 0x5f, 255), // yellow
-        green: Color::from_rgba_u8(0x67, 0x9f, 0x68, 255), // green
-        blue: Color::from_rgba_u8(0x69, 0x87, 0xc5, 255), // blue
-        purple: Color::from_rgba_u8(0xfa, 0xa8, 0xde, 255), // pink
-        aqua: Color::from_rgba_u8(0x70, 0x80, 0x90, 255), // lack
-        gray: Color::from_rgba_u8(0x44, 0x44, 0x44, 255), // base4
+        red: Color::from_rgba_u8(0xd7, 0x00, 0x00, 255),
+        orange: Color::from_rgba_u8(0xff, 0xaa, 0x88, 255),
+        yellow: Color::from_rgba_u8(0xad, 0xac, 0x5f, 255),
+        green: Color::from_rgba_u8(0x67, 0x9f, 0x68, 255),
+        blue: Color::from_rgba_u8(0x69, 0x87, 0xc5, 255),
+        purple: Color::from_rgba_u8(0xfa, 0xa8, 0xde, 255),
+        aqua: Color::from_rgba_u8(0x70, 0x80, 0x90, 255),
+        gray: Color::from_rgba_u8(0x44, 0x44, 0x44, 255),
 
-        light_red: Color::from_rgba_u8(0xd7, 0x00, 0x00, 255), // red (no bright variant)
-        light_orange: Color::from_rgba_u8(0xff, 0xaa, 0x88, 255), // orange
-        light_yellow: Color::from_rgba_u8(0xde, 0xee, 0xed, 255), // luster
-        light_green: Color::from_rgba_u8(0x78, 0x99, 0x78, 255), // special
-        light_blue: Color::from_rgba_u8(0x4f, 0x94, 0xcd, 255), // light-blue
-        light_purple: Color::from_rgba_u8(0xfa, 0xa8, 0xde, 255), // pink
-        light_aqua: Color::from_rgba_u8(0x77, 0x88, 0xaa, 255), // hint
-        light_gray: Color::from_rgba_u8(0x7a, 0x7a, 0x7a, 255), // base6
+        light_red: Color::from_rgba_u8(0xd7, 0x00, 0x00, 255),
+        light_orange: Color::from_rgba_u8(0xff, 0xaa, 0x88, 255),
+        light_yellow: Color::from_rgba_u8(0xde, 0xee, 0xed, 255),
+        light_green: Color::from_rgba_u8(0x78, 0x99, 0x78, 255),
+        light_blue: Color::from_rgba_u8(0x4f, 0x94, 0xcd, 255),
+        light_purple: Color::from_rgba_u8(0xfa, 0xa8, 0xde, 255),
+        light_aqua: Color::from_rgba_u8(0x77, 0x88, 0xaa, 255),
+        light_gray: Color::from_rgba_u8(0x7a, 0x7a, 0x7a, 255),
     };
 }

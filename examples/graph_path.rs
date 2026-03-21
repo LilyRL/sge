@@ -48,40 +48,6 @@ fn init_network(network: &mut Network) {
         &[41, 36, 38, 39],
         &[38, 42, 41],
         &[37, 39, 36],
-        &[],
-        &[45],
-        &[45],
-        &[45],
-        &[45],
-        &[45],
-        &[45],
-        &[45],
-        &[45],
-        &[45],
-        &[46, 59],
-        &[47, 58],
-        &[48, 62],
-        &[49, 61],
-        &[50, 60],
-        &[51, 57],
-        &[52, 55],
-        &[53, 63],
-        &[54, 56],
-        &[],
-        &[],
-        &[],
-        &[],
-        &[],
-        &[],
-        &[],
-        &[64],
-        &[64],
-        &[64],
-        &[64],
-        &[64],
-        &[64],
-        &[64],
-        &[70],
     ]);
 }
 
@@ -93,42 +59,58 @@ fn main() -> AResult<()> {
     let mut network = Network::new();
     init_network(&mut network);
 
+    let mut path = vec![];
+
     loop {
         pan.update();
         network.update(true);
 
         network.calc_positions_by_force(100.0, 20);
 
-        if key_pressed(KeyCode::KeyR) {
-            network.clear();
-            init_network(&mut network);
+        if let Some(hovered) = network.hovered() {
+            path = network.find_path(hovered, network.nth_node(1).unwrap());
+        } else {
+            path = vec![];
         }
 
-        if key_pressed(KeyCode::KeyA) {
-            let len = network.len();
-            let n = rand_range(0..len);
-            let node = network.nth_node(n).unwrap();
-            let c = rand_range(0..len);
-            let c = network.nth_node(c).unwrap();
-            node.add_connections(&mut network, &[c]);
-        }
+        draw_text(format!("Path: {:?}", path), vec2(10.0, 10.0));
+
+        let mut hl_lines = vec![];
 
         for line in network.iter_connection_lines() {
-            let alpha = if line.is_hovered { 1.0 } else { 0.8 };
+            let on_path = path
+                .windows(2)
+                .any(|w| w[0] == line.start_id && w[1] == line.end_id);
+
+            if on_path {
+                hl_lines.push(line);
+            }
+
+            let color = Color::NEUTRAL_600;
             let dir = (line.end - line.start).normalize();
             draw_solid_arrow_world(
                 line.start,
                 line.end - dir * network.node_radius(),
                 2.0,
-                line.color.with_alpha(alpha),
+                color,
+            );
+        }
+
+        for line in hl_lines {
+            let dir = (line.end - line.start).normalize();
+            draw_solid_arrow_world(
+                line.start,
+                line.end - dir * network.node_radius(),
+                4.0,
+                Color::YELLOW_500,
             );
         }
 
         for node in network.iter_node_positions() {
-            let color = if node.is_hovered {
-                Color::WHITE
+            let color = if path.contains(&node.id) {
+                Color::YELLOW_500
             } else {
-                Color::NEUTRAL_400
+                Color::NEUTRAL_600
             };
             draw_circle_world(node.pos, network.node_radius(), color);
             let dim = measure_text(node.n.to_string());

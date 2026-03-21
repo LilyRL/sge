@@ -1,5 +1,6 @@
 use icons::*;
 use sge::prelude::*;
+use sge_config::set_wireframe_line_width;
 use ui::prelude::*;
 
 fn main() -> anyhow::Result<()> {
@@ -15,9 +16,16 @@ fn main() -> anyhow::Result<()> {
     let mut progress: f32 = rand();
     let mut show_message = false;
     let mut clear_color = w95::PRIMARY;
+    let mut show_debug_info = false;
 
     loop {
         clear_screen(clear_color);
+
+        if key_pressed(KeyCode::KeyD) && held_control() {
+            toggle_wireframe();
+        } else if key_pressed(KeyCode::KeyD) {
+            show_debug_info = !show_debug_info;
+        }
 
         if once_per_n_seconds(2.0 / 3.0) {
             progress = rand();
@@ -38,6 +46,10 @@ fn main() -> anyhow::Result<()> {
             Padding::all(padding, Grid::with_gap(2, 3, padding, ui_parts)),
         );
         draw_ui(ui, vec2(0.0, 0.0));
+
+        if show_debug_info {
+            run_egui(|ui| draw_debug_info(ui));
+        }
 
         if should_quit() {
             break;

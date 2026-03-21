@@ -23,7 +23,9 @@ fn main() -> anyhow::Result<()> {
             is_dark_mode = !is_dark_mode;
         }
 
-        if key_pressed(KeyCode::KeyD) {
+        if key_pressed(KeyCode::KeyD) && held_control() {
+            toggle_wireframe();
+        } else if key_pressed(KeyCode::KeyD) {
             show_debug_info = !show_debug_info;
         }
 

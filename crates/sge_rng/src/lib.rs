@@ -11,6 +11,8 @@ use rand::{
 };
 use sge_color::Color;
 
+pub use const_random;
+
 pub struct RandomState {
     rng: ThreadRng,
     counter: usize,
@@ -91,7 +93,7 @@ pub fn rand_vec4() -> Vec4 {
 #[macro_export]
 macro_rules! id {
     () => {
-        $crate::prelude::const_random::const_random!(usize)
+        $crate::const_random::const_random!(usize)
     };
     ($s: expr) => {{
         use ::std::hash::{DefaultHasher, Hash, Hasher};

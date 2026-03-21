@@ -476,6 +476,18 @@ impl Line2D {
         self.start -= half;
         self.end += half;
     }
+
+    pub fn add_half_caps(&mut self) {
+        let dir = (self.end - self.start).normalize();
+        let half = dir * self.thickness / 4.0;
+        self.start -= half;
+        self.end += half;
+    }
+
+    pub fn with_half_caps(mut self) -> Self {
+        self.add_half_caps();
+        self
+    }
 }
 
 impl HasBounds2D for Line2D {

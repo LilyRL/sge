@@ -1,4 +1,8 @@
-use std::{f32, usize};
+use std::{
+    f32,
+    fmt::{Debug, Display},
+    usize,
+};
 
 use bevy_math::Vec2;
 use nalgebra::{DMatrix, SymmetricEigen};
@@ -6,17 +10,27 @@ use sge_camera::screen_to_world;
 use sge_color::Color;
 use sge_input::last_cursor_pos;
 use sge_rng::id;
-use sge_time::frame_count;
 
 pub struct Network {
     nodes: Vec<Node>,
-    last_updated: usize,
     hovered: NodeId,
     node_radius: f32,
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub struct NodeId(usize);
+
+impl Debug for NodeId {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.0)
+    }
+}
+
+impl Display for NodeId {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.0)
+    }
+}
 
 pub struct Node {
     id: NodeId,
@@ -43,7 +57,6 @@ impl Network {
         Self {
             nodes: vec![],
             hovered: NodeId(usize::MAX),
-            last_updated: usize::MAX,
             node_radius: 20.0,
         }
     }
@@ -59,6 +72,14 @@ impl Network {
     pub fn with_node_radius(mut self, radius: f32) -> Self {
         self.set_node_radius(radius);
         self
+    }
+
+    pub fn hovered(&self) -> Option<NodeId> {
+        if self.hovered.0 != usize::MAX {
+            Some(self.hovered)
+        } else {
+            None
+        }
     }
 
     pub fn calc_positions_by_force(
@@ -92,6 +113,13 @@ impl Network {
                 let force = (delta / dist) * (dist / l);
                 displacements[a.0] -= force;
                 displacements[b.0] += force;
+            }
+
+            // add slight attraction toward center, so they dont just fly off
+            for i in 0..self.nodes.len() {
+                let delta = self.nodes[i].pos;
+                let dist = delta.length_squared().max(0.01);
+                displacements[i] -= (delta / dist) * (dist * 0.004);
             }
 
             let temp = l * 0.1;
@@ -259,6 +287,72 @@ impl Network {
     pub fn add_connections(&mut self, id: NodeId, connections: &[NodeId]) {
         self.get_mut(id).connections.extend_from_slice(connections);
     }
+
+    pub fn find_path(&self, a: NodeId, b: NodeId) -> Vec<NodeId> {
+        let mut weights = vec![usize::MAX; self.nodes.len()];
+        weights[a.0] = 0;
+
+        let mut queue = std::collections::VecDeque::new();
+        queue.push_back(a);
+
+        while let Some(current) = queue.pop_front() {
+            if current == b {
+                break;
+            }
+            let next_weight = weights[current.0] + 1;
+            for &conn in &self.get(current).connections {
+                if weights[conn.0] == usize::MAX {
+                    weights[conn.0] = next_weight;
+                    queue.push_back(conn);
+                }
+            }
+        }
+
+        self.trace_path(a, b, &weights)
+    }
+
+    fn trace_path(&self, a: NodeId, b: NodeId, weights: &[usize]) -> Vec<NodeId> {
+        if weights[b.0] == usize::MAX {
+            return vec![];
+        }
+
+        let mut path = vec![b];
+        let mut current = b;
+
+        while current != a {
+            let prev = self.nodes.iter().find(|node| {
+                node.connections.contains(&current) && weights[node.id.0] == weights[current.0] - 1
+            });
+
+            match prev {
+                Some(node) => {
+                    path.push(node.id);
+                    current = node.id;
+                }
+                None => break,
+            }
+        }
+
+        path.reverse();
+        path
+    }
+
+    pub fn make_all_connections_bidirectional(&mut self) {
+        let nodes = self.nodes.as_mut_ptr();
+        let len = self.nodes.len();
+        unsafe {
+            for i in 0..len {
+                let node = &*nodes.add(i);
+                for j in 0..node.connections.len() {
+                    let conn = node.connections[j];
+                    let conn_node = &mut *nodes.add(conn.0);
+                    if !conn_node.connections.contains(&node.id) {
+                        conn_node.connections.push(node.id);
+                    }
+                }
+            }
+        }
+    }
 }
 
 pub struct ConnectionIterator<'a> {
@@ -289,10 +383,12 @@ pub struct NodePositionIterator<'a> {
     node: usize,
 }
 
+#[derive(Clone, Copy)]
 pub struct NodePosition {
     pub pos: Vec2,
-    pub id: usize,
+    pub n: usize,
     pub is_hovered: bool,
+    pub id: NodeId,
 }
 
 impl<'a> Iterator for NodePositionIterator<'a> {
@@ -305,8 +401,9 @@ impl<'a> Iterator for NodePositionIterator<'a> {
 
         Some(NodePosition {
             pos: node.pos,
-            id: node.id.0,
+            n: node.id.0,
             is_hovered: node.id == self.network.hovered,
+            id: node.id,
         })
     }
 }
@@ -317,9 +414,12 @@ pub struct ConnectionLineIterator<'a> {
     conn: usize,
 }
 
+#[derive(Clone, Copy)]
 pub struct ConnectionLine {
     pub start: Vec2,
+    pub start_id: NodeId,
     pub end: Vec2,
+    pub end_id: NodeId,
     pub is_hovered: bool,
     pub color: Color,
 }
@@ -334,7 +434,9 @@ impl<'a> Iterator for ConnectionLineIterator<'a> {
             self.conn += 1;
             return Some(ConnectionLine {
                 start: node.pos,
+                start_id: node.id,
                 end: self.network.get(conn).pos,
+                end_id: conn,
                 is_hovered: node.id == self.network.hovered || conn == self.network.hovered,
                 color: Color::from_usize_no_alpha(id!(conn.0, node.id.0)),
             });

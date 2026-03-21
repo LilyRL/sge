@@ -1,3 +1,4 @@
+use glium::PolygonMode;
 use sge::prelude::*;
 
 fn main() -> anyhow::Result<()> {
@@ -8,7 +9,22 @@ fn main() -> anyhow::Result<()> {
     loop {
         controller.update();
 
+        if key_pressed(KeyCode::KeyD) {
+            set_wireframe_line_width(10.0);
+            toggle_wireframe();
+        }
+
         let thickness = 5.0;
+        draw_circle_world(vec2(-50.0, -60.0), 10.0, Color::RED_400);
+        draw_circle_world(vec2(50.0, -60.0), 10.0, Color::RED_400);
+        draw_zig_zag_world_ex(
+            vec2(-50.0, -60.0),
+            vec2(50.0, -60.0),
+            thickness,
+            Color::WHITE,
+            5.0,
+            10,
+        );
         draw_arrow_world(
             vec2(-50.0, -30.0),
             vec2(50.0, -30.0),

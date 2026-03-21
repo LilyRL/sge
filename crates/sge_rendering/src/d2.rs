@@ -3,7 +3,7 @@ use glium::vertex::Vertex as GliumVertex;
 use glium::{Blend, DrawParameters, IndexBuffer, Surface, VertexBuffer, uniform};
 use glium::{Depth, DepthTest, implement_vertex};
 use sge_color::Color;
-use sge_config::get_dithering;
+use sge_config::{get_dithering, get_polygon_mode};
 use sge_debugging::*;
 use sge_math::transform::Transform2D;
 use sge_programs::{
@@ -440,6 +440,7 @@ impl DrawQueue2D {
                 ..Default::default()
             },
             dithering: get_dithering(),
+            polygon_mode: get_polygon_mode(),
             scissor,
             ..Default::default()
         }

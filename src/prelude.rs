@@ -11,6 +11,7 @@ pub use bevy_math::{
 pub use glium::winit::event::MouseButton;
 pub use glium::winit::keyboard::{Key, KeyCode, NamedKey};
 pub use glium::{
+    draw_parameters::PolygonMode,
     glutin::{
         config::{ColorBufferType, ConfigSurfaceTypes, ConfigTemplateBuilder},
         context::{ContextAttributesBuilder, GlProfile, Priority, ReleaseBehavior, Robustness},
@@ -41,9 +42,10 @@ pub use sge_color::schemes::ColorScheme;
 pub use sge_color::{self as color, Color, Palette};
 pub use sge_config::{
     EngineConfig, EngineCreationOptions, Opts, OptsBuilder, dont_wait_for_events, get_config,
-    get_wait_for_events, get_wait_for_events_mut, set_magnify_filter, set_minify_filter,
-    set_wait_for_events, toggle_wait_for_events, use_default_filtering, use_linear_filtering,
-    use_mipmaps, use_nearest_filtering, use_positive_y_down, use_positive_y_up, wait_for_events,
+    get_polygon_mode, get_wait_for_events, get_wait_for_events_mut, set_magnify_filter,
+    set_minify_filter, set_polygon_mode, set_wait_for_events, toggle_wait_for_events,
+    toggle_wireframe, use_default_filtering, use_linear_filtering, use_mipmaps,
+    use_nearest_filtering, use_positive_y_down, use_positive_y_up, wait_for_events,
 };
 pub use sge_debug_visualisations::grid::{create_infinite_grid, draw_2d_grid_world};
 pub use sge_debug_visualisations::*;
