@@ -17,6 +17,7 @@ fn init_network(network: &mut Network) {
         &[2, 4, 5],
         &[8, 11],
         &[12],
+        &[9, 10, 4],
     ]);
 }
 
@@ -49,13 +50,14 @@ fn main() -> AResult<()> {
         }
 
         for line in network.iter_connection_lines() {
-            let color = if line.is_hovered {
-                Color::WHITE
-            } else {
-                Color::NEUTRAL_700
-            };
+            let alpha = if line.is_hovered { 1.0 } else { 0.5 };
             let dir = (line.end - line.start).normalize();
-            draw_arrow_world(line.start, line.end - dir * 20.0, 2.0, color);
+            draw_solid_arrow_world(
+                line.start,
+                line.end - dir * network.node_radius(),
+                2.0,
+                line.color.with_alpha(alpha),
+            );
         }
 
         for node in network.iter_node_positions() {
@@ -64,7 +66,7 @@ fn main() -> AResult<()> {
             } else {
                 Color::NEUTRAL_400
             };
-            draw_circle_world(node.pos, 20.0, color);
+            draw_circle_world(node.pos, network.node_radius(), color);
             let dim = measure_text(node.id.to_string());
             draw_colored_text_world(node.id.to_string(), node.pos - dim.size / 2.0, Color::BLACK);
         }

@@ -15,6 +15,7 @@ sge_input.workspace = true
 sge_macros.workspace = true
 sge_math.workspace = true
 sge_rendering = { version = "0.1.0", path = "../sge_rendering" }
+sge_rng = { version = "0.1.0", path = "../sge_rng" }
 sge_shapes.workspace = true
 sge_text = { version = "0.1.0", path = "../sge_text" }
 sge_textures = { version = "0.1.0", path = "../sge_textures" }

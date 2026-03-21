@@ -54,7 +54,7 @@ impl Color {
     }
 
     pub fn from_vec4(v: Vec4) -> Self {
-        Color::from_rgba(v.x, v.y, v.z, v.w)
+        Self::from_rgba(v.x, v.y, v.z, v.w)
     }
 
     pub fn splat(v: f32) -> Self {
@@ -183,9 +183,9 @@ impl Color {
     }
 
     #[inline]
-    pub fn blend_two(a: Color, b: Color, fac: f32) -> Color {
+    pub fn blend_two(a: Self, b: Self, fac: f32) -> Self {
         let f = fac.clamp(0.0, 1.0);
-        Color::from_rgba(
+        Self::from_rgba(
             a.r + (b.r - a.r) * f,
             a.g + (b.g - a.g) * f,
             a.b + (b.b - a.b) * f,
@@ -194,23 +194,38 @@ impl Color {
     }
 
     #[inline]
-    pub fn blend_two_halfway(a: Color, b: Color) -> Color {
+    pub fn blend_two_halfway(a: Self, b: Self) -> Self {
         Self::blend_two(a, b, 0.5)
     }
 
     #[inline]
-    pub fn blend(self, other: Color, fac: f32) -> Color {
+    pub fn blend(self, other: Self, fac: f32) -> Self {
         Self::blend_two(self, other, fac)
     }
 
     #[inline]
-    pub fn blend_halfway(self, other: Color) -> Color {
+    pub fn blend_halfway(self, other: Self) -> Self {
         Self::blend_two_halfway(self, other)
     }
 
-    pub fn to_linear(self) -> Color {
+    pub fn to_linear(self) -> Self {
         let lin: LinSrgba = Srgba::new(self.r, self.g, self.b, self.a).into_color();
         Self::from_rgba(lin.red, lin.green, lin.blue, lin.alpha)
+    }
+
+    pub fn from_usize(n: usize) -> Self {
+        let r = n & 0b11111111;
+        let g = (n >> 8) & 0b11111111;
+        let b = (n >> 16) & 0b11111111;
+        let a = (n >> 24) & 0b11111111;
+        Self::from_rgba_u8(r as u8, g as u8, b as u8, a as u8)
+    }
+
+    pub fn from_usize_no_alpha(n: usize) -> Self {
+        let r = n & 0b11111111;
+        let g = (n >> 8) & 0b11111111;
+        let b = (n >> 16) & 0b11111111;
+        Self::from_rgba_u8(r as u8, g as u8, b as u8, 255)
     }
 }
 

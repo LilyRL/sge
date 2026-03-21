@@ -3,7 +3,9 @@ use std::{f32, usize};
 use bevy_math::Vec2;
 use nalgebra::{DMatrix, SymmetricEigen};
 use sge_camera::screen_to_world;
+use sge_color::Color;
 use sge_input::last_cursor_pos;
+use sge_rng::id;
 use sge_time::frame_count;
 
 pub struct Network {
@@ -319,6 +321,7 @@ pub struct ConnectionLine {
     pub start: Vec2,
     pub end: Vec2,
     pub is_hovered: bool,
+    pub color: Color,
 }
 
 impl<'a> Iterator for ConnectionLineIterator<'a> {
@@ -333,6 +336,7 @@ impl<'a> Iterator for ConnectionLineIterator<'a> {
                 start: node.pos,
                 end: self.network.get(conn).pos,
                 is_hovered: node.id == self.network.hovered || conn == self.network.hovered,
+                color: Color::from_usize_no_alpha(id!(conn.0, node.id.0)),
             });
         } else {
             self.node += 1;

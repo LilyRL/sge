@@ -87,3 +87,23 @@ pub fn rand_vec4() -> Vec4 {
         rand_range(-1.0..1.0),
     )
 }
+
+#[macro_export]
+macro_rules! id {
+    () => {
+        $crate::prelude::const_random::const_random!(usize)
+    };
+    ($s: expr) => {{
+        use ::std::hash::{DefaultHasher, Hash, Hasher};
+
+        let id = $s;
+        let mut hasher = DefaultHasher::new();
+        id.hash(&mut hasher);
+        hasher.finish() as usize
+    }};
+    ($($v:expr),+) => {{
+        let mut s: u128 = 0;
+        $(s += $crate::id!($v) as u128;)*
+        $crate::id!(s)
+    }};
+}

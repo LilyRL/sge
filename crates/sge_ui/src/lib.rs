@@ -23,12 +23,7 @@ pub mod base;
 pub mod library;
 pub mod prelude;
 
-#[macro_export]
-macro_rules! id {
-    () => {
-        $crate::prelude::const_random::const_random!(usize)
-    };
-}
+pub use sge_rng::id;
 
 pub struct UiStorage {
     states: HashMap<StateRef, SomeState>,
