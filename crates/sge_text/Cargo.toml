@@ -9,6 +9,7 @@ error_union.workspace = true
 fontdue.workspace = true
 glium.workspace = true
 global = { version = "0.1.0", path = "../global" }
+ref_type = { version = "0.1.0", path = "../ref_type" }
 sge_color.workspace = true
 sge_image = { version = "0.1.0", path = "../sge_image" }
 sge_macros.workspace = true

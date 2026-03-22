@@ -9,6 +9,7 @@ error_union.workspace = true
 glium.workspace = true
 image.workspace = true
 log.workspace = true
+ref_type = { version = "0.1.0", path = "../ref_type" }
 sge_config = { version = "0.1.0", path = "../sge_config" }
 sge_image = { version = "0.1.0", path = "../sge_image" }
 sge_macros.workspace = true

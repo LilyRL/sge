@@ -1,6 +1,5 @@
 use icons::*;
 use sge::prelude::*;
-use sge_config::set_wireframe_line_width;
 use ui::prelude::*;
 
 fn main() -> anyhow::Result<()> {

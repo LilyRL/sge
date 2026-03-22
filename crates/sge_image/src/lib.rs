@@ -1,8 +1,10 @@
+#![feature(allocator_api)]
+
 use std::marker::PhantomData;
 
 use bevy_math::{USizeVec2, UVec2};
+use ref_type::gen_ref_type;
 use sge_color::u8::Pixel;
-use sge_macros::gen_ref_type;
 use sge_math::usize_rect::USizeRect;
 use thiserror::Error;
 

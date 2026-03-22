@@ -2,8 +2,8 @@ use std::collections::BTreeMap;
 
 use bevy_math::{Mat3, Mat4, Vec2, Vec3, Vec4};
 use glium::uniforms::{SamplerBehavior, UniformValue};
+use ref_type::gen_ref_type;
 use sge_color::Color;
-use sge_macros::gen_ref_type;
 use sge_programs::{GOURAUD_3D_PROGRAM, ProgramRef};
 use sge_textures::TextureRef;
 

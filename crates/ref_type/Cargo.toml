@@ -1,0 +1,8 @@
+[package]
+name = "ref_type"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+bumpalo.workspace = true
+ref_type_macros = { path = "../ref_type_macros" }

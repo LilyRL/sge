@@ -8,6 +8,7 @@ bevy_math.workspace = true
 crossbeam-channel = "0.5.15"
 nalgebra.workspace = true
 rapier2d.workspace = true
+ref_type = { version = "0.1.0", path = "../ref_type" }
 sge_api = { version = "0.1.0", path = "../sge_api" }
 sge_color.workspace = true
 sge_input.workspace = true
