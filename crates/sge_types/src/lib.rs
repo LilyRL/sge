@@ -1,3 +1,5 @@
+#![feature(allocator_api)]
+
 pub use area::*;
 pub mod area;
 

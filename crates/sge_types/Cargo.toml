@@ -5,6 +5,7 @@ edition = "2024"
 
 [dependencies]
 bevy_math.workspace = true
+bumpalo.workspace = true
 error_union.workspace = true
 glium.workspace = true
 obj-rs.workspace = true

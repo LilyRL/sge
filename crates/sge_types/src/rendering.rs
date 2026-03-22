@@ -1,4 +1,5 @@
 use bevy_math::Vec2;
+use bumpalo::Bump;
 use glium::implement_vertex;
 use sge_color::Color;
 
@@ -8,8 +9,8 @@ use crate::Vertex3D;
 //                                  Rounded                                  //
 ///////////////////////////////////////////////////////////////////////////////
 
-pub struct RoundedBatch {
-    pub instances: Vec<RoundedInstance>,
+pub struct RoundedBatch<'bump> {
+    pub instances: Vec<RoundedInstance, &'bump Bump>,
     pub scissor: Option<glium::Rect>,
 }
 
@@ -53,10 +54,10 @@ impl RoundedInstance {
     }
 }
 
-impl RoundedBatch {
-    pub fn new(scissor: Option<glium::Rect>) -> Self {
+impl<'bump> RoundedBatch<'bump> {
+    pub fn new(scissor: Option<glium::Rect>, bump: &'bump Bump) -> Self {
         Self {
-            instances: Vec::new(),
+            instances: Vec::new_in(bump),
             scissor,
         }
     }
@@ -66,15 +67,15 @@ impl RoundedBatch {
 //                                   Circle                                  //
 ///////////////////////////////////////////////////////////////////////////////
 
-pub struct CircleBatch {
-    pub instances: Vec<CircleInstance>,
+pub struct CircleBatch<'bump> {
+    pub instances: Vec<CircleInstance, &'bump Bump>,
     pub scissor: Option<glium::Rect>,
 }
 
-impl CircleBatch {
-    pub fn new(scissor: Option<glium::Rect>) -> Self {
+impl<'bump> CircleBatch<'bump> {
+    pub fn new(scissor: Option<glium::Rect>, bump: &'bump Bump) -> Self {
         Self {
-            instances: Vec::new(),
+            instances: Vec::new_in(bump),
             scissor,
         }
     }
@@ -130,18 +131,18 @@ impl CircleInstance {
 //                                   Shape                                   //
 ///////////////////////////////////////////////////////////////////////////////
 
-pub struct ShapeBatch {
-    pub vertices: Vec<Vertex3D>,
-    pub indices: Vec<u32>,
+pub struct ShapeBatch<'bump> {
+    pub vertices: Vec<Vertex3D, &'bump Bump>,
+    pub indices: Vec<u32, &'bump Bump>,
     pub max_index: u32,
     pub scissor: Option<glium::Rect>,
 }
 
-impl ShapeBatch {
-    pub fn new(scissor: Option<glium::Rect>) -> Self {
+impl<'bump> ShapeBatch<'bump> {
+    pub fn new(scissor: Option<glium::Rect>, bump: &'bump Bump) -> Self {
         Self {
-            vertices: Vec::new(),
-            indices: Vec::new(),
+            vertices: Vec::new_in(bump),
+            indices: Vec::new_in(bump),
             max_index: 0,
             scissor,
         }
@@ -227,15 +228,15 @@ impl RadialGradientInstance {
     }
 }
 
-pub struct RadialGradientBatch {
-    pub instances: Vec<RadialGradientInstance>,
+pub struct RadialGradientBatch<'bump> {
+    pub instances: Vec<RadialGradientInstance, &'bump Bump>,
     pub scissor: Option<glium::Rect>,
 }
 
-impl RadialGradientBatch {
-    pub fn new(scissor: Option<glium::Rect>) -> Self {
+impl<'bump> RadialGradientBatch<'bump> {
+    pub fn new(scissor: Option<glium::Rect>, bump: &'bump Bump) -> Self {
         Self {
-            instances: Vec::new(),
+            instances: Vec::new_in(bump),
             scissor,
         }
     }

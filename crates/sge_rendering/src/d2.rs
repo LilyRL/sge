@@ -1,4 +1,5 @@
 use bevy_math::{Mat4, Rect, Vec2, Vec3};
+use bumpalo::Bump;
 use glium::vertex::Vertex as GliumVertex;
 use glium::{Blend, DrawParameters, IndexBuffer, Surface, VertexBuffer, uniform};
 use glium::{Depth, DepthTest, implement_vertex};
@@ -20,21 +21,22 @@ use sge_window::get_display;
 use crate::scissor::current_scissor;
 
 enum DrawCommand {
-    Shapes(ShapeBatch),
-    Circles(CircleBatch),
-    Rounded(RoundedBatch),
-    Radial(RadialGradientBatch),
+    Shapes(ShapeBatch<'static>),
+    Circles(CircleBatch<'static>),
+    Rounded(RoundedBatch<'static>),
+    Radial(RadialGradientBatch<'static>),
     Sprites(SpriteBatch),
 }
 
 pub struct DrawQueue2D {
-    draws: Vec<DrawCommand>,
+    alloc: Box<Bump>,
+    draws: Vec<DrawCommand, &'static Bump>,
 }
 
 struct SpriteBatch {
     texture: TextureRef,
-    vertices: Vec<SpriteVertex>,
-    indices: Vec<u32>,
+    vertices: Vec<SpriteVertex, &'static Bump>,
+    indices: Vec<u32, &'static Bump>,
     scissor: Option<glium::Rect>,
 }
 
@@ -48,10 +50,22 @@ struct SpriteVertex {
 
 impl DrawQueue2D {
     pub fn empty() -> Self {
-        Self { draws: Vec::new() }
+        let alloc = Box::new(Bump::new());
+        // SAFETY: should be good i think
+        // alloc is boxed so has a stable address
+        // alloc should outlive anything that references it, so its fine to say its static
+        let bump_ref: &'static Bump = unsafe { &*(&*alloc as *const Bump) };
+        Self {
+            draws: Vec::new_in(bump_ref),
+            alloc,
+        }
     }
 
-    fn current_shape_batch(&mut self) -> &mut ShapeBatch {
+    fn bump(&self) -> &'static Bump {
+        unsafe { &*(&*self.alloc as *const Bump) }
+    }
+
+    fn current_shape_batch(&mut self) -> &mut ShapeBatch<'static> {
         let scissor = current_scissor();
         let needs_new = match self.draws.last() {
             Some(DrawCommand::Shapes(b)) => b.scissor != scissor,
@@ -59,7 +73,7 @@ impl DrawQueue2D {
         };
         if needs_new {
             self.draws
-                .push(DrawCommand::Shapes(ShapeBatch::new(scissor)));
+                .push(DrawCommand::Shapes(ShapeBatch::new(scissor, self.bump())));
         }
         match self.draws.last_mut().unwrap() {
             DrawCommand::Shapes(b) => b,
@@ -67,7 +81,7 @@ impl DrawQueue2D {
         }
     }
 
-    fn current_circle_batch(&mut self) -> &mut CircleBatch {
+    fn current_circle_batch(&mut self) -> &mut CircleBatch<'static> {
         let scissor = current_scissor();
         let needs_new = match self.draws.last() {
             Some(DrawCommand::Circles(b)) => b.scissor != scissor,
@@ -75,7 +89,7 @@ impl DrawQueue2D {
         };
         if needs_new {
             self.draws
-                .push(DrawCommand::Circles(CircleBatch::new(scissor)));
+                .push(DrawCommand::Circles(CircleBatch::new(scissor, self.bump())));
         }
         match self.draws.last_mut().unwrap() {
             DrawCommand::Circles(b) => b,
@@ -83,15 +97,17 @@ impl DrawQueue2D {
         }
     }
 
-    fn current_rounded_batch(&mut self) -> &mut RoundedBatch {
+    fn current_rounded_batch(&mut self) -> &mut RoundedBatch<'static> {
         let scissor = current_scissor();
         let needs_new = match self.draws.last() {
             Some(DrawCommand::Rounded(b)) => b.scissor != scissor,
             _ => true,
         };
         if needs_new {
-            self.draws
-                .push(DrawCommand::Rounded(RoundedBatch::new(scissor)));
+            self.draws.push(DrawCommand::Rounded(RoundedBatch::new(
+                scissor,
+                self.bump(),
+            )));
         }
         match self.draws.last_mut().unwrap() {
             DrawCommand::Rounded(b) => b,
@@ -99,7 +115,7 @@ impl DrawQueue2D {
         }
     }
 
-    fn current_radial_batch(&mut self) -> &mut RadialGradientBatch {
+    fn current_radial_batch(&mut self) -> &mut RadialGradientBatch<'static> {
         let scissor = current_scissor();
         let needs_new = match self.draws.last() {
             Some(DrawCommand::Radial(b)) => b.scissor != scissor,
@@ -107,7 +123,10 @@ impl DrawQueue2D {
         };
         if needs_new {
             self.draws
-                .push(DrawCommand::Radial(RadialGradientBatch::new(scissor)));
+                .push(DrawCommand::Radial(RadialGradientBatch::new(
+                    scissor,
+                    self.bump(),
+                )));
         }
         match self.draws.last_mut().unwrap() {
             DrawCommand::Radial(b) => b,
@@ -124,10 +143,11 @@ impl DrawQueue2D {
         };
 
         if !can_merge {
+            let bump = self.bump();
             self.draws.push(DrawCommand::Sprites(SpriteBatch {
                 texture,
-                vertices: Vec::new(),
-                indices: Vec::new(),
+                vertices: Vec::new_in(bump),
+                indices: Vec::new_in(bump),
                 scissor,
             }));
         }
@@ -141,12 +161,12 @@ impl DrawQueue2D {
     pub fn add_shape(&mut self, shape: &impl Shape2D) {
         debugger_add_drawn_objects(1);
         let batch = self.current_shape_batch();
-        let (mut indices, vertices) = shape.gen_mesh(batch.max_index);
+        let (indices, vertices) = shape.gen_mesh(batch.max_index);
         for vertex in &vertices {
             batch.vertices.push(vertex.to_3d(0.0));
         }
         batch.max_index += vertices.len() as u32;
-        batch.indices.append(&mut indices);
+        batch.indices.extend(indices);
     }
 
     pub fn add_circle(&mut self, center: Vec2, radius: Vec2, color: Color) {
@@ -450,7 +470,7 @@ impl DrawQueue2D {
         &self,
         frame: &mut T,
         projection: &Mat4,
-        batch: &ShapeBatch,
+        batch: &ShapeBatch<'static>,
         program: &glium::Program,
     ) {
         let display = get_display();
@@ -552,6 +572,9 @@ impl DrawQueue2D {
     }
 
     pub fn clear(&mut self) {
-        self.draws.clear();
+        let bump = self.bump();
+        drop(std::mem::replace(&mut self.draws, Vec::new_in(bump)));
+        self.alloc.reset();
+        self.draws = Vec::new_in(self.bump());
     }
 }
