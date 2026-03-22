@@ -56,22 +56,15 @@ pkgs.mkShell {
   # Vulkan environment
   VK_LAYER_PATH = "${pkgs.vulkan-validation-layers}/share/vulkan/explicit_layer.d";
   shellHook = ''
-    echo "wgpu development environment loaded"
-    echo "Available graphics backends:"
-    echo "- Vulkan: $(if command -v vulkaninfo >/dev/null 2>&1; then echo "✓"; else echo "✗"; fi)"
-    echo "- OpenGL: $(if command -v glxinfo >/dev/null 2>&1; then echo "✓"; else echo "✗"; fi)"
+      echo "wgpu development environment loaded"
+      echo "Available graphics backends:"
+      echo "- Vulkan: $(if command -v vulkaninfo >/dev/null 2>&1; then echo "✓"; else echo "✗"; fi)"
+      echo "- OpenGL: $(if command -v glxinfo >/dev/null 2>&1; then echo "✓"; else echo "✗"; fi)"
     export RUST_LOG=warn
-    alias cr="cargo run"
-    alias crr="cargo run --release"
-    alias ca="cargo add"
-    alias cb="cargo build"
-    alias ce="cargo run --example"
-    alias cbe="cargo build --release --example"
-
-    function profile() {
-         cargo build --release --example $1
-         echo '-1' | sudo tee /proc/sys/kernel/perf_event_paranoid
-         samply record ./target/release/examples/$1
-     }
+      alias cr="cargo run"
+      alias crr="cargo run --release"
+      alias ca="cargo add"
+      alias cb="cargo build"
+      alias ce="cargo run --example"
   '';
 }

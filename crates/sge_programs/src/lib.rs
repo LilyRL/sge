@@ -1,7 +1,5 @@
-#![feature(allocator_api)]
-
 use glium::{Program, ProgramCreationError};
-use ref_type::gen_ref_type;
+use sge_macros::gen_ref_type;
 use sge_window::get_window_state;
 
 macro_rules! include_program_internal {

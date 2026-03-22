@@ -1,14 +1,12 @@
-#![feature(allocator_api)]
-
 use std::{collections::HashMap, hash::Hash};
 
 use bevy_math::{IVec2, Rect, Vec2};
 use error_union::ErrorUnion;
 use fontdue::{Metrics, layout::TextStyle};
 use glium::uniforms::{MagnifySamplerFilter, MinifySamplerFilter};
-use ref_type::gen_ref_type;
 use sge_color::{Color, u8::Pixel};
 use sge_image::Image;
+use sge_macros::gen_ref_type;
 use sge_math::transform::Transform2D;
 use sge_rendering::{
     d2::DrawQueue2D,

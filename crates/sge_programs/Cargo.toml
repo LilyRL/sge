@@ -6,6 +6,5 @@ edition = "2024"
 [dependencies]
 glium.workspace = true
 log.workspace = true
-ref_type = { version = "0.1.0", path = "../ref_type" }
 sge_macros.workspace = true
 sge_window = { version = "0.1.0", path = "../sge_window" }

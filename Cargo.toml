@@ -11,7 +11,7 @@ egui_plot = "0.31"
 anyhow = "1.0.100"
 bevy_math = { path = "./crates/bevy_math" }
 bon = "3.8.1"
-bumpalo = { version = "3.20.2", features = ["allocator_api"] }
+bumpalo = { version = "3.19.0", features = ["collections"] }
 color-eyre = "0.6.5"
 egui_glium = "0.31.1"
 env_logger = "0.11.8"
@@ -179,5 +179,5 @@ members = [
     "crates/include_assets",
     "crates/bevy_math",
     "crates/persistence"
-, "crates/sge_async", "crates/sge_graph_networks", "crates/sge_routines", "crates/ref_type", "crates/ref_type_macros"]
+, "crates/sge_async", "crates/sge_graph_networks", "crates/sge_routines"]
 resolver = "3"

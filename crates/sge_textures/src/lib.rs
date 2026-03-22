@@ -1,5 +1,3 @@
-#![feature(allocator_api)]
-
 use std::{fmt::Debug, io::Cursor};
 
 use bevy_math::{UVec2, Vec2};
@@ -10,9 +8,9 @@ use glium::{
     uniforms::{MagnifySamplerFilter, MinifySamplerFilter},
 };
 use image::ImageFormat;
-use ref_type::gen_ref_type;
 use sge_config::get_config;
 use sge_image::Image;
+use sge_macros::gen_ref_type;
 use sge_window::get_window_state;
 
 #[derive(ErrorUnion, Debug)]

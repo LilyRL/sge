@@ -1,6 +1,5 @@
 #![feature(unsafe_cell_access)]
 #![allow(clippy::new_ret_no_self)]
-#![feature(allocator_api)]
 
 use std::{
     collections::HashMap,
@@ -11,9 +10,9 @@ use std::{
 use base::Empty;
 use bevy_math::Vec2;
 use glium::winit::event::MouseButton;
-use ref_type::gen_ref_type;
 use sge_color::Color;
 use sge_input::{Input, get_input};
+use sge_macros::gen_ref_type;
 use sge_time::{delta_time, frame_count, time};
 use sge_types::Area;
 use sge_window::window_size;

@@ -17,7 +17,6 @@
 - [ ] bitmap fonts
 - [ ] add post frame callback
 - [ ] add mf draw wireframe and shit
-- [ ] ui example uses 150 draw calls for no reason
 - [ ] load_sound
 - [ ] load_sound_from_bytes
 - [ ] play_sound
@@ -27,8 +26,6 @@
 - [ ] solid triangle arrow functions
 - [ ] expandable <details> type thing
 - [ ] slider
-- [ ] ui tooltip that changes side of cursor depending on where it is on the
-  screen and how much space it has
 - [ ] more filters
   - [ ] crt
   - [ ] wobbly
@@ -309,10 +306,9 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord) {
 - [X] winit input helper fork add precise mouse movemnt so that i can have all the
   positions of it in the paint program for better curves
 - [ ] image texture pair struct with builtin methods and maybe a `dirty`
-- [X] make implementing ui like clicking and hovering easier
+- [ ] make implementing ui like clicking and hovering easier
 - [ ] software: draw thick line function for circles or something, see if instancing circles is good enough
-- [X] hardware: rounded line function (with circle end caps). can replace a bunch of boiler plate in api.rs
-- [ ] ui charts
+- [ ] hardware: rounded line function (with circle end caps). can replace a bunch of boiler plate in api.rs
 - [X] expose egui charts if not already
 - [ ] let users access intermediary depth textures only if they want it
 - [X] impl mul TransformXD for VecX
@@ -349,10 +345,10 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord) {
 - [ ] Documentation
 - [ ] arcs/slices of circles
 - [ ] splines
-- [X] 2d grid
+- [ ] 2d grid
 - [X] function to get screen size, width, height
-- [X] Fix backface culling
-- [X] export all colours as normal consts
+- [ ] Fix backface culling
+- [ ] export all colours as normal consts
 - [ ] Transform example
 - [ ] change cursor icons
 - [ ] Reorganize everything

@@ -524,11 +524,3 @@ pub fn toggle_wireframe() {
         _ => (),
     }
 }
-
-pub fn set_wireframe_line_width(width: f32) {
-    get_config().line_width = Some(width);
-}
-
-pub fn get_wireframe_line_width() -> Option<f32> {
-    get_config().line_width
-}

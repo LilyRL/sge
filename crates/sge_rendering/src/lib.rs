@@ -1,5 +1,3 @@
-#![feature(allocator_api)]
-
 use d2::DrawQueue2D;
 use d3::DrawQueue3D;
 use glium::Rect;

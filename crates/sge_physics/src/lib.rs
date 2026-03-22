@@ -1,13 +1,11 @@
-#![feature(allocator_api)]
-
 use std::collections::HashMap;
 
 use bevy_math::Vec2;
 use player::{Player, PlayerKey};
 use rapier2d::prelude::*;
-use ref_type::gen_ref_type;
 use sge_api::shapes_2d::*;
 use sge_color::Color;
+use sge_macros::gen_ref_type;
 use sge_time::physics_delta_time;
 use slotmap::{SlotMap, new_key_type};
 

@@ -1,5 +1,3 @@
-#![feature(allocator_api)]
-
 use std::collections::HashMap;
 use std::io::Cursor;
 
@@ -10,9 +8,9 @@ use glium::{
     uniforms::{MagnifySamplerFilter, MinifySamplerFilter},
 };
 use image::ImageFormat;
-use ref_type::gen_ref_type;
 use sge_color::Color;
 use sge_image::{Image, ImageRef, SgeImageError};
+use sge_macros::gen_ref_type;
 use sge_math::{transform::Transform2D, usize_rect::USizeRect};
 use sge_rendering::api::{draw_texture_ex, draw_texture_world_ex};
 use sge_textures::{SgeTexture, TextureRef, get_texture_state};
