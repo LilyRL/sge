@@ -10,7 +10,6 @@ fn main() -> anyhow::Result<()> {
         controller.update();
 
         if key_pressed(KeyCode::KeyD) {
-            set_wireframe_line_width(10.0);
             toggle_wireframe();
         }
 
