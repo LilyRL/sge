@@ -61,27 +61,30 @@ fn main() -> anyhow::Result<()> {
 }
 
 fn scroll_window() -> UiRef {
-    BoxFill::new(
-        Color::GRAY_900,
-        Scroll::new(
-            id!(),
-            Padding::all(
-                10.0,
-                Col::with_gap(
+    InactiveOverlay::new(
+        Color::BLACK.with_alpha(0.5),
+        BoxFill::new(
+            Color::GRAY_900,
+            Scroll::new(
+                id!(),
+                Padding::all(
                     10.0,
-                    (0..100)
-                        .map(|n| {
-                            SizedBox::height(
-                                40.0,
-                                RoundedHoverFill::new(
-                                    Color::GRAY_800,
-                                    Color::GRAY_700,
-                                    7.0,
-                                    Center::new(Text::new(n)),
-                                ),
-                            )
-                        })
-                        .collect::<Vec<_>>(),
+                    Col::with_gap(
+                        10.0,
+                        (0..100)
+                            .map(|n| {
+                                SizedBox::height(
+                                    40.0,
+                                    RoundedHoverFill::new(
+                                        Color::GRAY_800,
+                                        Color::GRAY_700,
+                                        7.0,
+                                        Center::new(Text::new(n)),
+                                    ),
+                                )
+                            })
+                            .collect::<Vec<_>>(),
+                    ),
                 ),
             ),
         ),
