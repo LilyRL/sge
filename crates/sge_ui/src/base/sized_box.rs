@@ -171,6 +171,24 @@ impl ConstrainedBox {
     fn transform_size(&self, size: Vec2) -> Vec2 {
         size.clamp(self.min_size, self.max_size)
     }
+
+    pub fn grow_x(child: Child) -> UiRef {
+        Self {
+            max_size: Vec2::new(f32::INFINITY, f32::INFINITY),
+            min_size: Vec2::new(f32::INFINITY, 0.0),
+            child,
+        }
+        .to_ref()
+    }
+
+    pub fn grow_y(child: Child) -> UiRef {
+        Self {
+            max_size: Vec2::new(f32::INFINITY, f32::INFINITY),
+            min_size: Vec2::new(0.0, f32::INFINITY),
+            child,
+        }
+        .to_ref()
+    }
 }
 
 impl UiNode for ConstrainedBox {
@@ -207,6 +225,14 @@ impl UiRef {
 
     pub fn max_size(self, max_size: Vec2) -> UiRef {
         ConstrainedBox::max_size(max_size, self)
+    }
+
+    pub fn grow_x(self) -> UiRef {
+        ConstrainedBox::grow_x(self)
+    }
+
+    pub fn grow_y(self) -> UiRef {
+        ConstrainedBox::grow_y(self)
     }
 }
 

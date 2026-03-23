@@ -13,7 +13,7 @@
 - [ ] texture/atlas particles
 - [ ] have a look at texture atlasses and see if we can make somethjng good for 2d platformer levels. maybe an add colliders toggle
 - [ ] some kinda mf https://docs.rs/macroquad/latest/macroquad/telemetry/index.html
-- [ ] mini quad backend + web
+- [ ] miniquad backend + web
 - [ ] bitmap fonts
 - [ ] add post frame callback
 - [ ] add mf draw wireframe and shit
@@ -22,9 +22,12 @@
 - [ ] play_sound
 - [ ] play_sound_once
 - [ ] set_sound_volume
+- [ ] stop_sound
+- [ ] all unnececary features behind feature gates (e.g. audio, input, gamepad, etc.)
+- [ ] add must use to _ex sounds builder
 - [ ] draggable/resizable floating window
-- [ ] solid triangle arrow functions
-- [ ] expandable <details> type thing
+- [X] solid triangle arrow functions
+- [X] expandable <details> type thing
 - [ ] slider
 - [ ] more filters
   - [ ] crt
@@ -32,8 +35,8 @@
   - [ ] chromatic abboration
   - [ ] glitch
   - [ ] fish eye
+  - [ ] pixel sort
   - [ ] custom
-- [ ] stop_sound
 - [ ] coroutines, some kind of future management so that the user can ask to run some code at the end of the frame, in some number of frames, after some time, or when something next happens
 - [ ] crates.io
 - [-] macro based wrappers around structs for persistent (fs) storage and network sync

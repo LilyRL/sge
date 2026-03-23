@@ -143,6 +143,7 @@ impl Parse for RefTypeParams {
     }
 }
 
+/// Type, Ref type, Storage name
 #[proc_macro]
 pub fn gen_ref_type(input: TokenStream) -> TokenStream {
     let RefTypeParams {
@@ -165,6 +166,11 @@ pub fn gen_ref_type(input: TokenStream) -> TokenStream {
         Span::call_site(),
     );
 
+    let uninit_error_message = format!(
+        "Storage for {} is not initialized. Make sure to call {}() before using it.",
+        ty_ref, init_name
+    );
+
     quote! {
         #[derive(Clone, Copy, PartialEq, Eq, Ord, PartialOrd, Hash, Debug)]
         pub struct #ty_ref(pub(crate) usize);
@@ -181,7 +187,7 @@ pub fn gen_ref_type(input: TokenStream) -> TokenStream {
 
         #[allow(static_mut_refs)]
         pub fn #get_name() -> &'static mut Vec<#ty> {
-            unsafe { #storage_const.as_mut().unwrap_or_else(|| panic!()) }
+            unsafe { #storage_const.as_mut().unwrap_or_else(|| panic!(#uninit_error_message)) }
         }
 
         impl #ty_ref {

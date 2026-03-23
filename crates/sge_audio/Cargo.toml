@@ -4,6 +4,8 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+error_union.workspace = true
 global = { version = "0.1.0", path = "../global" }
 log.workspace = true
-tunes.workspace = true
+rodio = { version = "0.22.2", features = ["noise", "playback"] }
+sge_macros.workspace = true

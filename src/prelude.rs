@@ -8,6 +8,7 @@ pub use bevy_math::{
     ivec4, mat2, mat3, mat4, ops::*, usizevec2, usizevec3, usizevec4, uvec2, uvec3, uvec4, vec2,
     vec3, vec4,
 };
+pub use glium::winit::dpi::{LogicalSize, PhysicalSize};
 pub use glium::winit::event::MouseButton;
 pub use glium::winit::keyboard::{Key, KeyCode, NamedKey};
 pub use glium::{
@@ -26,11 +27,11 @@ pub use glium::{
 pub use image::{self, ImageFormat};
 pub use include_assets::include_assets;
 pub use log::{self, Level, LevelFilter, debug, error, info, trace, warn};
+pub use persistence::{Error as PersistenceError, persistent, rkyv};
 pub use sge_animation::*;
 pub use sge_api::area::AreaExt;
 pub use sge_api::shapes_2d::*;
 pub use sge_api::{Drawable, draw, draw_world};
-pub use sge_audio::{audio, play_sound};
 pub use sge_camera::controllers::orbit::OrbitCameraController;
 pub use sge_camera::controllers::pan::PanningCameraController;
 pub use sge_camera::controllers::shake::CameraShakeController;
@@ -74,6 +75,7 @@ pub use sge_logging::{
 };
 pub use sge_macros::include_texture;
 pub use sge_macros::{actions, bind};
+pub use sge_math::Vec2Ext;
 pub use sge_math::collision::{self, Aabb2d, IntersectsWith};
 pub use sge_math::transform::{Transform2D, Transform3D};
 pub use sge_math::usize_rect::USizeRect;
@@ -138,15 +140,25 @@ pub use sge_window::{
     window_height, window_size, window_size_u32, window_width,
 };
 pub use si;
-pub use tunes;
-pub mod gamepad {
-    pub use sge_input::gamepad_input as input;
-    pub use sge_input::gilrs::*;
-}
-pub use glium::winit::dpi::{LogicalSize, PhysicalSize};
-pub use persistence::{Error as PersistenceError, persistent, rkyv};
-pub use sge_math::Vec2Ext;
 pub mod graph_networks {
     pub use sge_graph_networks::*;
 }
 pub use anyhow::Result as AResult;
+
+pub use audio::*;
+mod audio {
+    pub use sge_audio::{
+        Sound, SoundBuilder, SoundLoadError, SoundRef, load_sound, load_sound_from_bytes,
+        play_sound, play_sound_ex, rodio,
+        rodio::BitDepth,
+        rodio::source::{
+            AutomaticGainControlSettings, LimitSettings, dither::Algorithm as DitherAlgorithm,
+        },
+    };
+    pub use std::time::Duration;
+}
+
+pub mod gamepad {
+    pub use sge_input::gamepad_input as input;
+    pub use sge_input::gilrs::*;
+}

@@ -41,7 +41,6 @@ si = { path = "./crates/si" }
 termcolor = "1.4.1"
 thiserror = "2.0.17"
 trig-const = "0.3.0"
-tunes = { version = "1.0.2", features = ["gpu"] }
 
 [dependencies]
 anyhow.workspace = true
@@ -71,13 +70,12 @@ rand = { workspace = true }
 rapier2d = { workspace = true }
 rayon = { workspace = true }
 sge_color = { workspace = true }
-sge_macros = { workspace = true }
+sge_macros.workspace = true
 sge_input = { workspace = true }
 si = { workspace = true }
 termcolor = { workspace = true }
 thiserror = { workspace = true }
 trig-const = { workspace = true }
-tunes = { workspace = true }
 sge_math = { workspace = true }
 winit_input_helper = { path = "./crates/winit_input_helper" }
 sge_shapes.workspace = true

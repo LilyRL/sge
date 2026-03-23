@@ -62,6 +62,7 @@ impl UiNode for HoverBoxFill {
             self.base_color
         };
         area.fill(color);
-        self.child.node.draw(area, state)
+        self.child.node.draw(area, state);
+        area.size
     }
 }

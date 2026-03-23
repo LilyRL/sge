@@ -39,7 +39,7 @@ pub enum InitError {
     SetLogger(log::SetLoggerError),
     WindowCreation(sge_window::WindowCreationError),
     Program(glium::ProgramCreationError),
-    Audio(tunes::error::TunesError),
+    Audio(sge_audio::AudioInitError),
     Gilrs(sge_input::GilrsError),
 }
 

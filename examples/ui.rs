@@ -223,6 +223,7 @@ fn flat_window() -> UiRef {
     let bars: Vec<_> = Palette::PALETTES
         .iter()
         .enumerate()
+        .skip(5)
         .map(|(i, p)| flat::LoadingBar::new_with_speed(p.v400, i as f32 * 10.0 + 10.0).height(30.0))
         .collect();
 
@@ -235,7 +236,15 @@ fn flat_window() -> UiRef {
     Card::bg0_expand(FlexCol::with_gap(
         10.0,
         [
-            FlexBox::Flex(Col::with_gap(10.0, bars).scroll(id!())),
+            FlexBox::Flex(
+                Expandable::new(
+                    "Click me!",
+                    Col::with_gap(10.0, bars).scroll(id!()),
+                    BG1,
+                    id!(),
+                )
+                .max_height(400.0),
+            ),
             FlexBox::Fixed(TextInput::with_prompt(BG2, "Start typing...", input_id)),
             // FlexBox::Fixed(Text::new("Hello world.")),
         ],

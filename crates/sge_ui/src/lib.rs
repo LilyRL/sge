@@ -74,6 +74,10 @@ impl UiState {
     pub fn is_active(&self, area: Area) -> bool {
         self.input().is_cursor_within_area(area) && self.input().mouse_held(MouseButton::Left)
     }
+
+    pub fn is_clicked(&self, area: Area) -> bool {
+        self.input().is_cursor_within_area(area) && self.input().mouse_released(MouseButton::Left)
+    }
 }
 
 pub struct SomeNode {
