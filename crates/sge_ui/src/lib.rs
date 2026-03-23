@@ -160,6 +160,15 @@ pub fn draw_ui(node: UiRef, position: Vec2) -> Vec2 {
     draw_ui_in_area(node, area)
 }
 
+pub fn draw_ui_window(node: UiRef) -> Vec2 {
+    let area = Area {
+        top_left: Vec2::ZERO,
+        size: window_size(),
+    };
+
+    draw_ui_in_area(node, area)
+}
+
 pub fn draw_ui_in_area(node: UiRef, area: Area) -> Vec2 {
     let state = UiState {
         frame: frame_count(),
@@ -171,6 +180,7 @@ pub fn draw_ui_in_area(node: UiRef, area: Area) -> Vec2 {
 }
 
 #[derive(Clone, Copy)]
+#[repr(transparent)]
 pub struct State<T: Debug> {
     _ref: StateRef,
     _marker: std::marker::PhantomData<T>,
@@ -183,6 +193,7 @@ impl<T: Debug + 'static> Debug for State<T> {
 }
 
 #[derive(Clone, Copy, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[repr(transparent)]
 pub struct StateRef(usize);
 
 impl<T: Debug> State<T> {
@@ -227,6 +238,13 @@ impl<T: Debug> State<T> {
         let some_state = storage.get(&self._ref)?;
 
         some_state.state.downcast_ref::<T>()
+    }
+
+    pub fn get_mut(&self) -> Option<&'static mut T> {
+        let storage = &mut get_ui_storage().states;
+        let some_state = storage.get_mut(&self._ref)?;
+
+        some_state.state.downcast_mut::<T>()
     }
 }
 

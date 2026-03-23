@@ -5,6 +5,7 @@ use sge_input::input_text;
 use sge_rendering::scissor::{pop_scissor, push_scissor};
 use sge_text::{FontRef, TextDrawParams, draw_text, draw_text_custom, measure_text};
 use sge_time::toggle_every_n_seconds;
+use sge_window::use_text_cursor_icon;
 
 use super::*;
 
@@ -84,6 +85,10 @@ impl UiNode for TextInput {
     fn draw(&self, area: Area, ui: &UiState) -> Vec2 {
         let state = self.state.get_or_default();
         state.changed = false;
+
+        if ui.is_hovered(area) {
+            use_text_cursor_icon();
+        }
 
         push_scissor(area.to_rect());
 

@@ -90,11 +90,7 @@ fn emit_variant(entry: &ShapeEntry, spec: VariantSpec) -> TokenStream {
     let extra_decls: Vec<TokenStream> = match spec.mode {
         DrawMode::Base => vec![],
         DrawMode::Outline => vec![quote!(thickness: f32,), quote!(outline_color: Color,)],
-        DrawMode::WithOutline => vec![
-            quote!(thickness: f32,),
-            quote!(fill_color: Color,),
-            quote!(outline_color: Color,),
-        ],
+        DrawMode::WithOutline => vec![quote!(thickness: f32,), quote!(outline_color: Color,)],
     };
 
     let rot_decl: TokenStream = if spec.rotation {
@@ -107,11 +103,7 @@ fn emit_variant(entry: &ShapeEntry, spec: VariantSpec) -> TokenStream {
     let extra_args: Vec<syn::Ident> = match spec.mode {
         DrawMode::Base => vec![],
         DrawMode::Outline => vec![format_ident!("thickness"), format_ident!("outline_color")],
-        DrawMode::WithOutline => vec![
-            format_ident!("thickness"),
-            format_ident!("fill_color"),
-            format_ident!("outline_color"),
-        ],
+        DrawMode::WithOutline => vec![format_ident!("thickness"), format_ident!("outline_color")],
     };
     let rot_arg = if spec.rotation {
         quote!(rot,)
@@ -141,7 +133,6 @@ fn emit_variant(entry: &ShapeEntry, spec: VariantSpec) -> TokenStream {
         },
         DrawMode::WithOutline => quote! {
             #rot_binding
-            let color = fill_color;
             ({ #ctor }).draw_with_outline_to_draw_queue(draw_queue_2d(), thickness, outline_color);
         },
     };
@@ -161,7 +152,6 @@ fn emit_variant(entry: &ShapeEntry, spec: VariantSpec) -> TokenStream {
         },
         DrawMode::WithOutline => quote! {
             #rot_binding
-            let color = fill_color;
             let __shape = { #ctor };
             if __shape.is_visible_in_world() {
                 __shape.draw_with_outline_to_draw_queue(world_draw_queue_2d(), thickness, outline_color);

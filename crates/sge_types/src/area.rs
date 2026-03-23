@@ -72,4 +72,46 @@ impl Area {
     pub fn height(&self) -> f32 {
         self.size.y
     }
+
+    pub fn shrink(&self, amount: f32) -> Self {
+        Self {
+            top_left: self.top_left + Vec2::splat(amount),
+            size: self.size - Vec2::splat(amount * 2.0),
+        }
+    }
+
+    pub fn with_padding(&self, padding: f32) -> Self {
+        Self {
+            top_left: self.top_left + Vec2::splat(padding),
+            size: self.size - Vec2::splat(padding * 2.0),
+        }
+    }
+
+    pub fn with_left_padding(&self, padding: f32) -> Self {
+        Self {
+            top_left: self.top_left + Vec2::new(padding, 0.0),
+            size: self.size - Vec2::new(padding, 0.0),
+        }
+    }
+
+    pub fn with_right_padding(&self, padding: f32) -> Self {
+        Self {
+            top_left: self.top_left,
+            size: self.size - Vec2::new(padding, 0.0),
+        }
+    }
+
+    pub fn with_top_padding(&self, padding: f32) -> Self {
+        Self {
+            top_left: self.top_left + Vec2::new(0.0, padding),
+            size: self.size - Vec2::new(0.0, padding),
+        }
+    }
+
+    pub fn with_bottom_padding(&self, padding: f32) -> Self {
+        Self {
+            top_left: self.top_left,
+            size: self.size - Vec2::new(0.0, padding),
+        }
+    }
 }

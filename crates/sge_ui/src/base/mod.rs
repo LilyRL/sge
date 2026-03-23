@@ -11,8 +11,8 @@ mod button;
 mod center;
 mod circle;
 mod col;
+mod drawer;
 mod empty;
-mod expandable;
 mod fill;
 mod fit;
 mod flex;
@@ -32,6 +32,7 @@ mod scroll;
 mod sized_box;
 mod stack;
 mod text;
+mod window;
 
 pub use active_fill::*;
 pub use align::*;
@@ -42,8 +43,8 @@ pub use button::*;
 pub use center::*;
 pub use circle::*;
 pub use col::*;
+pub use drawer::*;
 pub use empty::*;
-pub use expandable::*;
 pub use fill::*;
 pub use fit::*;
 pub use flex::*;
@@ -63,6 +64,7 @@ pub use scroll::*;
 pub use sized_box::*;
 pub use stack::*;
 pub use text::*;
+pub use window::*;
 
 use sge_window::window_width;
 

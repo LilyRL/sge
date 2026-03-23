@@ -1,4 +1,5 @@
 use sge_time::frame_count;
+use sge_window::use_pointer_cursor_icon;
 
 use super::*;
 
@@ -27,6 +28,10 @@ impl UiNode for Button {
     }
 
     fn draw(&self, area: Area, ui: &UiState) -> Vec2 {
+        if ui.is_hovered(area) {
+            use_pointer_cursor_icon();
+        }
+
         if ui.is_clicked(area) {
             get_ui_storage()
                 .elements_interacted

@@ -4,8 +4,23 @@ use super::*;
 
 #[derive(Clone, Copy, Debug)]
 pub struct BorderStyle {
-    thickness: f32,
-    color: Color,
+    pub thickness: f32,
+    pub color: Color,
+}
+
+impl BorderStyle {
+    pub fn none() -> Self {
+        Self {
+            thickness: 0.0,
+            color: Color::TRANSPARENT,
+        }
+    }
+}
+
+impl Default for BorderStyle {
+    fn default() -> Self {
+        Self::none()
+    }
 }
 
 #[derive(Debug)]

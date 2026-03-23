@@ -24,8 +24,9 @@
 - [ ] set_sound_volume
 - [ ] stop_sound
 - [ ] all unnececary features behind feature gates (e.g. audio, input, gamepad, etc.)
-- [ ] add must use to _ex sounds builder
+- [X] add must use to _ex sounds builder
 - [ ] draggable/resizable floating window
+- [ ] functions to change cursor icon
 - [X] solid triangle arrow functions
 - [X] expandable <details> type thing
 - [ ] slider

@@ -5,6 +5,7 @@ edition = "2024"
 
 [dependencies]
 bevy_math.workspace = true
+bon.workspace = true
 glium.workspace = true
 global = { version = "0.1.0", path = "../global" }
 log.workspace = true

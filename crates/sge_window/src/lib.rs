@@ -17,7 +17,7 @@ use glium::{
         dpi::PhysicalSize,
         event_loop::EventLoop,
         raw_window_handle::HasRawWindowHandle,
-        window::{Window, WindowAttributes},
+        window::{Cursor, CursorIcon, Window, WindowAttributes},
     },
 };
 use glutin_winit::{DisplayBuilder, GlWindow};
@@ -29,6 +29,20 @@ pub struct WindowState {
     pub display: SgeDisplay,
     pub event_loop: EventLoop<()>,
     pub window_size: Vec2,
+    pub using_custom_cursor: bool,
+}
+
+pub fn end_of_frame() {
+    let state = get_window_state();
+
+    match state.using_custom_cursor {
+        true => {
+            state.using_custom_cursor = false;
+        }
+        false => {
+            state.window.set_cursor(Cursor::Icon(CursorIcon::Default));
+        }
+    }
 }
 
 global::global!(WindowState, window_state);
@@ -113,6 +127,7 @@ pub fn init(opts: WindowOptions) -> Result<(), WindowCreationError> {
         display,
         window,
         event_loop,
+        using_custom_cursor: false,
     };
 
     set_window_state(state);
@@ -169,4 +184,155 @@ pub fn max_window_dimension() -> f32 {
 
 pub fn min_window_dimension() -> f32 {
     window_height().min(window_width())
+}
+
+/// only active for one frame
+pub fn use_cursor_icon(icon: CursorIcon) {
+    let state = get_window_state();
+    state.window.set_cursor(Cursor::Icon(icon));
+    state.using_custom_cursor = true;
+}
+/// only active for one frame
+pub fn use_default_cursor_icon() {
+    use_cursor_icon(CursorIcon::Default);
+}
+/// only active for one frame
+pub fn use_context_menu_cursor_icon() {
+    use_cursor_icon(CursorIcon::ContextMenu);
+}
+/// only active for one frame
+pub fn use_help_cursor_icon() {
+    use_cursor_icon(CursorIcon::Help);
+}
+/// only active for one frame
+pub fn use_pointer_cursor_icon() {
+    use_cursor_icon(CursorIcon::Pointer);
+}
+/// only active for one frame
+pub fn use_progress_cursor_icon() {
+    use_cursor_icon(CursorIcon::Progress);
+}
+/// only active for one frame
+pub fn use_wait_cursor_icon() {
+    use_cursor_icon(CursorIcon::Wait);
+}
+/// only active for one frame
+pub fn use_cell_cursor_icon() {
+    use_cursor_icon(CursorIcon::Cell);
+}
+/// only active for one frame
+pub fn use_crosshair_cursor_icon() {
+    use_cursor_icon(CursorIcon::Crosshair);
+}
+/// only active for one frame
+pub fn use_text_cursor_icon() {
+    use_cursor_icon(CursorIcon::Text);
+}
+/// only active for one frame
+pub fn use_vertical_text_cursor_icon() {
+    use_cursor_icon(CursorIcon::VerticalText);
+}
+/// only active for one frame
+pub fn use_alias_cursor_icon() {
+    use_cursor_icon(CursorIcon::Alias);
+}
+/// only active for one frame
+pub fn use_copy_cursor_icon() {
+    use_cursor_icon(CursorIcon::Copy);
+}
+/// only active for one frame
+pub fn use_move_cursor_icon() {
+    use_cursor_icon(CursorIcon::Move);
+}
+/// only active for one frame
+pub fn use_no_drop_cursor_icon() {
+    use_cursor_icon(CursorIcon::NoDrop);
+}
+/// only active for one frame
+pub fn use_not_allowed_cursor_icon() {
+    use_cursor_icon(CursorIcon::NotAllowed);
+}
+/// only active for one frame
+pub fn use_grab_cursor_icon() {
+    use_cursor_icon(CursorIcon::Grab);
+}
+/// only active for one frame
+pub fn use_grabbing_cursor_icon() {
+    use_cursor_icon(CursorIcon::Grabbing);
+}
+/// only active for one frame
+pub fn use_e_resize_cursor_icon() {
+    use_cursor_icon(CursorIcon::EResize);
+}
+/// only active for one frame
+pub fn use_n_resize_cursor_icon() {
+    use_cursor_icon(CursorIcon::NResize);
+}
+/// only active for one frame
+pub fn use_ne_resize_cursor_icon() {
+    use_cursor_icon(CursorIcon::NeResize);
+}
+/// only active for one frame
+pub fn use_nw_resize_cursor_icon() {
+    use_cursor_icon(CursorIcon::NwResize);
+}
+/// only active for one frame
+pub fn use_s_resize_cursor_icon() {
+    use_cursor_icon(CursorIcon::SResize);
+}
+/// only active for one frame
+pub fn use_se_resize_cursor_icon() {
+    use_cursor_icon(CursorIcon::SeResize);
+}
+/// only active for one frame
+pub fn use_sw_resize_cursor_icon() {
+    use_cursor_icon(CursorIcon::SwResize);
+}
+/// only active for one frame
+pub fn use_w_resize_cursor_icon() {
+    use_cursor_icon(CursorIcon::WResize);
+}
+/// only active for one frame
+pub fn use_ew_resize_cursor_icon() {
+    use_cursor_icon(CursorIcon::EwResize);
+}
+/// only active for one frame
+pub fn use_ns_resize_cursor_icon() {
+    use_cursor_icon(CursorIcon::NsResize);
+}
+/// only active for one frame
+pub fn use_nesw_resize_cursor_icon() {
+    use_cursor_icon(CursorIcon::NeswResize);
+}
+/// only active for one frame
+pub fn use_nwse_resize_cursor_icon() {
+    use_cursor_icon(CursorIcon::NwseResize);
+}
+/// only active for one frame
+pub fn use_col_resize_cursor_icon() {
+    use_cursor_icon(CursorIcon::ColResize);
+}
+/// only active for one frame
+pub fn use_row_resize_cursor_icon() {
+    use_cursor_icon(CursorIcon::RowResize);
+}
+/// only active for one frame
+pub fn use_all_scroll_cursor_icon() {
+    use_cursor_icon(CursorIcon::AllScroll);
+}
+/// only active for one frame
+pub fn use_zoom_in_cursor_icon() {
+    use_cursor_icon(CursorIcon::ZoomIn);
+}
+/// only active for one frame
+pub fn use_zoom_out_cursor_icon() {
+    use_cursor_icon(CursorIcon::ZoomOut);
+}
+/// only active for one frame
+pub fn use_dnd_ask_cursor_icon() {
+    use_cursor_icon(CursorIcon::DndAsk);
+}
+/// only active for one frame
+pub fn use_all_resize_cursor_icon() {
+    use_cursor_icon(CursorIcon::AllResize);
 }

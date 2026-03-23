@@ -90,6 +90,7 @@ impl Transform2D {
 
     pub fn with_scale(mut self, scale: Vec2) -> Self {
         self.scale = scale;
+        self.mark_dirty();
         self
     }
 
@@ -121,6 +122,7 @@ impl Transform2D {
 
     pub fn with_rotation(mut self, rotation: f32) -> Self {
         self.rotation = rotation;
+        self.mark_dirty();
         self
     }
 
@@ -152,6 +154,7 @@ impl Transform2D {
 
     pub fn with_translation(mut self, translation: Vec2) -> Self {
         self.translation = translation;
+        self.mark_dirty();
         self
     }
 
@@ -183,6 +186,7 @@ impl Transform2D {
 
     pub fn with_mirror(mut self, mirror: BVec2) -> Self {
         self.mirror = mirror;
+        self.mark_dirty();
         self
     }
 
@@ -528,7 +532,7 @@ impl std::fmt::Debug for Transform2D {
             .field("scale", &(self.scale.x, self.scale.y))
             .field("translation", &(self.translation.x, self.translation.y))
             .field("mirror_x", &self.mirror.x)
-            .field("mirror_y", &self.mirror.x)
+            .field("mirror_y", &self.mirror.y)
             .finish()
     }
 }

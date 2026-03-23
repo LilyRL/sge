@@ -11,7 +11,8 @@ fn main() -> anyhow::Result<()> {
 
     // wait_for_events(); // can be useful for increasing performance in ui only apps
 
-    let texture = include_texture!("../assets/textures/guy.jpg");
+    let guy = include_texture!("../assets/textures/guy.jpg");
+    let space = include_texture!("../assets/textures/space.jpg");
     let mut progress: f32 = rand();
     let mut show_message = false;
     let mut clear_color = w95::PRIMARY;
@@ -32,12 +33,12 @@ fn main() -> anyhow::Result<()> {
 
         let mut ui_parts = vec![];
 
-        ui_parts.push(scroll_window());
-        ui_parts.push(w95_window(texture, progress, &mut clear_color));
-        ui_parts.push(text_window());
-        ui_parts.push(button_window(&mut show_message));
-        ui_parts.push(align_window());
-        ui_parts.push(flat_window());
+        ui_parts.push(scroll_section());
+        ui_parts.push(w95_section(guy, progress, &mut clear_color));
+        ui_parts.push(text_section());
+        ui_parts.push(button_section(&mut show_message));
+        ui_parts.push(align_section());
+        ui_parts.push(flat_section(space));
 
         let padding = media_query(5.0, 10.0, 20.0);
         let ui = SizedBox::new(
@@ -60,38 +61,35 @@ fn main() -> anyhow::Result<()> {
     Ok(())
 }
 
-fn scroll_window() -> UiRef {
-    InactiveOverlay::new(
-        Color::BLACK.with_alpha(0.5),
-        BoxFill::new(
-            Color::GRAY_900,
-            Scroll::new(
-                id!(),
-                Padding::all(
+fn scroll_section() -> UiRef {
+    BoxFill::new(
+        Color::GRAY_900,
+        Scroll::new(
+            id!(),
+            Padding::all(
+                10.0,
+                Col::with_gap(
                     10.0,
-                    Col::with_gap(
-                        10.0,
-                        (0..100)
-                            .map(|n| {
-                                SizedBox::height(
-                                    40.0,
-                                    RoundedHoverFill::new(
-                                        Color::GRAY_800,
-                                        Color::GRAY_700,
-                                        7.0,
-                                        Center::new(Text::new(n)),
-                                    ),
-                                )
-                            })
-                            .collect::<Vec<_>>(),
-                    ),
+                    (0..100)
+                        .map(|n| {
+                            SizedBox::height(
+                                40.0,
+                                RoundedHoverFill::new(
+                                    Color::GRAY_800,
+                                    Color::GRAY_700,
+                                    7.0,
+                                    Center::new(Text::new(n)),
+                                ),
+                            )
+                        })
+                        .collect::<Vec<_>>(),
                 ),
             ),
         ),
     )
 }
 
-fn w95_window(texture: TextureRef, progress: f32, clear_color: &mut Color) -> UiRef {
+fn w95_section(texture: TextureRef, progress: f32, clear_color: &mut Color) -> UiRef {
     let color_button = id!();
     let wait_button = id!();
 
@@ -131,18 +129,18 @@ fn w95_window(texture: TextureRef, progress: f32, clear_color: &mut Color) -> Ui
                             4.0,
                             BoxFill::new(
                                 Color::NEUTRAL_200,
-                                CircleFill::new(Color::NEUTRAL_300).sized(150.0, 150.0),
+                                CircleFill::new(Color::NEUTRAL_300).sized_wh(150.0, 150.0),
                             ),
                         )),
                     )
-                    .sized(200.0, 200.0),
+                    .sized_wh(200.0, 200.0),
                 ],
             ),
         ),
     )
 }
 
-fn text_window() -> UiRef {
+fn text_section() -> UiRef {
     BoxFill::new(
         Color::NEUTRAL_950,
         Padding::all(
@@ -181,7 +179,7 @@ fn text_window() -> UiRef {
     )
 }
 
-fn button_window(show_message: &mut bool) -> UiRef {
+fn button_section(show_message: &mut bool) -> UiRef {
     let button = id!();
 
     if button_clicked_last_frame(button) {
@@ -202,7 +200,7 @@ fn button_window(show_message: &mut bool) -> UiRef {
     .scissored()
 }
 
-fn align_window() -> UiRef {
+fn align_section() -> UiRef {
     BoxFill::new(
         Color::BLACK,
         Stack::new([
@@ -220,7 +218,7 @@ fn align_window() -> UiRef {
     .scissored()
 }
 
-fn flat_window() -> UiRef {
+fn flat_section(texture: TextureRef) -> UiRef {
     use flat::*;
 
     let bars: Vec<_> = Palette::PALETTES
@@ -239,19 +237,51 @@ fn flat_window() -> UiRef {
     Card::bg0_expand(FlexCol::with_gap(
         10.0,
         [
-            FlexBox::Flex(
-                Expandable::new(
-                    "Click me!",
-                    Col::with_gap(10.0, bars).scroll(id!()),
-                    BG1,
-                    id!(),
-                )
-                .max_height(400.0),
-            ),
+            FlexBox::Flex(Col::with_gap(
+                20.0,
+                [
+                    Drawer::new(
+                        "Click me!",
+                        Col::with_gap(10.0, bars).scroll(id!()),
+                        BG1,
+                        id!(),
+                    )
+                    .max_height(400.0),
+                    window_button(texture),
+                ],
+            )),
             FlexBox::Fixed(TextInput::with_prompt(BG2, "Start typing...", input_id)),
             // FlexBox::Fixed(Text::new("Hello world.")),
         ],
     ))
+}
+
+fn window_button(texture: TextureRef) -> UiRef {
+    let window_id = id!();
+    let window_button_id = id!();
+
+    let window = flat::FloatingWindow::new(
+        "Hello world",
+        window_id,
+        Col::with_gap(
+            10.0,
+            [
+                Text::body("This is a window"),
+                ImageNode::from_texture_with_scale(texture, 300.0),
+            ],
+        ),
+    );
+
+    if button_clicked_last_frame(window_button_id)
+        && let Some(state) = floating_window_state(window_id)
+    {
+        state.open = !state.open;
+    }
+
+    Stack::new([
+        flat::Button::text(flat::BG1, flat::BG2, window_button_id, "Toggle window"),
+        window,
+    ])
 }
 
 fn square(color: Color) -> UiRef {

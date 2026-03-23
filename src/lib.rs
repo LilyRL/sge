@@ -100,6 +100,7 @@ pub fn next_frame() {
     sge_egui::update();
     sge_ui::update();
     // sge_routines::update();
+    sge_window::end_of_frame();
     sge_time::update(has_input_event);
     record_frame_time(engine_start_time);
     request_redraw_if_needed();

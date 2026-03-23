@@ -10,7 +10,7 @@ use glium::{
 use image::ImageFormat;
 use sge_config::get_config;
 use sge_image::Image;
-use sge_macros::gen_ref_type;
+use sge_macros::{gen_ref_type, include_texture};
 use sge_window::get_window_state;
 
 #[derive(ErrorUnion, Debug)]
@@ -19,8 +19,13 @@ pub enum LoadTextureError {
     Engine(TextureCreationError),
 }
 
+pub const CLOSE_TEXTURE: TextureRef = TextureRef(0);
+pub const MINIMISE_TEXTURE: TextureRef = TextureRef(1);
+
 pub fn init() {
     init_texture_storage();
+    include_texture!("../../sge_ui/assets/textures/close.png");
+    include_texture!("../../sge_ui/assets/textures/minimise.png");
     log::info!("Initialized textures");
 }
 

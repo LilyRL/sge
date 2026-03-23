@@ -62,8 +62,12 @@ impl SizedBox {
 }
 
 impl UiRef {
-    pub fn sized(self, width: f32, height: f32) -> UiRef {
+    pub fn sized_wh(self, width: f32, height: f32) -> UiRef {
         SizedBox::wh(width, height, self)
+    }
+
+    pub fn sized(self, dimensions: Vec2) -> UiRef {
+        SizedBox::new(dimensions, self)
     }
 
     pub fn height(self, height: f32) -> UiRef {

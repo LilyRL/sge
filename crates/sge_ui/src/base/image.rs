@@ -20,6 +20,10 @@ impl ImageNode {
         }
         .to_ref()
     }
+
+    pub fn from_texture_with_scale(texture: TextureRef, scale: f32) -> UiRef {
+        Self::from_texture(texture).sized(texture.normalized_dimensions * scale)
+    }
 }
 
 impl UiNode for ImageNode {
