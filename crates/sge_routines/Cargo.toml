@@ -4,5 +4,5 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-global = { version = "0.1.0", path = "../global" }
-slotmap = "1.1.1"
+global.workspace = true
+slotmap.workspace = true

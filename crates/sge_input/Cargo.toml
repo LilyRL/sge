@@ -5,14 +5,15 @@ edition = "2024"
 
 [features]
 precise_cursor_movement = ["winit_input_helper/precise_cursor_movement"]
+gamepad = ["gilrs"]
 
 [dependencies]
 bevy_math.workspace = true
 error_union.workspace = true
-gilrs = "0.11.1"
+gilrs = { workspace = true, optional = true }
 glium.workspace = true
-global = { version = "0.1.0", path = "../global" }
+global.workspace = true
 log.workspace = true
-sge_types = { version = "0.1.0", path = "../sge_types" }
-winit = "0.30.12"
-winit_input_helper = { version = "0.17.0", path = "../winit_input_helper" }
+sge_types.workspace = true
+glutin-winit.workspace = true
+winit_input_helper.workspace = true

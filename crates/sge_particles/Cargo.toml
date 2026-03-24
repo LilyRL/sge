@@ -8,9 +8,9 @@ bevy_math.workspace = true
 bon.workspace = true
 dyn-clone = "1.0.20"
 rayon.workspace = true
-sge_api = { version = "0.1.0", path = "../sge_api" }
+sge_api.workspace = true
 sge_color.workspace = true
-sge_rendering = { version = "0.1.0", path = "../sge_rendering" }
-sge_rng = { version = "0.1.0", path = "../sge_rng" }
+sge_rendering.workspace = true
+sge_rng.workspace = true
 sge_shapes.workspace = true
-sge_time = { version = "0.1.0", path = "../sge_time" }
+sge_time.workspace = true

@@ -6,10 +6,10 @@ edition = "2024"
 [dependencies]
 bevy_math.workspace = true
 glium.workspace = true
-global = { version = "0.1.0", path = "../global" }
+global.workspace = true
 log.workspace = true
 sge_input.workspace = true
-sge_rng = { version = "0.1.0", path = "../sge_rng" }
-sge_time = { version = "0.1.0", path = "../sge_time" }
-sge_utils = { version = "0.1.0", path = "../sge_utils" }
-sge_window = { version = "0.1.0", path = "../sge_window" }
+sge_rng.workspace = true
+sge_time.workspace = true
+sge_utils.workspace = true
+sge_window.workspace = true

@@ -4,5 +4,5 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-global = { version = "0.1.0", path = "../global" }
+global.workspace = true
 log.workspace = true

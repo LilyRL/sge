@@ -419,19 +419,30 @@ impl Default for TextDrawParams {
 }
 
 pub const MONO: FontRef = FontRef(0);
+#[cfg(feature = "extra_fonts")]
 pub const SANS: FontRef = FontRef(1);
+#[cfg(feature = "extra_fonts")]
 pub const SANS_DISPLAY: FontRef = FontRef(2);
+#[cfg(feature = "extra_fonts")]
 pub const SANS_ITALIC: FontRef = FontRef(3);
+#[cfg(feature = "extra_fonts")]
 pub const SANS_BOLD: FontRef = FontRef(4);
+#[cfg(feature = "extra_fonts")]
 pub const SANS_BOLD_ITALIC: FontRef = FontRef(5);
 
 #[rustfmt::skip]
 pub(crate) fn init_fonts() -> Result<(), FontError> {
     load_font(include_bytes!("../../../assets/fonts/jetbrains.ttf")).map(|_| ())?;
+
+    #[cfg(feature = "extra_fonts")]
     load_font(include_bytes!("../../../assets/fonts/inter.ttf")).map(|_| ())?;
+    #[cfg(feature = "extra_fonts")]
     load_font(include_bytes!("../../../assets/fonts/inter-display-bold.ttf")).map(|_| ())?;
+    #[cfg(feature = "extra_fonts")]
     load_font(include_bytes!("../../../assets/fonts/inter-italic.ttf")).map(|_| ())?;
+    #[cfg(feature = "extra_fonts")]
     load_font(include_bytes!("../../../assets/fonts/inter-bold.ttf")).map(|_| ())?;
+    #[cfg(feature = "extra_fonts")]
     load_font(include_bytes!("../../../assets/fonts/inter-bold-italic.ttf")).map(|_| ())?;
 
     Ok(())

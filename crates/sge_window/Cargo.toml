@@ -7,5 +7,5 @@ edition = "2024"
 bevy_math.workspace = true
 error_union.workspace = true
 glium.workspace = true
-global = { version = "0.1.0", path = "../global" }
+global.workspace = true
 glutin-winit.workspace = true

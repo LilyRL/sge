@@ -15,11 +15,11 @@ bumpalo = { version = "3.19.0", features = ["collections"] }
 color-eyre = "0.6.5"
 egui_glium = "0.31.1"
 env_logger = "0.11.8"
-error_union = { path = "./crates/error_union" }
 fontdue = "0.9.3"
 fps_ticker = "1.0.0"
 glium = "0.36.0"
 glutin-winit = "0.5.0"
+winit = "0.30"
 glyph_brush = "0.7.12"
 image = "0.25.8"
 log = "0.4.28"
@@ -41,44 +41,11 @@ si = { path = "./crates/si" }
 termcolor = "1.4.1"
 thiserror = "2.0.17"
 trig-const = "0.3.0"
-
-[dependencies]
-anyhow.workspace = true
-bevy_math.workspace = true
-bon = { workspace = true }
-bumpalo = { workspace = true }
-color-eyre = { workspace = true }
-const-random = "0.1.18"
-egui_glium = { workspace = true }
-env_logger = { workspace = true }
-error_union.workspace = true
-fontdue = { workspace = true }
-fps_ticker = { workspace = true }
-glium = { workspace = true }
-glutin-winit = { workspace = true }
-glyph_brush = { workspace = true }
-image = { workspace = true }
-log.workspace = true
-lyon = { workspace = true }
-nalgebra = { workspace = true }
-obj-rs = { workspace = true }
-palette = { workspace = true }
-paste = { workspace = true }
-phf = { workspace = true }
-pprof = { version = "0.15.0", features = ["flamegraph"], optional = true }
-rand = { workspace = true }
-rapier2d = { workspace = true }
-rayon = { workspace = true }
-sge_color = { workspace = true }
-sge_macros.workspace = true
-sge_input = { workspace = true }
-si = { workspace = true }
-termcolor = { workspace = true }
-thiserror = { workspace = true }
-trig-const = { workspace = true }
-sge_math = { workspace = true }
+proc-macro2 = "1.0.106"
+quote = "1.0.45"
+syn = { version = "2.0.117", features = ["full"] }
+error_union = { path = "./crates/error_union" }
 winit_input_helper = { path = "./crates/winit_input_helper" }
-sge_shapes.workspace = true
 sge_window = { version = "0.1.0", path = "crates/sge_window" }
 sge_config = { version = "0.1.0", path = "crates/sge_config" }
 sge_logging = { version = "0.1.0", path = "crates/sge_logging" }
@@ -105,9 +72,91 @@ sge_utils = { version = "0.1.0", path = "crates/sge_utils" }
 sge_particles = { version = "0.1.0", path = "crates/sge_particles" }
 include_assets = { version = "0.1.0", path = "crates/include_assets" }
 persistence = { version = "0.1.0", path = "crates/persistence" }
-rkyv = "0.8.15"
 sge_graph_networks = { version = "0.1.0", path = "crates/sge_graph_networks" }
 sge_routines = { version = "0.1.0", path = "crates/sge_routines" }
+feature_gated = { version = "0.1.0", path = "crates/feature_gated" }
+heck = "0.5.0"
+proc-macro-crate = "3.5.0"
+ron = "0.12.0"
+serde = "1.0.228"
+serde_json = "1.0.149"
+toml = "1.0.6"
+walkdir = "2.5.0"
+rkyv = "0.8.15"
+slotmap = "1.1.1"
+rodio = { version = "0.22.2", features = ["noise", "playback"] }
+prettyplease = "0.2"
+gilrs = "0.11.1"
+glob = "0.3.3"
+crossbeam-channel = "0.5.15"
+const-random = "0.1.18"
+dyn-clone = "1.0.20"
+
+[dependencies]
+anyhow = { workspace = true }
+bevy_math = { workspace = true }
+bon = { workspace = true }
+bumpalo = { workspace = true }
+color-eyre = { workspace = true }
+const-random = "0.1.18"
+egui_glium = { workspace = true }
+env_logger = { workspace = true }
+error_union = { workspace = true }
+fontdue = { workspace = true }
+fps_ticker = { workspace = true }
+glium = { workspace = true }
+glutin-winit = { workspace = true }
+glyph_brush = { workspace = true }
+image = { workspace = true }
+log = { workspace = true }
+lyon = { workspace = true }
+nalgebra = { workspace = true }
+obj-rs = { workspace = true }
+palette = { workspace = true }
+paste = { workspace = true }
+phf = { workspace = true }
+rand = { workspace = true }
+rapier2d = { workspace = true }
+rayon = { workspace = true }
+sge_color = { workspace = true }
+sge_macros = { workspace = true }
+sge_input = { workspace = true, optional = true }
+si = { workspace = true }
+termcolor = { workspace = true }
+thiserror = { workspace = true }
+trig-const = { workspace = true }
+sge_math = { workspace = true }
+sge_shapes = { workspace = true }
+rkyv = { workspace = true }
+winit_input_helper = { workspace = true }
+sge_window = { workspace = true }
+sge_config = { workspace = true }
+sge_logging = { workspace = true }
+sge_camera = { workspace = true }
+sge_egui = { workspace = true, optional = true }
+sge_debugging = { workspace = true, optional = true }
+sge_programs = { workspace = true }
+sge_textures = { workspace = true }
+sge_rendering = { workspace = true }
+sge_rng = { workspace = true }
+sge_time = { workspace = true }
+sge_audio = {workspace = true ,optional = true}
+global = { workspace = true }
+sge_ui = { workspace = true, optional = true }
+sge_animation = { workspace = true }
+sge_debug_visualisations = { workspace = true, optional = true }
+sge_types = { workspace = true }
+sge_api = { workspace = true }
+sge_image = { workspace = true }
+sge_physics = { workspace = true }
+sge_text = { workspace = true, optional = true }
+sge_texture_atlas = { workspace = true }
+sge_utils = { workspace = true }
+sge_particles = { workspace = true }
+include_assets = { workspace = true }
+persistence = { workspace = true }
+sge_graph_networks = { workspace = true }
+sge_routines = { workspace = true }
 
 [profile.release]
 # Compile the entire crate as one unit.
@@ -132,10 +181,28 @@ rustflags = [
 codegen-backend = true
 
 [features]
-default = ["precise_cursor_movement"]
-# debugging = ["dep:egui_plot"]
-profile = ["dep:pprof"]
+default = [
+    "precise_cursor_movement",
+    "audio",
+    "input",
+    "gamepad",
+    "text",
+    "extra_fonts",
+    "debug_visualisations",
+    "ui",
+    "debugging",
+    "egui"
+]
 precise_cursor_movement = ["sge_input/precise_cursor_movement"]
+audio = ["dep:sge_audio"]
+input = ["dep:sge_input"]
+gamepad = ["input", "sge_input/gamepad"]
+text = ["dep:sge_text"]
+extra_fonts = ["text", "sge_text/extra_fonts"]
+ui = ["extra_fonts", "dep:sge_ui"]
+egui = ["dep:sge_egui"]
+debugging = ["dep:sge_debugging"]
+debug_visualisations = ["debugging", "egui", "dep:sge_debug_visualisations"]
 
 [workspace]
 members = [
@@ -176,6 +243,10 @@ members = [
     "crates/sge_particles",
     "crates/include_assets",
     "crates/bevy_math",
-    "crates/persistence"
-, "crates/sge_async", "crates/sge_graph_networks", "crates/sge_routines"]
+    "crates/persistence",
+    "crates/sge_async",
+    "crates/sge_graph_networks",
+    "crates/sge_routines",
+    "crates/feature_gated"
+]
 resolver = "3"

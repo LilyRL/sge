@@ -48,27 +48,7 @@ pub use sge_config::{
     toggle_wireframe, use_default_filtering, use_linear_filtering, use_mipmaps,
     use_nearest_filtering, use_positive_y_down, use_positive_y_up, wait_for_events,
 };
-pub use sge_debug_visualisations::grid::{create_infinite_grid, draw_2d_grid_world};
-pub use sge_debug_visualisations::*;
-pub use sge_debugging::{
-    avg_fps, get_draw_calls, get_drawn_objects, get_engine_time, get_index_count,
-    get_max_draw_calls, get_max_drawn_objects, get_max_engine_time, get_max_index_count,
-    get_max_vertex_count, get_vertex_count, max_fps, min_fps,
-};
-pub use sge_egui::egui_glium::egui_winit::egui;
-pub use sge_egui::run_egui;
 pub use sge_image::{Image, ImageRef};
-pub use sge_input::{
-    Action, Button, Input, action_held, action_pressed, action_pressed_os, action_released, bind,
-    bind_button, bind_key, bind_mouse, button_held, button_pressed, button_released,
-    close_requested, cursor, cursor_diff, cursor_movements, cursor_prev, destroyed, dropped_file,
-    gamepad::GamepadExt, get_all_binds, get_binding, get_input, get_key_binding, get_mouse_binding,
-    held_alt, held_control, held_shift, input_text, key_held, key_held_logical, key_pressed,
-    key_pressed_logical, key_pressed_os, key_pressed_os_logical, key_released,
-    key_released_logical, keys::KeyToString, last_cursor_pos, mouse_diff, mouse_held,
-    mouse_pressed, mouse_released, resolution, scale_factor, scale_factor_changed, scroll_diff,
-    should_quit, window_resized,
-};
 pub use sge_logging::{
     Logger, draw_logs, log_lines, log_to_file, set_logger_verbosity, set_max_drawn_log_lines,
     set_min_log_level,
@@ -106,17 +86,6 @@ pub use sge_rendering::scissor::{
 pub use sge_rendering::shapes_3d::*;
 pub use sge_rng::{rand, rand_bool, rand_color, rand_range, rand_ratio, rand_usize};
 pub use sge_shapes::d2::*;
-pub use sge_text::rich_text::*;
-pub use sge_text::{
-    FontError, FontRef, Glyph, MONO, SANS, SANS_BOLD, SANS_BOLD_ITALIC, SANS_DISPLAY, SANS_ITALIC,
-    SgeFont, TextDimensions, TextDrawParams, TextMeasureCache, create_ttf_font, default_font,
-    draw_colored_text, draw_colored_text_world, draw_multiline_text, draw_multiline_text_ex,
-    draw_multiline_text_size, draw_multiline_text_size_world, draw_multiline_text_world,
-    draw_multiline_text_world_ex, draw_text, draw_text_custom, draw_text_ex, draw_text_size,
-    draw_text_size_world, draw_text_world, draw_text_world_custom, draw_text_world_ex,
-    draw_wrapped_text_in_area, icons, load_font, measure_multiline_text, measure_multiline_text_ex,
-    measure_text, measure_text_ex, measure_wrapped_text, wrap_text_to_width, wrapped_text,
-};
 pub use sge_texture_atlas::{
     LoadImageError, Sprite, SpriteKey, TextureAtlas, TextureAtlasRef, create_spritesheet,
     load_image,
@@ -132,7 +101,6 @@ pub use sge_types::{
     Area, BufferError, MaterialVertex3D, SpriteVertex, TexturedVertex2D, Verbosity, Vertex2D,
     Vertex3D,
 };
-pub use sge_ui::{self as ui, base::EMPTY, draw_ui, draw_ui_in_area, draw_ui_unbounded, id};
 pub use sge_utils::RotatingArray;
 pub use sge_window::{
     SgeDisplay, WindowCreationError, WindowOptions, WindowState, dpi_scaling, get_display,
@@ -145,7 +113,9 @@ pub mod graph_networks {
 }
 pub use anyhow::Result as AResult;
 
+#[cfg(feature = "audio")]
 pub use audio::*;
+#[cfg(feature = "audio")]
 mod audio {
     pub use sge_audio::{
         Sound, SoundBuilder, SoundLoadError, SoundRef, load_sound, load_sound_from_bytes,
@@ -158,7 +128,80 @@ mod audio {
     pub use std::time::Duration;
 }
 
+#[cfg(feature = "gamepad")]
 pub mod gamepad {
     pub use sge_input::gamepad_input as input;
     pub use sge_input::gilrs::*;
+}
+
+#[cfg(feature = "input")]
+pub use input::*;
+#[cfg(feature = "input")]
+pub mod input {
+    pub use sge_input::{
+        Action, Button, Input, action_held, action_pressed, action_pressed_os, action_released,
+        bind, bind_button, bind_key, bind_mouse, button_held, button_pressed, button_released,
+        close_requested, cursor, cursor_diff, cursor_movements, cursor_prev, destroyed,
+        dropped_file, gamepad::GamepadExt, get_all_binds, get_binding, get_input, get_key_binding,
+        get_mouse_binding, held_alt, held_control, held_shift, input_text, key_held,
+        key_held_logical, key_pressed, key_pressed_logical, key_pressed_os, key_pressed_os_logical,
+        key_released, key_released_logical, keys::KeyToString, last_cursor_pos, mouse_diff,
+        mouse_held, mouse_pressed, mouse_released, resolution, scale_factor, scale_factor_changed,
+        scroll_diff, should_quit, window_resized,
+    };
+}
+
+#[cfg(feature = "input")]
+pub use text::*;
+#[cfg(feature = "input")]
+mod text {
+    pub use sge_text::rich_text::*;
+    pub use sge_text::{
+        FontError, FontRef, Glyph, MONO, SANS_ITALIC, SgeFont, TextDimensions, TextDrawParams,
+        TextMeasureCache, create_ttf_font, default_font, draw_colored_text,
+        draw_colored_text_world, draw_multiline_text, draw_multiline_text_ex,
+        draw_multiline_text_size, draw_multiline_text_size_world, draw_multiline_text_world,
+        draw_multiline_text_world_ex, draw_text, draw_text_custom, draw_text_ex, draw_text_size,
+        draw_text_size_world, draw_text_world, draw_text_world_custom, draw_text_world_ex,
+        draw_wrapped_text_in_area, icons, load_font, measure_multiline_text,
+        measure_multiline_text_ex, measure_text, measure_text_ex, measure_wrapped_text,
+        wrap_text_to_width, wrapped_text,
+    };
+}
+
+#[cfg(feature = "extra_fonts")]
+pub use extra_fonts::*;
+#[cfg(feature = "extra_fonts")]
+mod extra_fonts {
+    pub use sge_text::{SANS, SANS_BOLD, SANS_BOLD_ITALIC, SANS_DISPLAY};
+}
+
+#[cfg(feature = "ui")]
+pub use sge_ui::prelude as ui;
+
+#[cfg(feature = "egui")]
+pub use egui_mod::*;
+#[cfg(feature = "egui")]
+mod egui_mod {
+    pub use sge_egui::egui_glium::egui_winit::egui;
+    pub use sge_egui::run_egui;
+}
+
+#[cfg(feature = "debugging")]
+pub use debugging::*;
+#[cfg(feature = "debugging")]
+mod debugging {
+    pub use sge_debugging::{
+        avg_fps, get_draw_calls, get_drawn_objects, get_engine_time, get_index_count,
+        get_max_draw_calls, get_max_drawn_objects, get_max_engine_time, get_max_index_count,
+        get_max_vertex_count, get_vertex_count, max_fps, min_fps,
+    };
+}
+
+#[cfg(feature = "debug_visualisations")]
+pub use debug_visualisations::*;
+#[cfg(feature = "debug_visualisations")]
+mod debug_visualisations {
+    pub use sge_debug_visualisations::grid::{create_infinite_grid, draw_2d_grid_world};
+    pub use sge_debug_visualisations::*;
 }

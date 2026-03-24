@@ -1,3 +1,5 @@
+// slop mostly
+
 use bevy_math::Vec2;
 use error_union::ErrorUnion;
 use glium::{

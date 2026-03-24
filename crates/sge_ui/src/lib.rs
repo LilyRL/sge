@@ -7,7 +7,7 @@ use std::{
     ops::{Deref, DerefMut},
 };
 
-use base::Empty;
+use base::{Empty, FloatingWindow};
 use bevy_math::Vec2;
 use glium::winit::event::MouseButton;
 use sge_color::Color;
@@ -19,7 +19,7 @@ use sge_window::window_size;
 
 /// base building blocks
 pub mod base;
-/// more complex widgets made of compoenents
+/// more complex widgets made of components
 pub mod library;
 pub mod prelude;
 
@@ -29,6 +29,7 @@ pub struct UiStorage {
     states: HashMap<StateRef, SomeState>,
     elements_interacted: HashMap<usize, usize>,
     elements_interacted_this_frame: Vec<usize>,
+    windows: Vec<*const FloatingWindow>,
 }
 
 global::global!(UiStorage, ui_storage);
@@ -39,6 +40,7 @@ pub fn init_ui() {
         states: HashMap::new(),
         elements_interacted: HashMap::new(),
         elements_interacted_this_frame: Vec::new(),
+        windows: Vec::new(),
     });
     log::info!("Initialized sge_ui");
     update();
@@ -51,6 +53,14 @@ pub struct UiState {
 }
 
 impl UiState {
+    fn new() -> Self {
+        Self {
+            frame: frame_count(),
+            delta_time: delta_time(),
+            time: time(),
+        }
+    }
+
     pub fn input(&self) -> &'static Input {
         get_input()
     }
@@ -134,6 +144,11 @@ impl Default for UiRef {
 
 /// run at start of frame
 pub fn update() {
+    for window in get_ui_storage().windows.drain(..) {
+        let window = unsafe { &*window };
+        window.actually_draw(&UiState::new());
+    }
+
     get_ui_nodes_state().clear();
     get_ui_nodes_state().push(Empty.to_generic());
     get_ui_storage().elements_interacted_this_frame.clear();
@@ -170,11 +185,7 @@ pub fn draw_ui_window(node: UiRef) -> Vec2 {
 }
 
 pub fn draw_ui_in_area(node: UiRef, area: Area) -> Vec2 {
-    let state = UiState {
-        frame: frame_count(),
-        delta_time: delta_time(),
-        time: time(),
-    };
+    let state = UiState::new();
 
     node.node.draw(area, &state)
 }

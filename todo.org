@@ -17,16 +17,16 @@
 - [ ] bitmap fonts
 - [ ] add post frame callback
 - [ ] add mf draw wireframe and shit
-- [ ] load_sound
-- [ ] load_sound_from_bytes
-- [ ] play_sound
-- [ ] play_sound_once
-- [ ] set_sound_volume
+- [X] load_sound
+- [X] load_sound_from_bytes
+- [ ] play_sound_looped
+- [X] play_sound_once
+- [X] set_sound_volume
 - [ ] stop_sound
-- [ ] all unnececary features behind feature gates (e.g. audio, input, gamepad, etc.)
+- [X] all unnececary features behind feature gates (e.g. audio, input, gamepad, etc.)
 - [X] add must use to _ex sounds builder
-- [ ] draggable/resizable floating window
-- [ ] functions to change cursor icon
+- [X] draggable/resizable floating window
+- [X] functions to change cursor icon
 - [X] solid triangle arrow functions
 - [X] expandable <details> type thing
 - [ ] slider
@@ -41,9 +41,9 @@
 - [ ] coroutines, some kind of future management so that the user can ask to run some code at the end of the frame, in some number of frames, after some time, or when something next happens
 - [ ] crates.io
 - [-] macro based wrappers around structs for persistent (fs) storage and network sync
-  - [-] fs
+  - [X] fs
     - [X] implement macro
-    - [ ] add support for engine types
+    - [X] add support for engine types
   - [ ] network
 - [ ] fs/network functions sync/async that taps into the async runtime being
   worked on

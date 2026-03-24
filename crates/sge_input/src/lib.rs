@@ -1,6 +1,8 @@
 use bevy_math::{UVec2, Vec2, vec2};
 use error_union::Union;
+#[cfg(feature = "gamepad")]
 pub use gilrs;
+#[cfg(feature = "gamepad")]
 use gilrs::Gilrs;
 use glium::winit;
 use global::global;
@@ -15,22 +17,31 @@ pub use winit::event::MouseButton;
 pub use winit::keyboard::{Key, KeyCode};
 use winit_input_helper::WinitInputHelper;
 
+#[cfg(feature = "gamepad")]
 pub mod gamepad;
 pub mod keys;
 
 pub struct Input {
     helper: WinitInputHelper,
     action_map: HashMap<Action, Button>,
+    #[cfg(feature = "gamepad")]
     pub gamepad: Gilrs,
     last_cursor_position: Vec2,
 }
 
 global!(Input, input);
 
+#[cfg(feature = "gamepad")]
 pub fn init() -> Result<(), GilrsError> {
     set_input(Input::new()?);
     info!("Initialized input");
     Ok(())
+}
+
+#[cfg(not(feature = "gamepad"))]
+pub fn init() {
+    set_input(Input::new());
+    info!("Initialized input");
 }
 
 pub fn update() {
@@ -38,9 +49,12 @@ pub fn update() {
         get_input().last_cursor_position = cursor;
     }
 
-    let input = get_input();
-    while let Some(event) = input.gamepad.next_event() {
-        input.gamepad.update(&event);
+    #[cfg(feature = "gamepad")]
+    {
+        let input = get_input();
+        while let Some(event) = input.gamepad.next_event() {
+            input.gamepad.update(&event);
+        }
     }
 }
 
@@ -94,6 +108,7 @@ impl Action {
 }
 
 impl Input {
+    #[cfg(feature = "gamepad")]
     pub fn new() -> Result<Self, GilrsError> {
         Ok(Self {
             helper: WinitInputHelper::new(),
@@ -101,6 +116,15 @@ impl Input {
             gamepad: Gilrs::new()?,
             last_cursor_position: Vec2::ZERO,
         })
+    }
+
+    #[cfg(not(feature = "gamepad"))]
+    pub fn new() -> Self {
+        Self {
+            helper: WinitInputHelper::new(),
+            action_map: HashMap::new(),
+            last_cursor_position: Vec2::ZERO,
+        }
     }
 
     pub fn is_cursor_within_area(&self, area: Area) -> bool {
@@ -531,18 +555,21 @@ pub fn should_quit() -> bool {
     get_input().close_requested()
 }
 
+#[cfg(feature = "gamepad")]
 pub fn gamepad_input() -> &'static Gilrs {
     &get_input().gamepad
 }
 
 #[non_exhaustive]
 #[derive(Debug)]
+#[cfg(feature = "gamepad")]
 pub enum GilrsError {
     NotImplemented,
     InvalidAxisToBtn,
     Other(Box<dyn std::error::Error + Send + Sync + 'static>),
 }
 
+#[cfg(feature = "gamepad")]
 impl From<gilrs::Error> for GilrsError {
     fn from(value: gilrs::Error) -> Self {
         match value {
@@ -554,8 +581,10 @@ impl From<gilrs::Error> for GilrsError {
     }
 }
 
+#[cfg(feature = "gamepad")]
 impl std::error::Error for GilrsError {}
 
+#[cfg(feature = "gamepad")]
 impl std::fmt::Display for GilrsError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {

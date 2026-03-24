@@ -14,8 +14,11 @@ use glium::winit::{
 };
 use log::{error, info};
 use sge_config::{EngineCreationOptions, Opts, get_config};
+#[cfg(feature = "debugging")]
 use sge_debugging::get_debug_info;
+#[cfg(feature = "egui")]
 use sge_egui::{egui, get_egui_state};
+#[cfg(feature = "input")]
 use sge_input::get_input;
 pub use sge_math::collision;
 use sge_rendering::{get_render_state, pipeline::RenderPipeline};
@@ -39,7 +42,9 @@ pub enum InitError {
     SetLogger(log::SetLoggerError),
     WindowCreation(sge_window::WindowCreationError),
     Program(glium::ProgramCreationError),
+    #[cfg(feature = "audio")]
     Audio(sge_audio::AudioInitError),
+    #[cfg(feature = "gamepad")]
     Gilrs(sge_input::GilrsError),
 }
 
@@ -70,16 +75,22 @@ pub fn init_custom(mut opts: Opts) -> Result<(), InitError> {
     sge_time::init();
     sge_config::init(opts.config);
     get_window_state().window.request_redraw();
+    #[cfg(feature = "input")]
     sge_input::init()?;
     sge_camera::init(size.width, size.height, false);
+    #[cfg(feature = "egui")]
     sge_egui::init();
+    #[cfg(feature = "debugging")]
     sge_debugging::init();
     sge_rng::init();
     sge_programs::init()?;
     sge_rendering::init();
+    #[cfg(feature = "audio")]
     sge_audio::init()?;
     sge_textures::init();
+    #[cfg(feature = "text")]
     sge_text::init();
+    #[cfg(feature = "ui")]
     sge_ui::init_ui();
     user_storage::init();
     sge_physics::init();
@@ -95,10 +106,13 @@ pub fn next_frame() {
 
     let has_input_event = process_events();
 
+    #[cfg(feature = "input")]
     sge_input::update();
-    render_frame();
-    sge_egui::update();
+    #[cfg(feature = "ui")]
     sge_ui::update();
+    render_frame();
+    #[cfg(feature = "egui")]
+    sge_egui::update();
     // sge_routines::update();
     sge_window::end_of_frame();
     sge_time::update(has_input_event);
@@ -108,6 +122,7 @@ pub fn next_frame() {
 
 fn process_events() -> bool {
     let mut has_input_event = false;
+    #[cfg(feature = "input")]
     let input = get_input();
     let state = get_window_state();
 
@@ -119,10 +134,12 @@ fn process_events() -> bool {
                 has_input_event |= handle_window_event(&event, event_loop_window_target);
             }
             Event::DeviceEvent { event, .. } => {
+                #[cfg(feature = "input")]
                 input.process_device_event(&event);
                 has_input_event = true;
             }
             Event::NewEvents(_) => {
+                #[cfg(feature = "input")]
                 input.step();
             }
             _ => (),
@@ -132,25 +149,40 @@ fn process_events() -> bool {
 }
 
 fn handle_window_event(event: &WindowEvent, event_loop_window_target: &ActiveEventLoop) -> bool {
+    #[cfg(feature = "egui")]
     let egui = egui();
+    #[cfg(feature = "input")]
     let input = get_input();
     let window = &get_window_state().window;
+    #[cfg(feature = "egui")]
     let gui_response = egui.on_event(window, event);
+    #[cfg(feature = "egui")]
     if gui_response.consumed {
         return false;
     }
 
+    #[cfg(feature = "input")]
     let is_input_event = !input.process_window_event(event);
 
+    #[cfg(feature = "input")]
     if input.close_requested() {
         event_loop_window_target.exit();
     }
 
+    #[cfg(feature = "input")]
     if let Some(size) = input.window_resized() {
         handle_window_resize(size);
     }
 
-    is_input_event
+    #[cfg(not(feature = "input"))]
+    if let WindowEvent::Resized(size) = event {
+        handle_window_resize(*size);
+    }
+
+    #[cfg(feature = "input")]
+    return is_input_event;
+    #[cfg(not(feature = "input"))]
+    return true;
 }
 
 fn handle_window_resize(size: PhysicalSize<u32>) {
@@ -166,9 +198,12 @@ fn render_frame() {
     pipeline.draw_on(&mut frame);
     *pipeline = RenderPipeline::screen();
 
-    let state = get_egui_state();
-    if state.initialized {
-        state.egui.paint(get_display(), &mut frame);
+    #[cfg(feature = "egui")]
+    {
+        let state = get_egui_state();
+        if state.initialized {
+            state.egui.paint(get_display(), &mut frame);
+        }
     }
 
     frame.finish().unwrap();
@@ -183,8 +218,11 @@ fn request_redraw_if_needed() {
 }
 
 fn record_frame_time(engine_start_time: Instant) {
-    let debug_info = get_debug_info();
-    debug_info.next_frame();
-    let engine_time = engine_start_time.elapsed();
-    debug_info.current_frame_mut().engine_time = engine_time.as_millis_f64();
+    #[cfg(feature = "debugging")]
+    {
+        let debug_info = get_debug_info();
+        debug_info.next_frame();
+        let engine_time = engine_start_time.elapsed();
+        debug_info.current_frame_mut().engine_time = engine_time.as_millis_f64();
+    }
 }

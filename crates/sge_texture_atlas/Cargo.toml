@@ -9,9 +9,9 @@ error_union.workspace = true
 glium.workspace = true
 image.workspace = true
 sge_color.workspace = true
-sge_image = { version = "0.1.0", path = "../sge_image" }
+sge_image.workspace = true
 sge_macros.workspace = true
 sge_math.workspace = true
-sge_rendering = { version = "0.1.0", path = "../sge_rendering" }
-sge_textures = { version = "0.1.0", path = "../sge_textures" }
-sge_window = { version = "0.1.0", path = "../sge_window" }
+sge_rendering.workspace = true
+sge_textures.workspace = true
+sge_window.workspace = true

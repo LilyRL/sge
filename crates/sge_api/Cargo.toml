@@ -10,8 +10,8 @@ paste.workspace = true
 sge_color.workspace = true
 sge_macros.workspace = true
 sge_math.workspace = true
-sge_rendering = { version = "0.1.0", path = "../sge_rendering" }
+sge_rendering.workspace = true
 sge_shapes.workspace = true
-sge_textures = { version = "0.1.0", path = "../sge_textures" }
-sge_types = { version = "0.1.0", path = "../sge_types" }
-sge_utils = { version = "0.1.0", path = "../sge_utils" }
+sge_textures.workspace = true
+sge_types.workspace = true
+sge_utils.workspace = true

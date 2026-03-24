@@ -1,21 +1,14 @@
-use bevy_math::{FloatPow, VectorSpace, vec2};
+use bevy_math::{FloatPow, vec2};
 use bon::bon;
-use sge_api::{
-    area::AreaExt,
-    shapes_2d::{draw_rect, draw_rect_outline, draw_rect_with_outline},
-};
-use sge_input::{
-    cursor_diff, last_cursor_pos, mouse_diff, mouse_held, mouse_pressed, mouse_released,
-};
+use sge_api::shapes_2d::{draw_rect, draw_rect_with_outline};
+use sge_input::{cursor_diff, last_cursor_pos, mouse_held, mouse_pressed, mouse_released};
 use sge_math::transform::Transform2D;
 use sge_rendering::{
-    api::{draw_texture_ex, draw_texture_scaled},
+    api::draw_texture_ex,
     scissor::{pop_scissor, push_scissor},
 };
 use sge_textures::{CLOSE_TEXTURE, MINIMISE_TEXTURE};
-use sge_window::{
-    dpi_scaling, use_move_cursor_icon, use_nwse_resize_cursor_icon, use_pointer_cursor_icon,
-};
+use sge_window::{use_move_cursor_icon, use_nwse_resize_cursor_icon, use_pointer_cursor_icon};
 
 use super::*;
 
@@ -272,22 +265,12 @@ impl FloatingWindow {
             }
         }
     }
-}
 
-impl UiNode for FloatingWindow {
-    fn preferred_dimensions(&self) -> Vec2 {
-        Vec2::ZERO
-    }
-
-    fn size(&self, _: Area) -> Vec2 {
-        Vec2::ZERO
-    }
-
-    fn draw(&self, _: Area, ui: &UiState) -> Vec2 {
+    pub(crate) fn actually_draw(&self, ui: &UiState) {
         let state = self.state();
 
         if !state.open {
-            return Vec2::ZERO;
+            return;
         }
 
         let pos = state.position;
@@ -306,7 +289,26 @@ impl UiNode for FloatingWindow {
             self.draw_contents(ui, inner_area);
             cursor += state.inner_size;
         }
-        self.do_resizing(state, cursor);
+
+        if self.resizable {
+            self.do_resizing(state, cursor);
+        }
+    }
+}
+
+impl UiNode for FloatingWindow {
+    fn preferred_dimensions(&self) -> Vec2 {
+        Vec2::ZERO
+    }
+
+    fn size(&self, _: Area) -> Vec2 {
+        Vec2::ZERO
+    }
+
+    //  we dont actually draw here because we need this to be on top of other ui stuff, so we just add
+    //  it to the ui state windows thingy to draw at the end of the frame
+    fn draw(&self, _: Area, _: &UiState) -> Vec2 {
+        get_ui_storage().windows.push(self as *const Self);
 
         Vec2::ZERO
     }

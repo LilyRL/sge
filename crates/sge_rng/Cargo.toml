@@ -5,8 +5,8 @@ edition = "2024"
 
 [dependencies]
 bevy_math.workspace = true
-const-random = "0.1.18"
-global = { version = "0.1.0", path = "../global" }
+const-random.workspace = true
+global.workspace = true
 log.workspace = true
 rand.workspace = true
 sge_color.workspace = true

@@ -5,6 +5,6 @@ edition = "2024"
 
 [dependencies]
 egui_glium.workspace = true
-global = { version = "0.1.0", path = "../global" }
+global.workspace = true
 log.workspace = true
-sge_window = { version = "0.1.0", path = "../sge_window" }
+sge_window.workspace = true
