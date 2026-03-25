@@ -650,11 +650,6 @@ pub fn draw_sharp_arrow_world(start: Vec2, end: Vec2, thickness: f32, color: Col
     draw_sharp_arrow_to(start, end, thickness, color, true);
 }
 
-fn safe_normalize(v: Vec2) -> Option<Vec2> {
-    let len = v.length();
-    if len < 1e-6 { None } else { Some(v / len) }
-}
-
 pub fn draw_zig_zag_to(
     start: Vec2,
     end: Vec2,

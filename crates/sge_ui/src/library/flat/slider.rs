@@ -1,6 +1,6 @@
 use crate::{
     UiRef,
-    base::{BoxFill, EMPTY, HoverBoxFill, SliderValue, Text},
+    base::{BoxFill, CircleFill, EMPTY, HoverBoxFill, RoundedFill, SliderValue, Text},
 };
 
 use super::{BG1, BG3, BG4, FG3};
@@ -29,6 +29,14 @@ impl Slider {
                 .padding_left(5.0),
         )
         .sized_wh(50.0, 30.0);
+        crate::base::Slider::new(value, min, max, handle, bar, id)
+    }
+
+    pub fn rounded<T: SliderValue>(value: &mut T, min: T, max: T, id: usize) -> UiRef {
+        let handle = CircleFill::new(BG4).sized_wh(30.0, 30.0);
+        let bar = RoundedFill::new(BG1, 5.0, EMPTY)
+            .sized_wh(f32::INFINITY, 10.0)
+            .padding_vertical(10.0);
         crate::base::Slider::new(value, min, max, handle, bar, id)
     }
 }

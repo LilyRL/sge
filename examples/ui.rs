@@ -9,6 +9,7 @@ struct State {
     show_debug_info: bool,
     slider_a_value: usize,
     slider_b_value: f32,
+    slider_c_value: f32,
     show_message: bool,
 }
 
@@ -238,6 +239,7 @@ impl State {
                         Text::new(self.slider_a_value),
                         Slider::new(&mut self.slider_a_value, 0, 30, id!()),
                         Slider::alternate(&mut self.slider_b_value, 0.0, 30.0, id!()),
+                        Slider::rounded(&mut self.slider_c_value, 0.0, 30.0, id!()),
                         self.window_button(),
                     ],
                 )),
@@ -307,6 +309,7 @@ fn main() -> anyhow::Result<()> {
         show_debug_info: false,
         slider_a_value: 10,
         slider_b_value: 20.0,
+        slider_c_value: 15.0,
         show_message: false,
     };
 

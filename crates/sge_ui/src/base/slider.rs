@@ -22,6 +22,7 @@ pub trait SliderValue = Add<Self, Output = Self>
     + PartialClamp;
 
 #[derive(Debug)]
+/// If you're confused on how to use the slider element, check the source for the flat Slider component
 pub struct Slider<T: SliderValue> {
     min: T,
     max: T,

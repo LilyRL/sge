@@ -80,6 +80,40 @@ pub struct CircleWithOutline {
     pub fill_color: Color,
 }
 
+impl CircleWithOutline {
+    pub fn from_top_left(
+        top_left: Vec2,
+        radius: Vec2,
+        outline_color: Color,
+        outline_thickness: f32,
+        fill_color: Color,
+    ) -> Self {
+        Self {
+            center: top_left + radius,
+            radius,
+            outline_color,
+            outline_thickness,
+            fill_color,
+        }
+    }
+
+    pub fn new(
+        center: Vec2,
+        radius: Vec2,
+        outline_color: Color,
+        outline_thickness: f32,
+        fill_color: Color,
+    ) -> Self {
+        Self {
+            center,
+            radius,
+            outline_color,
+            outline_thickness,
+            fill_color,
+        }
+    }
+}
+
 impl HasBounds2D for CircleWithOutline {
     fn bounds(&self) -> Aabb2d {
         let total_radius = self.radius + Vec2::splat(self.outline_thickness);
