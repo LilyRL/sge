@@ -188,4 +188,20 @@ impl UiRef {
     pub fn padding_tblr(self, top: f32, bottom: f32, left: f32, right: f32) -> UiRef {
         Padding::tblr(top, bottom, left, right, self)
     }
+
+    pub fn padding_top(self, top: f32) -> UiRef {
+        Padding::top(top, self)
+    }
+
+    pub fn padding_bottom(self, bottom: f32) -> UiRef {
+        Padding::bottom(bottom, self)
+    }
+
+    pub fn padding_left(self, left: f32) -> UiRef {
+        Padding::left(left, self)
+    }
+
+    pub fn padding_right(self, right: f32) -> UiRef {
+        Padding::right(right, self)
+    }
 }

@@ -80,6 +80,13 @@ impl Area {
         }
     }
 
+    pub fn shrink_vec2(&self, amount: Vec2) -> Self {
+        Self {
+            top_left: self.top_left + amount,
+            size: self.size - amount * 2.0,
+        }
+    }
+
     pub fn with_padding(&self, padding: f32) -> Self {
         Self {
             top_left: self.top_left + Vec2::splat(padding),

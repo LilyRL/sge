@@ -193,6 +193,10 @@ impl UiNode for Border {
         self.child.node.preferred_dimensions() + self.extra_size()
     }
 
+    fn size(&self, area: Area) -> Vec2 {
+        self.child.node.size(area)
+    }
+
     fn draw(&self, mut area: Area, state: &UiState) -> Vec2 {
         self.top.draw(area.top_left(), area.top_right(), Side::Top);
         self.top

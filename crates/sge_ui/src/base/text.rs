@@ -121,6 +121,16 @@ impl Text {
         .to_ref()
     }
 
+    pub fn mono_colored(text: impl ToString, color: Color) -> UiRef {
+        Self {
+            text: text.to_string(),
+            font: MONO,
+            color,
+            ..Default::default()
+        }
+        .to_ref()
+    }
+
     pub fn title(text: impl ToString) -> UiRef {
         Padding::tblr(
             2.0,

@@ -1,0 +1,34 @@
+use crate::{
+    UiRef,
+    base::{BoxFill, EMPTY, HoverBoxFill, SliderValue, Text},
+};
+
+use super::{BG1, BG3, BG4, FG3};
+
+pub struct Slider;
+
+impl Slider {
+    pub fn new<T: SliderValue>(value: &mut T, min: T, max: T, id: usize) -> UiRef {
+        let bar = BoxFill::new(BG1, EMPTY)
+            .sized_wh(f32::INFINITY, 10.0)
+            .padding_vertical(10.0);
+        let handle = HoverBoxFill::new(BG3, BG4, EMPTY).sized_wh(20.0, 30.0);
+        crate::base::Slider::new(value, min, max, handle, bar, id)
+    }
+
+    pub fn alternate<T: SliderValue + ToString>(value: &mut T, min: T, max: T, id: usize) -> UiRef {
+        let string: String = value.to_string().chars().take(4).collect();
+        let bar = BoxFill::new(BG1, EMPTY)
+            .sized_wh(f32::INFINITY, 10.0)
+            .padding_vertical(10.0);
+        let handle = HoverBoxFill::new(
+            BG3,
+            BG4,
+            Text::mono_colored(string, FG3)
+                .padding_top(4.0)
+                .padding_left(5.0),
+        )
+        .sized_wh(50.0, 30.0);
+        crate::base::Slider::new(value, min, max, handle, bar, id)
+    }
+}

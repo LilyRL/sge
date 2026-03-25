@@ -94,6 +94,10 @@ impl UiNode for SizedBox {
         )
     }
 
+    fn size(&self, area: Area) -> Vec2 {
+        self.dimensions.min(area.size)
+    }
+
     fn draw(&self, mut area: Area, state: &UiState) -> Vec2 {
         let dimensions = self.dimensions.min(area.size);
         area.size = dimensions;

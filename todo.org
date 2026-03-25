@@ -30,6 +30,7 @@
 - [X] solid triangle arrow functions
 - [X] expandable <details> type thing
 - [ ] slider
+- [ ] safe multithreading
 - [ ] more filters
   - [ ] crt
   - [ ] wobbly
@@ -45,12 +46,11 @@
     - [X] implement macro
     - [X] add support for engine types
   - [ ] network
-- [ ] fs/network functions sync/async that taps into the async runtime being
-  worked on
+- [ ] fs/network functions sync/async that taps into the async runtime being worked on
 - [ ] make the ui more performant
 - [ ] re-add profiling
 - [ ] measure startup and runtime performance
-  - [ ] make sure things arent using up performance when the user isnt even using
+  - [ ] make sure things aren't using up performance when the user isnt even using
        that part of the engine
 - [ ] revamp should add tests
 - [X] make API consistent
@@ -140,14 +140,14 @@ fn main() {
 }
 #+end_src
 
-- [ ] proper sound
+- [X] proper sound
 - [ ] something is broken evident in shapes_3d example
   - [ ] needs gouraud shading
 - [ ] sphere SDF
 - [ ] video
 - [X] particle system
 - [ ] screenshake
-- [ ] proper sound
+- [X] proper sound
 - [ ] sepia
 - [ ] edge detection
 - [ ] sharpen
@@ -221,10 +221,10 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord) {
 - [ ] test transform 2 and 3D
 - [ ] Compute shaders.
 - [X] frame time in debug
-- [ ] color schemes? like built in struct called colour scheme with gruvbox and
+- [X] color schemes? like built in struct called colour scheme with gruvbox and
   cattpucin and stuff?
 - [X] Fix examples now get_input() doesnt exist SPC / get_input
-- [ ] use bump allocators for per-frame data that gets cleared
+- [X] use bump allocators for per-frame data that gets cleared
 - [X] texture atlasses
 - [ ] clipboard interaction
 - [ ] Serde feature to make everything publicly facing serializable.
@@ -232,7 +232,7 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord) {
 - [X] Transparency is fucked
   - [X] Very fucked
   - [X] Someone needs to do something about this
-- [ ] debug AABB draw lines on ::new() in wireframe feature
+- [X] debug AABB draw lines on ::new() in wireframe feature
 - [ ] draw line 3D
 - [ ] draw Sphere
 - [X] draw cube
@@ -283,10 +283,10 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord) {
   - [ ] sdf?
   - [ ] 3d
 - [X] transparant textures?
-- [-] controller support
+- [X] controller support
   - [X] Implementation
-  - [ ] Testing
-  - [ ] Examples
+  - [X] Testing
+  - [X] Examples
 - [ ] drag and drop files?
 - [-] Animation support
   - [X] Needs some sort of retained state.
@@ -349,14 +349,13 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord) {
 - [ ] Documentation
 - [ ] arcs/slices of circles
 - [ ] splines
-- [ ] 2d grid
+- [X] 2d grid
 - [X] function to get screen size, width, height
-- [ ] Fix backface culling
-- [ ] export all colours as normal consts
+- [X] Fix backface culling
+- [X] export all colours as normal consts
 - [ ] Transform example
-- [ ] change cursor icons
-- [ ] Reorganize everything
-  Especially draw_queue2d.rs and shapes2d.rs
+- [X] change cursor icons
+- [X] Reorganize everything, especially draw_queue2d.rs and shapes2d.rs
 - [ ] test colours
 - [ ] test everything
 - [ ] 2D custom materials
@@ -373,9 +372,9 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord) {
 - [X] Colors from hex code
 - [X] Custom 3D material example
 - [X] Batch textures
-- [-] Arbritrary transform of 2D shapes
+- [X] Arbritrary transform of 2D shapes
   - [X] Transform2D struct
-  - [ ] functions to specify arbritrary transform of 2d shapes
+  - [X] functions to specify arbritrary transform of 2d shapes
 - [ ] 2D & 3D wireframe mode. automatic. can disregard material (maybe? vertex shaders?)
 - [ ] Memory/GPU profiler
 - [ ] Asset packing
@@ -394,11 +393,11 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord) {
   - [ ] so, so simple
 - [ ] The... web :(
 - [ ] Mobile :(
-- [ ] Sound
-  - [ ] 2D sound
-  - [ ] Include sound
+- [-] Sound
+  - [X] 2D sound
+  - [X] Include sound
   - [ ] 3D sound
-  - [ ] Not happy with sound. need to look into it more
+  - [X] Not happy with sound. need to look into it more
 - [X] Convert 2D Primitives to use Z-indexing so batching isnt a problem
 - [-] 3D
   - [X] Camera

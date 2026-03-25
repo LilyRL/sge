@@ -103,3 +103,146 @@ impl<T: Lerpable> Lerped<T> {
         self.end = new_end;
     }
 }
+
+pub trait ToF32 {
+    fn to_f32(self) -> f32;
+}
+
+impl ToF32 for f32 {
+    fn to_f32(self) -> f32 {
+        self
+    }
+}
+
+impl ToF32 for f64 {
+    fn to_f32(self) -> f32 {
+        self as f32
+    }
+}
+
+impl ToF32 for i32 {
+    fn to_f32(self) -> f32 {
+        self as f32
+    }
+}
+
+impl ToF32 for u32 {
+    fn to_f32(self) -> f32 {
+        self as f32
+    }
+}
+
+impl ToF32 for i16 {
+    fn to_f32(self) -> f32 {
+        self as f32
+    }
+}
+
+impl ToF32 for u16 {
+    fn to_f32(self) -> f32 {
+        self as f32
+    }
+}
+
+impl ToF32 for i8 {
+    fn to_f32(self) -> f32 {
+        self as f32
+    }
+}
+
+impl ToF32 for u8 {
+    fn to_f32(self) -> f32 {
+        self as f32
+    }
+}
+
+impl ToF32 for isize {
+    fn to_f32(self) -> f32 {
+        self as f32
+    }
+}
+
+impl ToF32 for usize {
+    fn to_f32(self) -> f32 {
+        self as f32
+    }
+}
+
+pub trait FromF32 {
+    fn from_f32(value: f32) -> Self;
+}
+
+impl FromF32 for f32 {
+    fn from_f32(value: f32) -> Self {
+        value
+    }
+}
+
+impl FromF32 for f64 {
+    fn from_f32(value: f32) -> Self {
+        value as f64
+    }
+}
+
+impl FromF32 for i32 {
+    fn from_f32(value: f32) -> Self {
+        value as i32
+    }
+}
+
+impl FromF32 for u32 {
+    fn from_f32(value: f32) -> Self {
+        value as u32
+    }
+}
+
+impl FromF32 for i16 {
+    fn from_f32(value: f32) -> Self {
+        value as i16
+    }
+}
+
+impl FromF32 for u16 {
+    fn from_f32(value: f32) -> Self {
+        value as u16
+    }
+}
+
+impl FromF32 for i8 {
+    fn from_f32(value: f32) -> Self {
+        value as i8
+    }
+}
+
+impl FromF32 for u8 {
+    fn from_f32(value: f32) -> Self {
+        value as u8
+    }
+}
+
+impl FromF32 for isize {
+    fn from_f32(value: f32) -> Self {
+        value as isize
+    }
+}
+
+impl FromF32 for usize {
+    fn from_f32(value: f32) -> Self {
+        value as usize
+    }
+}
+
+pub trait PartialClamp: PartialOrd + Sized {
+    fn clamp(self, min: Self, max: Self) -> Self {
+        assert!(min <= max);
+        if self < min {
+            min
+        } else if self > max {
+            max
+        } else {
+            self
+        }
+    }
+}
+
+impl<T: PartialOrd + Sized> PartialClamp for T {}

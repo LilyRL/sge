@@ -1,5 +1,6 @@
 #![feature(unsafe_cell_access)]
 #![allow(clippy::new_ret_no_self)]
+#![feature(trait_alias)]
 
 use std::{
     collections::HashMap,
