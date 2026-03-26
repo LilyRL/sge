@@ -89,22 +89,25 @@ impl<T: SliderValue> UiNode for Slider<T> {
         let is_handle_hovered = ui.is_hovered(handle_area);
         let is_bar_hovered = ui.is_hovered(bar_area);
 
-        if state.captured {
-            if let Some(cursor_pos) = cursor() {
-                *value = set_value_from_cursor(cursor_pos.x);
-            }
-            use_grabbing_cursor_icon();
+        if mouse_released(MouseButton::Left) {
+            state.captured = false;
         }
 
-        if mouse_pressed(MouseButton::Left) && is_bar_hovered || is_handle_hovered {
+        if mouse_pressed(MouseButton::Left) && (is_bar_hovered || is_handle_hovered) {
             state.captured = true;
             if let Some(cursor_pos) = cursor() {
                 *value = set_value_from_cursor(cursor_pos.x);
             }
         }
 
-        if mouse_released(MouseButton::Left) {
-            state.captured = false;
+        if state.captured {
+            if let Some(cursor_pos) = cursor() {
+                *value = set_value_from_cursor(cursor_pos.x);
+            }
+            use_grabbing_cursor_icon();
+        } else if is_handle_hovered || is_bar_hovered {
+            use_grab_cursor_icon();
+        } else {
             use_default_cursor_icon();
         }
 
