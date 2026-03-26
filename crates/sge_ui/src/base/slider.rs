@@ -1,12 +1,10 @@
-use core::f32;
-use std::ops::{Add, Div, Mul, Sub};
-
+use super::*;
 use bevy_math::vec2;
-use sge_input::{cursor_diff, mouse_pressed, mouse_released};
+use core::f32;
+use sge_input::{cursor, mouse_pressed, mouse_released};
 use sge_utils::{FromF32, PartialClamp, ToF32};
 use sge_window::{use_default_cursor_icon, use_grab_cursor_icon, use_grabbing_cursor_icon};
-
-use super::*;
+use std::ops::{Add, Div, Mul, Sub};
 
 pub trait SliderValue = Add<Self, Output = Self>
     + Sub<Self, Output = Self>
@@ -35,7 +33,6 @@ pub struct Slider<T: SliderValue> {
 #[derive(Default, Debug)]
 pub struct SliderState {
     captured: bool,
-    f32_value: f32,
     initialised: bool,
 }
 
@@ -65,38 +62,48 @@ impl<T: SliderValue> UiNode for Slider<T> {
 
     fn draw(&self, area: Area, ui: &UiState) -> Vec2 {
         let state = self.state.get_or_default();
-
         let value = unsafe { &mut *self.value };
         let handle_size = self.handle.preferred_dimensions();
-        // FIXME: hacky
         let bar_size = vec2(area.width(), self.bar.preferred_dimensions().y);
-
-        if !state.initialised || !state.captured {
-            state.f32_value = value.to_f32();
-            state.initialised = true;
-        }
+        let size = bar_size.max(handle_size);
 
         let width = self.max - self.min;
+
+        let usable_width = area.width() - handle_size.x;
+
+        let cursor_ratio = |cursor_x: f32| {
+            let relative_x = cursor_x - area.top_left.x - handle_size.x / 2.0;
+            (relative_x / usable_width).clamp(0.0, 1.0)
+        };
+
+        let set_value_from_cursor = |cursor_x: f32| {
+            let ratio = cursor_ratio(cursor_x);
+            T::from_f32(self.min.to_f32() + ratio * width.to_f32())
+        };
+
         let ratio = (value.to_f32() - self.min.to_f32()) / width.to_f32();
-        let x_pos = ratio * (area.width() - handle_size.x);
-        let size = bar_size.max(handle_size);
+        let x_pos = ratio * usable_width;
 
         let handle_area = Area::new(area.top_left + vec2(x_pos, 0.0), handle_size);
         let bar_area = Area::new(area.top_left, bar_size);
-        let is_hovered = ui.is_hovered(handle_area);
+
+        let is_handle_hovered = ui.is_hovered(handle_area);
+        let is_bar_hovered = ui.is_hovered(bar_area);
 
         if state.captured {
-            let delta = cursor_diff().x;
-            let ratio = delta / area.width();
-            let delta_value = ratio * width.to_f32();
-            state.f32_value =
-                (state.f32_value + delta_value).clamp(self.min.to_f32(), self.max.to_f32());
-            *value = T::from_f32(state.f32_value);
+            if let Some(cursor_pos) = cursor() {
+                *value = set_value_from_cursor(cursor_pos.x);
+            }
             use_grabbing_cursor_icon();
         }
 
         if mouse_pressed(MouseButton::Left) {
-            state.captured = is_hovered;
+            if is_bar_hovered || is_handle_hovered {
+                state.captured = true;
+                if let Some(cursor_pos) = cursor() {
+                    *value = set_value_from_cursor(cursor_pos.x);
+                }
+            }
         }
 
         if mouse_released(MouseButton::Left) {
@@ -104,13 +111,12 @@ impl<T: SliderValue> UiNode for Slider<T> {
             use_default_cursor_icon();
         }
 
-        if !state.captured && is_hovered {
+        if !state.captured && (is_handle_hovered || is_bar_hovered) {
             use_grab_cursor_icon();
         }
 
         self.bar.draw(bar_area, ui);
         self.handle.draw(handle_area, ui);
-
         size
     }
 }
