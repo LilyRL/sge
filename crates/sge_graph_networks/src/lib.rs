@@ -1,7 +1,6 @@
 use std::{
     f32,
     fmt::{Debug, Display},
-    usize,
 };
 
 use bevy_math::Vec2;
@@ -93,6 +92,7 @@ impl Network {
             let mut displacements = vec![Vec2::ZERO; self.nodes.len()];
 
             // push all nodes apart
+            #[allow(clippy::needless_range_loop)]
             for i in 0..self.nodes.len() {
                 for j in 0..self.nodes.len() {
                     if i == j {
@@ -116,6 +116,7 @@ impl Network {
             }
 
             // add slight attraction toward center, so they dont just fly off
+            #[allow(clippy::needless_range_loop)]
             for i in 0..self.nodes.len() {
                 let delta = self.nodes[i].pos;
                 let dist = delta.length_squared().max(0.01);
@@ -226,7 +227,7 @@ impl Network {
     pub fn insert(&mut self, connections: impl Into<Vec<NodeId>>) -> NodeId {
         let id = self.next_id();
         self.nodes.push(Node {
-            id: id,
+            id,
             pos: sge_rng::rand_vec2() * 100.0,
             connections: connections.into(),
         });
@@ -263,7 +264,7 @@ impl Network {
 
     pub fn iter_connections<'a>(&'a self) -> ConnectionIterator<'a> {
         ConnectionIterator {
-            network: &self,
+            network: self,
             node: 0,
             conn: 0,
         }
@@ -271,14 +272,14 @@ impl Network {
 
     pub fn iter_node_positions<'a>(&'a self) -> NodePositionIterator<'a> {
         NodePositionIterator {
-            network: &self,
+            network: self,
             node: 0,
         }
     }
 
     pub fn iter_connection_lines<'a>(&'a self) -> ConnectionLineIterator<'a> {
         ConnectionLineIterator {
-            network: &self,
+            network: self,
             node: 0,
             conn: 0,
         }
@@ -355,6 +356,12 @@ impl Network {
     }
 }
 
+impl Default for Network {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 pub struct ConnectionIterator<'a> {
     network: &'a Network,
     node: usize,
@@ -369,7 +376,7 @@ impl<'a> Iterator for ConnectionIterator<'a> {
 
         if let Some(&conn) = node.connections.get(self.conn) {
             self.conn += 1;
-            return Some((node.id, conn));
+            Some((node.id, conn))
         } else {
             self.node += 1;
             self.conn = 0;
@@ -432,14 +439,14 @@ impl<'a> Iterator for ConnectionLineIterator<'a> {
 
         if let Some(&conn) = node.connections.get(self.conn) {
             self.conn += 1;
-            return Some(ConnectionLine {
+            Some(ConnectionLine {
                 start: node.pos,
                 start_id: node.id,
                 end: self.network.get(conn).pos,
                 end_id: conn,
                 is_hovered: node.id == self.network.hovered || conn == self.network.hovered,
                 color: Color::from_usize_no_alpha(id!(conn.0, node.id.0)),
-            });
+            })
         } else {
             self.node += 1;
             self.conn = 0;

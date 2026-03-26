@@ -160,14 +160,17 @@ fn emit_variant(entry: &ShapeEntry, spec: VariantSpec) -> TokenStream {
     };
 
     quote! {
+        #[allow(clippy::to_many_arguements)]
         pub fn #fn_screen(#(#shape_decls)* #(#extra_decls)* #rot_decl) {
             #screen_body
         }
 
+        #[allow(clippy::to_many_arguements)]
         pub fn #fn_world(#(#shape_decls)* #(#extra_decls)* #rot_decl) {
             #world_body
         }
 
+        #[allow(clippy::to_many_arguements)]
         pub fn #fn_to(#(#shape_decls)* #(#extra_decls)* #rot_decl world: bool) {
             if world { #fn_world(#forward); }
             else     { #fn_screen(#forward); }

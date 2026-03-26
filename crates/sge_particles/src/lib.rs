@@ -60,6 +60,12 @@ impl ParticleSystem {
     }
 }
 
+impl Default for ParticleSystem {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 pub struct Particle {
     pub shape: Box<dyn Shape2DExt>,
     pub pos: Vec2,

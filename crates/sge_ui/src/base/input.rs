@@ -1,9 +1,9 @@
 use bevy_math::vec2;
 use glium::winit::keyboard::{Key, NamedKey};
-use sge_api::{area::AreaExt, shapes_2d::draw_rect};
+use sge_api::shapes_2d::draw_rect;
 use sge_input::input_text;
 use sge_rendering::scissor::{pop_scissor, push_scissor};
-use sge_text::{FontRef, TextDrawParams, draw_text, draw_text_custom, measure_text};
+use sge_text::{FontRef, TextDrawParams, draw_text_custom, measure_text};
 use sge_time::toggle_every_n_seconds;
 use sge_window::use_text_cursor_icon;
 
@@ -145,29 +145,23 @@ impl UiNode for TextInput {
             )
         };
 
-        if state.is_active {
-            if toggle_every_n_seconds(0.5) {
-                draw_rect(
-                    if state.value.is_empty() {
-                        inner.top_left
-                    } else {
-                        inner.top_left + vec2(dimensions.size.x, 0.0)
-                    },
-                    Vec2::new(CURSOR_WIDTH, dimensions.size.y),
-                    Color::NEUTRAL_200,
-                );
-            }
+        if state.is_active && toggle_every_n_seconds(0.5) {
+            draw_rect(
+                if state.value.is_empty() {
+                    inner.top_left
+                } else {
+                    inner.top_left + vec2(dimensions.size.x, 0.0)
+                },
+                Vec2::new(CURSOR_WIDTH, dimensions.size.y),
+                Color::NEUTRAL_200,
+            );
         }
 
         let mut size = dimensions.size + vec2(CURSOR_WIDTH, 0.0);
         size.x = area.width();
         let inhabited_area = Area::new(area.top_left, size + vec2(0.0, self.extra_size().y));
 
-        if ui.is_hovered(inhabited_area) {
-            state.is_active = true;
-        } else {
-            state.is_active = false;
-        }
+        state.is_active = ui.is_hovered(inhabited_area);
 
         pop_scissor();
 

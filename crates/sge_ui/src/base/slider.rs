@@ -33,7 +33,6 @@ pub struct Slider<T: SliderValue> {
 #[derive(Default, Debug)]
 pub struct SliderState {
     captured: bool,
-    initialised: bool,
 }
 
 impl<T: SliderValue> Slider<T> {
@@ -97,12 +96,10 @@ impl<T: SliderValue> UiNode for Slider<T> {
             use_grabbing_cursor_icon();
         }
 
-        if mouse_pressed(MouseButton::Left) {
-            if is_bar_hovered || is_handle_hovered {
-                state.captured = true;
-                if let Some(cursor_pos) = cursor() {
-                    *value = set_value_from_cursor(cursor_pos.x);
-                }
+        if mouse_pressed(MouseButton::Left) && is_bar_hovered || is_handle_hovered {
+            state.captured = true;
+            if let Some(cursor_pos) = cursor() {
+                *value = set_value_from_cursor(cursor_pos.x);
             }
         }
 

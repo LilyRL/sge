@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-use super::{BG0, BG1, BG2, BG3, BG4, PRIMARY_TEXT_COLOR};
+use super::{BG0, BG3, BG4, PRIMARY_TEXT_COLOR};
 
 pub struct FloatingWindow;
 

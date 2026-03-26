@@ -255,14 +255,12 @@ impl FloatingWindow {
             state.resize_captured = false;
         }
 
-        if state.resize_captured {
-            if mouse_held(MouseButton::Left) {
-                let delta = last_cursor_pos() - bottom_right;
-                let before = state.inner_size;
-                state.inner_size += delta;
-                state.inner_size = state.inner_size.clamp(Vec2::new(100.0, 0.0), window_size());
-                bottom_right += state.inner_size - before;
-            }
+        if state.resize_captured && mouse_held(MouseButton::Left) {
+            let delta = last_cursor_pos() - bottom_right;
+            let before = state.inner_size;
+            state.inner_size += delta;
+            state.inner_size = state.inner_size.clamp(Vec2::new(100.0, 0.0), window_size());
+            bottom_right += state.inner_size - before;
         }
     }
 

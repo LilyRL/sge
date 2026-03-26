@@ -1,5 +1,3 @@
-use bevy_math::VectorSpace;
-
 use super::*;
 
 #[derive(Debug)]

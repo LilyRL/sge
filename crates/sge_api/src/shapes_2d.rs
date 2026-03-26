@@ -1,10 +1,9 @@
+#![allow(clippy::too_many_arguments)]
+
 use bevy_math::{Vec2, vec2};
 use sge_color::Color;
 use sge_macros::draw_shape_variants;
-use sge_math::{
-    Vec2Ext,
-    collision::{self, HasBounds2D, Polygon},
-};
+use sge_math::collision::{self, HasBounds2D, Polygon};
 use sge_rendering::{
     d2::DrawQueue2D,
     pipeline::{draw_queue_2d, world_draw_queue_2d},
@@ -100,8 +99,8 @@ impl Shape2DExt for CircleWithOutline {
     fn draw_with_outline_to_draw_queue(
         &self,
         draw_queue: &mut DrawQueue2D,
-        thickness: f32,
-        color: Color,
+        _thickness: f32,
+        _color: Color,
     ) {
         draw_queue.add_circle_with_outline(
             self.center,
@@ -162,9 +161,9 @@ impl Shape2DExt for Line2D {
 
     fn draw_outline_to_draw_queue(
         &self,
-        draw_queue: &mut DrawQueue2D,
-        thickness: f32,
-        color: Color,
+        _draw_queue: &mut DrawQueue2D,
+        _thickness: f32,
+        _color: Color,
     ) {
         unimplemented!()
     }
@@ -312,7 +311,6 @@ macro_rules! draw_variants {
 }
 
 draw_shape_variants! {
-
     rect [rotation, outline, with_outline]:
         top_left: Vec2, size: Vec2, color: Color
         => Rect { top_left, size, color, rot },

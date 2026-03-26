@@ -156,10 +156,6 @@ impl DrawQueue2D {
             .push(CircleInstance::new(center, 0.0, radius, color));
     }
 
-    pub fn add_circle_at_z(&mut self, center: Vec2, radius: Vec2, color: Color, _z: f32) {
-        self.add_circle(center, radius, color);
-    }
-
     pub fn add_circle_with_outline(
         &mut self,
         center: Vec2,
@@ -181,18 +177,7 @@ impl DrawQueue2D {
             ));
     }
 
-    pub fn add_circle_with_outline_at_z(
-        &mut self,
-        center: Vec2,
-        radius: Vec2,
-        fill_color: Color,
-        outline_thickness: f32,
-        outline_color: Color,
-        _z: f32,
-    ) {
-        self.add_circle_with_outline(center, radius, fill_color, outline_thickness, outline_color);
-    }
-
+    #[allow(clippy::too_many_arguments)]
     pub fn add_radial_gradient(
         &mut self,
         center: Vec2,
@@ -215,28 +200,6 @@ impl DrawQueue2D {
                 outline_color: outline_color.for_gpu(),
                 gradient_offset: [gradient_offset.x, gradient_offset.y],
             });
-    }
-
-    pub fn add_radial_gradient_at_z(
-        &mut self,
-        center: Vec2,
-        radius: Vec2,
-        inner_color: Color,
-        outer_color: Color,
-        outline_thickness: f32,
-        outline_color: Color,
-        gradient_offset: Vec2,
-        _z: f32,
-    ) {
-        self.add_radial_gradient(
-            center,
-            radius,
-            inner_color,
-            outer_color,
-            outline_thickness,
-            outline_color,
-            gradient_offset,
-        );
     }
 
     pub fn add_rounded_rectangle(
@@ -263,44 +226,12 @@ impl DrawQueue2D {
             ));
     }
 
-    #[allow(clippy::too_many_arguments)]
-    pub fn add_rounded_rectangle_at_z(
-        &mut self,
-        center: Vec2,
-        dimensions: Vec2,
-        corner_radius: f32,
-        fill_color: Color,
-        outline_thickness: f32,
-        outline_color: Color,
-        _z: f32,
-    ) {
-        self.add_rounded_rectangle(
-            center,
-            dimensions,
-            corner_radius,
-            fill_color,
-            outline_thickness,
-            outline_color,
-        );
-    }
-
     pub fn add_sprite(
-        &mut self,
-        texture: TextureRef,
-        transform: Transform2D,
-        color: Color,
-        region: Option<Rect>,
-    ) {
-        self.add_sprite_at_z(texture, transform, color, region, 0.0);
-    }
-
-    pub fn add_sprite_at_z(
         &mut self,
         texture: TextureRef,
         mut transform: Transform2D,
         color: Color,
         region: Option<Rect>,
-        _z: f32,
     ) {
         debugger_add_drawn_objects(1);
 
@@ -358,10 +289,6 @@ impl DrawQueue2D {
     }
 
     pub fn add_mesh(&mut self, vertices: &[Vertex2D], indices: &[u32]) {
-        self.add_mesh_at_z(vertices, indices, 0.0);
-    }
-
-    pub fn add_mesh_at_z(&mut self, vertices: &[Vertex2D], indices: &[u32], _z: f32) {
         let batch = self.current_shape_batch();
         let base_index = batch.max_index;
         for v in vertices {

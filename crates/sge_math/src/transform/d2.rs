@@ -396,6 +396,12 @@ impl Transform2D {
     }
 }
 
+impl Default for Transform2D {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Add for Transform2D {
     type Output = Self;
 
