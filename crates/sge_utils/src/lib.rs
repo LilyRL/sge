@@ -48,6 +48,13 @@ impl<T, const N: usize> RotatingArray<T, N> {
     }
 }
 
+impl<T: ToF32 + FromF32 + Copy, const N: usize> RotatingArray<T, N> {
+    pub fn avg(&self) -> T {
+        let sum = self.iter().fold(0.0, |acc, &item| acc + item.to_f32());
+        FromF32::from_f32(sum / N as f32)
+    }
+}
+
 impl<T, const N: usize> IntoIterator for RotatingArray<T, N> {
     type Item = T;
     type IntoIter = std::array::IntoIter<T, N>;

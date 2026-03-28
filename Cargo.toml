@@ -74,6 +74,7 @@ include_assets = { version = "0.1.0", path = "crates/include_assets" }
 persistence = { version = "0.1.0", path = "crates/persistence" }
 sge_graph_networks = { version = "0.1.0", path = "crates/sge_graph_networks" }
 sge_routines = { version = "0.1.0", path = "crates/sge_routines" }
+sge_camera_controllers = { version = "0.1.0", path = "crates/sge_camera_controllers" }
 heck = "0.5.0"
 proc-macro-crate = "3.5.0"
 ron = "0.12.0"
@@ -156,6 +157,7 @@ include_assets = { workspace = true }
 persistence = { workspace = true }
 sge_graph_networks = { workspace = true }
 sge_routines = { workspace = true }
+sge_camera_controllers.workspace = true
 
 [profile.release]
 # Compile the entire crate as one unit.
@@ -247,5 +249,5 @@ members = [
     "crates/sge_graph_networks",
     "crates/sge_routines",
     "crates/feature_gated"
-]
+, "crates/sge_camera_controllers"]
 resolver = "3"

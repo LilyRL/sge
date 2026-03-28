@@ -33,14 +33,14 @@ pub use sge_animation::*;
 pub use sge_api::area::AreaExt;
 pub use sge_api::shapes_2d::*;
 pub use sge_api::{Drawable, draw, draw_world};
-pub use sge_camera::controllers::first_person::FirstPersonCameraController;
-pub use sge_camera::controllers::orbit::OrbitCameraController;
-pub use sge_camera::controllers::pan::PanningCameraController;
-pub use sge_camera::controllers::shake::CameraShakeController;
 pub use sge_camera::{
     camera2d_zoom_at, cameras_for_resolution, get_camera_2d, get_camera_2d_mut, get_camera_3d,
     get_camera_3d_mut, get_flat_projection, screen_to_world, world_to_screen,
 };
+pub use sge_camera_controllers::first_person::FirstPersonCameraController;
+pub use sge_camera_controllers::orbit::OrbitCameraController;
+pub use sge_camera_controllers::pan::PanningCameraController;
+pub use sge_camera_controllers::shake::CameraShakeController;
 pub use sge_color::schemes::ColorScheme;
 pub use sge_color::{self as color, Color, Palette};
 pub use sge_config::{

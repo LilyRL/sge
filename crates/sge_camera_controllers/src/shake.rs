@@ -1,5 +1,5 @@
-use crate::{get_camera_2d, get_camera_2d_mut};
 use bevy_math::Vec2;
+use sge_camera::{get_camera_2d, get_camera_2d_mut};
 use sge_time::{delta_time, time};
 
 pub struct CameraShakeController {

@@ -1,7 +1,7 @@
 use glium::winit::event::MouseButton;
 use sge_input::{Button, button_held, cursor_diff, last_cursor_pos, scroll_diff};
 
-use crate::{camera2d_zoom_at, get_camera_2d_mut};
+use sge_camera::{camera2d_zoom_at, get_camera_2d_mut};
 
 pub struct PanningCameraController {
     pub allow_panning: bool,

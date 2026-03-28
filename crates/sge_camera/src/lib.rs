@@ -1,9 +1,8 @@
 use bevy_math::{Mat4, Vec2};
-use d2::{Camera2D, projection};
+use d2::{projection, Camera2D};
 use d3::Camera3D;
 use global::global;
 
-pub mod controllers;
 pub mod d2;
 pub mod d3;
 

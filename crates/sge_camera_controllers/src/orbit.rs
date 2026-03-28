@@ -2,7 +2,7 @@ use bevy_math::{Vec2, Vec3};
 use glium::winit::event::MouseButton;
 use sge_input::get_input;
 
-use crate::get_camera_3d_mut;
+use sge_camera::get_camera_3d_mut;
 
 pub struct OrbitCameraController {
     pub target: Vec3,
