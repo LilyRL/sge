@@ -19,7 +19,14 @@ use sge_window::get_display;
 
 use crate::scissor::current_scissor;
 
-enum DrawCommand {
+pub use queue::*;
+pub use scene::*;
+
+mod queue;
+mod scene;
+
+#[derive(Clone)]
+pub enum DrawCommand {
     Shapes(ShapeBatch),
     Circles(CircleBatch),
     Rounded(RoundedBatch),
@@ -27,11 +34,8 @@ enum DrawCommand {
     Sprites(SpriteBatch),
 }
 
-pub struct DrawQueue2D {
-    draws: Vec<DrawCommand>,
-}
-
-struct SpriteBatch {
+#[derive(Clone)]
+pub struct SpriteBatch {
     texture: TextureRef,
     vertices: Vec<SpriteVertex>,
     indices: Vec<u32>,
@@ -40,91 +44,112 @@ struct SpriteBatch {
 
 implement_vertex!(SpriteVertex, position, tex_coords, color);
 #[derive(Copy, Clone, Debug)]
-struct SpriteVertex {
+pub struct SpriteVertex {
     pub position: [f32; 3],
     pub tex_coords: [f32; 2],
     pub color: [f32; 4],
 }
 
-impl DrawQueue2D {
-    pub fn empty() -> Self {
-        Self { draws: Vec::new() }
+#[derive(Clone, Copy)]
+pub enum RendererType {
+    Screen,
+    World,
+    Scene,
+}
+
+#[derive(Clone, Copy)]
+pub struct Renderer2D {
+    draws: *mut Vec<DrawCommand>,
+    ty: RendererType,
+}
+
+impl Renderer2D {
+    fn draws_mut(&mut self) -> &mut Vec<DrawCommand> {
+        unsafe { &mut *self.draws }
     }
 
-    fn current_shape_batch(&mut self) -> &mut ShapeBatch {
+    fn draws(&self) -> &[DrawCommand] {
+        unsafe { &*self.draws }
+    }
+
+    pub fn is_world(&self) -> bool {
+        matches!(self.ty, RendererType::World)
+    }
+
+    pub fn current_shape_batch(&mut self) -> &mut ShapeBatch {
         let scissor = current_scissor();
-        let needs_new = match self.draws.last() {
+        let needs_new = match self.draws().last() {
             Some(DrawCommand::Shapes(b)) => b.scissor != scissor,
             _ => true,
         };
         if needs_new {
-            self.draws
+            self.draws_mut()
                 .push(DrawCommand::Shapes(ShapeBatch::new(scissor)));
         }
-        match self.draws.last_mut().unwrap() {
+        match self.draws_mut().last_mut().unwrap() {
             DrawCommand::Shapes(b) => b,
             _ => unreachable!(),
         }
     }
 
-    fn current_circle_batch(&mut self) -> &mut CircleBatch {
+    pub fn current_circle_batch(&mut self) -> &mut CircleBatch {
         let scissor = current_scissor();
-        let needs_new = match self.draws.last() {
+        let needs_new = match self.draws().last() {
             Some(DrawCommand::Circles(b)) => b.scissor != scissor,
             _ => true,
         };
         if needs_new {
-            self.draws
+            self.draws_mut()
                 .push(DrawCommand::Circles(CircleBatch::new(scissor)));
         }
-        match self.draws.last_mut().unwrap() {
+        match self.draws_mut().last_mut().unwrap() {
             DrawCommand::Circles(b) => b,
             _ => unreachable!(),
         }
     }
 
-    fn current_rounded_batch(&mut self) -> &mut RoundedBatch {
+    pub fn current_rounded_batch(&mut self) -> &mut RoundedBatch {
         let scissor = current_scissor();
-        let needs_new = match self.draws.last() {
+        let needs_new = match self.draws().last() {
             Some(DrawCommand::Rounded(b)) => b.scissor != scissor,
             _ => true,
         };
         if needs_new {
-            self.draws
+            self.draws_mut()
                 .push(DrawCommand::Rounded(RoundedBatch::new(scissor)));
         }
-        match self.draws.last_mut().unwrap() {
+        match self.draws_mut().last_mut().unwrap() {
             DrawCommand::Rounded(b) => b,
             _ => unreachable!(),
         }
     }
 
-    fn current_radial_batch(&mut self) -> &mut RadialGradientBatch {
+    pub fn current_radial_batch(&mut self) -> &mut RadialGradientBatch {
         let scissor = current_scissor();
-        let needs_new = match self.draws.last() {
+        let needs_new = match self.draws().last() {
             Some(DrawCommand::Radial(b)) => b.scissor != scissor,
             _ => true,
         };
         if needs_new {
-            self.draws
+            self.draws_mut()
                 .push(DrawCommand::Radial(RadialGradientBatch::new(scissor)));
         }
-        match self.draws.last_mut().unwrap() {
+        match self.draws_mut().last_mut().unwrap() {
             DrawCommand::Radial(b) => b,
             _ => unreachable!(),
         }
     }
 
-    fn current_sprite_batch(&mut self, texture: TextureRef) -> &mut SpriteBatch {
+    pub fn current_sprite_batch(&mut self, texture: TextureRef) -> &mut SpriteBatch {
         let scissor = current_scissor();
 
-        let can_merge = match self.draws.last() {
+        let can_merge = match self.draws().last() {
             Some(DrawCommand::Sprites(b)) => b.texture == texture && b.scissor == scissor,
             _ => false,
         };
 
         if !can_merge {
-            self.draws.push(DrawCommand::Sprites(SpriteBatch {
+            self.draws_mut().push(DrawCommand::Sprites(SpriteBatch {
                 texture,
                 vertices: Vec::new(),
                 indices: Vec::new(),
@@ -132,7 +157,7 @@ impl DrawQueue2D {
             }));
         }
 
-        match self.draws.last_mut().unwrap() {
+        match self.draws_mut().last_mut().unwrap() {
             DrawCommand::Sprites(b) => b,
             _ => unreachable!(),
         }
@@ -298,187 +323,7 @@ impl DrawQueue2D {
         batch.max_index += vertices.len() as u32;
     }
 
-    pub fn draw<T: Surface>(&mut self, frame: &mut T, projection: &Mat4) {
-        for command in &self.draws {
-            match command {
-                DrawCommand::Shapes(batch) => {
-                    if !batch.vertices.is_empty() {
-                        self.draw_mesh_batch(frame, projection, batch, FLAT_PROGRAM.get());
-                    }
-                }
-                DrawCommand::Circles(batch) => {
-                    if !batch.instances.is_empty() {
-                        self.draw_quad_instanced(
-                            frame,
-                            projection,
-                            &batch.instances,
-                            CIRCLE_PROGRAM.get(),
-                            batch.scissor,
-                        );
-                    }
-                }
-                DrawCommand::Radial(batch) => {
-                    if !batch.instances.is_empty() {
-                        self.draw_quad_instanced(
-                            frame,
-                            projection,
-                            &batch.instances,
-                            RADIAL_PROGRAM.get(),
-                            batch.scissor,
-                        );
-                    }
-                }
-                DrawCommand::Rounded(batch) => {
-                    if !batch.instances.is_empty() {
-                        self.draw_quad_instanced(
-                            frame,
-                            projection,
-                            &batch.instances,
-                            ROUNDED_PROGRAM.get(),
-                            batch.scissor,
-                        );
-                    }
-                }
-                DrawCommand::Sprites(batch) => {
-                    if !batch.vertices.is_empty() {
-                        self.draw_sprite_batch(frame, projection, batch);
-                    }
-                }
-            }
-        }
-    }
-
-    fn common_draw_params(scissor: Option<glium::Rect>) -> DrawParameters<'static> {
-        DrawParameters {
-            blend: Blend {
-                color: glium::BlendingFunction::Addition {
-                    source: glium::LinearBlendingFactor::SourceAlpha,
-                    destination: glium::LinearBlendingFactor::OneMinusSourceAlpha,
-                },
-                alpha: glium::BlendingFunction::Addition {
-                    source: glium::LinearBlendingFactor::One,
-                    destination: glium::LinearBlendingFactor::OneMinusSourceAlpha,
-                },
-                constant_value: (1.0, 1.0, 1.0, 1.0),
-            },
-            depth: Depth {
-                test: DepthTest::Overwrite,
-                write: false,
-                ..Default::default()
-            },
-            dithering: get_dithering(),
-            polygon_mode: get_polygon_mode(),
-            scissor,
-            ..Default::default()
-        }
-    }
-
-    fn draw_mesh_batch<T: Surface>(
-        &self,
-        frame: &mut T,
-        projection: &Mat4,
-        batch: &ShapeBatch,
-        program: &glium::Program,
-    ) {
-        let display = get_display();
-        let params = Self::common_draw_params(batch.scissor);
-        let vertex_buffer = VertexBuffer::new(display, &batch.vertices).unwrap();
-        let index_buffer = IndexBuffer::new(
-            display,
-            glium::index::PrimitiveType::TrianglesList,
-            &batch.indices,
-        )
-        .unwrap();
-
-        let uniforms = uniform! {
-            transform: projection.to_cols_array_2d(),
-        };
-
-        debugger_add_draw_calls(1);
-        debugger_add_vertices(vertex_buffer.len());
-        debugger_add_indices(index_buffer.len());
-
-        frame
-            .draw(&vertex_buffer, &index_buffer, program, &uniforms, &params)
-            .unwrap();
-    }
-
-    fn draw_quad_instanced<T, S>(
-        &self,
-        frame: &mut S,
-        projection: &Mat4,
-        instances: &[T],
-        program: &glium::Program,
-        scissor: Option<glium::Rect>,
-    ) where
-        T: Copy + GliumVertex,
-        S: Surface,
-    {
-        let display = get_display();
-        let params = Self::common_draw_params(scissor);
-        let quad_buffer = VertexBuffer::new(display, &UNIT_QUAD).unwrap();
-        let instance_buffer = VertexBuffer::dynamic(display, instances).unwrap();
-        let index_buffer = IndexBuffer::new(
-            display,
-            glium::index::PrimitiveType::TrianglesList,
-            &QUAD_INDICES,
-        )
-        .unwrap();
-
-        let uniforms = uniform! {
-            transform: projection.to_cols_array_2d(),
-        };
-
-        debugger_add_vertices(quad_buffer.len() * instances.len());
-        debugger_add_indices(index_buffer.len() * instances.len());
-
-        frame
-            .draw(
-                (&quad_buffer, instance_buffer.per_instance().unwrap()),
-                &index_buffer,
-                program,
-                &uniforms,
-                &params,
-            )
-            .unwrap();
-    }
-
-    fn draw_sprite_batch<T: Surface>(&self, frame: &mut T, projection: &Mat4, batch: &SpriteBatch) {
-        let display = get_display();
-        let texture = batch.texture.get();
-        let vertex_buffer = VertexBuffer::new(display, &batch.vertices).unwrap();
-        let index_buffer = IndexBuffer::new(
-            display,
-            glium::index::PrimitiveType::TrianglesList,
-            &batch.indices,
-        )
-        .unwrap();
-
-        let uniforms = uniform! {
-            tex: texture.gl_texture.sampled()
-                .minify_filter(texture.minify_filter)
-                .magnify_filter(texture.magnify_filter),
-            projection: projection.to_cols_array_2d()
-        };
-
-        let params = Self::common_draw_params(batch.scissor);
-
-        debugger_add_draw_calls(1);
-        debugger_add_indices(index_buffer.len());
-        debugger_add_vertices(vertex_buffer.len());
-
-        frame
-            .draw(
-                &vertex_buffer,
-                &index_buffer,
-                TEXTURED_PROGRAM.get(),
-                &uniforms,
-                &params,
-            )
-            .unwrap();
-    }
-
-    pub fn clear(&mut self) {
-        self.draws.clear();
+    pub fn add_scene(&mut self, scene: &Scene2D) {
+        self.draws_mut().append(&mut scene.clone().draws)
     }
 }

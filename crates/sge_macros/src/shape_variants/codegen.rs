@@ -67,9 +67,9 @@ fn emit_variant(entry: &ShapeEntry, spec: VariantSpec) -> TokenStream {
     let rot_suffix = if spec.rotation { "_rotation" } else { "" };
     let suffix = format!("{mode_suffix}{rot_suffix}");
 
+    let fn_to = format_ident!("draw_{}{}_to", entry.name, suffix);
     let fn_screen = format_ident!("draw_{}{}", entry.name, suffix);
     let fn_world = format_ident!("draw_{}{}_world", entry.name, suffix);
-    let fn_to = format_ident!("draw_{}{}_to", entry.name, suffix);
 
     let is_outline_only = spec.mode == DrawMode::Outline;
     let filtered_params: Vec<&super::parse::Param> = entry
@@ -102,8 +102,9 @@ fn emit_variant(entry: &ShapeEntry, spec: VariantSpec) -> TokenStream {
     let shape_args: Vec<&syn::Ident> = filtered_params.iter().map(|p| &p.name).collect();
     let extra_args: Vec<syn::Ident> = match spec.mode {
         DrawMode::Base => vec![],
-        DrawMode::Outline => vec![format_ident!("thickness"), format_ident!("outline_color")],
-        DrawMode::WithOutline => vec![format_ident!("thickness"), format_ident!("outline_color")],
+        DrawMode::Outline | DrawMode::WithOutline => {
+            vec![format_ident!("thickness"), format_ident!("outline_color")]
+        }
     };
     let rot_arg = if spec.rotation {
         quote!(rot,)
@@ -121,59 +122,69 @@ fn emit_variant(entry: &ShapeEntry, spec: VariantSpec) -> TokenStream {
 
     let ctor = &entry.constructor;
 
-    let screen_body = match spec.mode {
+    let to_body = match spec.mode {
         DrawMode::Base => quote! {
             #rot_binding
-            draw_shape(&{ #ctor });
+            let __shape = { #ctor };
+            __shape.draw_to(renderer);
         },
         DrawMode::Outline => quote! {
             #rot_binding
             let color = Color::TRANSPARENT;
-            ({ #ctor }).draw_outline_to_draw_queue(draw_queue_2d(), thickness, outline_color);
+            let __shape = { #ctor };
+            __shape.draw_outline_to(renderer, thickness, outline_color);
         },
         DrawMode::WithOutline => quote! {
             #rot_binding
-            ({ #ctor }).draw_with_outline_to_draw_queue(draw_queue_2d(), thickness, outline_color);
+            let __shape = { #ctor };
+            __shape.draw_with_outline_to(renderer, thickness, outline_color);
         },
     };
 
     let world_body = match spec.mode {
         DrawMode::Base => quote! {
             #rot_binding
-            draw_shape_world(&{ #ctor });
+            let __shape = { #ctor };
+            if __shape.is_visible_in_world() {
+                __shape.draw_to(world_draw_queue_2d().renderer());
+            }
         },
         DrawMode::Outline => quote! {
             #rot_binding
             let color = Color::TRANSPARENT;
             let __shape = { #ctor };
             if __shape.is_visible_in_world() {
-                __shape.draw_outline_to_draw_queue(world_draw_queue_2d(), thickness, outline_color);
+                __shape.draw_outline_to(world_draw_queue_2d().renderer(), thickness, outline_color);
             }
         },
         DrawMode::WithOutline => quote! {
             #rot_binding
             let __shape = { #ctor };
             if __shape.is_visible_in_world() {
-                __shape.draw_with_outline_to_draw_queue(world_draw_queue_2d(), thickness, outline_color);
+                __shape.draw_with_outline_to(world_draw_queue_2d().renderer(), thickness, outline_color);
             }
         },
     };
 
     quote! {
-        #[allow(clippy::to_many_arguements)]
-        pub fn #fn_screen(#(#shape_decls)* #(#extra_decls)* #rot_decl) {
-            #screen_body
+        #[allow(clippy::too_many_arguments)]
+        pub fn #fn_to(
+            #(#shape_decls)*
+            #(#extra_decls)*
+            #rot_decl
+            mut renderer: Renderer2D,
+        ) {
+            #to_body
         }
 
-        #[allow(clippy::to_many_arguements)]
+        #[allow(clippy::too_many_arguments)]
+        pub fn #fn_screen(#(#shape_decls)* #(#extra_decls)* #rot_decl) {
+            #fn_to(#forward draw_queue_2d().renderer());
+        }
+
+        #[allow(clippy::too_many_arguments)]
         pub fn #fn_world(#(#shape_decls)* #(#extra_decls)* #rot_decl) {
             #world_body
-        }
-
-        #[allow(clippy::to_many_arguements)]
-        pub fn #fn_to(#(#shape_decls)* #(#extra_decls)* #rot_decl world: bool) {
-            if world { #fn_world(#forward); }
-            else     { #fn_screen(#forward); }
         }
     }
 }

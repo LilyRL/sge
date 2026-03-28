@@ -8,10 +8,7 @@ use sge_color::{Color, u8::Pixel};
 use sge_image::Image;
 use sge_macros::gen_ref_type;
 use sge_math::transform::Transform2D;
-use sge_rendering::{
-    d2::DrawQueue2D,
-    pipeline::{draw_queue_2d, world_draw_queue_2d},
-};
+use sge_rendering::{d2::Renderer2D, dq2d, wdq2d};
 use sge_rng::rand;
 use sge_texture_atlas::{SpriteKey, TextureAtlas};
 use sge_textures::TextureRef;
@@ -451,7 +448,7 @@ pub(crate) fn init_fonts() -> Result<(), FontError> {
 fn draw_text_to(
     text: impl AsRef<str>,
     params: TextDrawParams,
-    draw_queue: &mut DrawQueue2D,
+    mut renderer: Renderer2D,
 ) -> TextDimensions {
     let text = text.as_ref();
     let TextDrawParams {
@@ -499,7 +496,7 @@ fn draw_text_to(
             Vec2::new(glyph_position.x + pos.x, glyph_position.y + pos.y),
         );
 
-        draw_queue.add_sprite(font.atlas.texture().unwrap(), transform, color, Some(rectf));
+        renderer.add_sprite(font.atlas.texture().unwrap(), transform, color, Some(rectf));
     }
 
     let size = Vec2::new(width, layout.height());
@@ -510,7 +507,7 @@ fn draw_text_to(
 }
 
 pub fn draw_text_custom(text: impl AsRef<str>, params: TextDrawParams) -> TextDimensions {
-    draw_text_to(text, params, draw_queue_2d())
+    draw_text_to(text, params, dq2d())
 }
 
 pub fn draw_text_ex(
@@ -527,7 +524,7 @@ pub fn draw_text_ex(
             font_size,
             ..Default::default()
         },
-        draw_queue_2d(),
+        dq2d(),
     )
 }
 
@@ -545,7 +542,7 @@ pub fn draw_text_world_ex(
             font_size,
             ..Default::default()
         },
-        world_draw_queue_2d(),
+        wdq2d(),
     )
 }
 
@@ -556,7 +553,7 @@ pub fn draw_text(text: impl AsRef<str>, position: Vec2) -> TextDimensions {
             position,
             ..Default::default()
         },
-        draw_queue_2d(),
+        dq2d(),
     )
 }
 
@@ -568,7 +565,7 @@ pub fn draw_colored_text(text: impl AsRef<str>, position: Vec2, color: Color) ->
             color,
             ..Default::default()
         },
-        draw_queue_2d(),
+        dq2d(),
     )
 }
 
@@ -584,7 +581,7 @@ pub fn draw_colored_text_world(
             color,
             ..Default::default()
         },
-        world_draw_queue_2d(),
+        wdq2d(),
     )
 }
 
@@ -596,12 +593,12 @@ pub fn draw_text_size(text: impl AsRef<str>, position: Vec2, size: usize) -> Tex
             font_size: size,
             ..Default::default()
         },
-        draw_queue_2d(),
+        dq2d(),
     )
 }
 
 pub fn draw_text_world_custom(text: impl AsRef<str>, params: TextDrawParams) -> TextDimensions {
-    draw_text_to(text, params, world_draw_queue_2d())
+    draw_text_to(text, params, wdq2d())
 }
 
 pub fn draw_text_world(text: impl AsRef<str>, position: Vec2) -> TextDimensions {
@@ -611,7 +608,7 @@ pub fn draw_text_world(text: impl AsRef<str>, position: Vec2) -> TextDimensions 
             position,
             ..Default::default()
         },
-        world_draw_queue_2d(),
+        wdq2d(),
     )
 }
 
@@ -623,7 +620,7 @@ pub fn draw_text_size_world(text: impl AsRef<str>, position: Vec2, size: usize) 
             font_size: size,
             ..Default::default()
         },
-        world_draw_queue_2d(),
+        wdq2d(),
     )
 }
 
@@ -652,7 +649,7 @@ fn draw_multiline_text_to(
     text: impl AsRef<str>,
     params: TextDrawParams,
     line_spacing: f32,
-    draw_queue: &mut DrawQueue2D,
+    renderer: Renderer2D,
 ) -> TextDimensions {
     let text = text.as_ref();
     let lines: Vec<&str> = text.lines().collect();
@@ -679,7 +676,7 @@ fn draw_multiline_text_to(
                 position: Vec2::new(params.position.x, current_y),
                 ..params
             },
-            draw_queue,
+            renderer,
         );
         current_x = dims.size.x;
         max_width = max_width.max(dims.size.x);
@@ -719,7 +716,7 @@ pub fn draw_multiline_text(
             ..Default::default()
         },
         line_spacing,
-        draw_queue_2d(),
+        dq2d(),
     )
 }
 
@@ -737,7 +734,7 @@ pub fn draw_multiline_text_size(
             ..Default::default()
         },
         line_spacing,
-        draw_queue_2d(),
+        dq2d(),
     )
 }
 
@@ -746,7 +743,7 @@ pub fn draw_multiline_text_ex(
     params: TextDrawParams,
     line_spacing: f32,
 ) -> TextDimensions {
-    draw_multiline_text_to(text, params, line_spacing, draw_queue_2d())
+    draw_multiline_text_to(text, params, line_spacing, dq2d())
 }
 
 pub fn draw_multiline_text_world(
@@ -761,7 +758,7 @@ pub fn draw_multiline_text_world(
             ..Default::default()
         },
         line_spacing,
-        world_draw_queue_2d(),
+        wdq2d(),
     )
 }
 
@@ -779,7 +776,7 @@ pub fn draw_multiline_text_size_world(
             ..Default::default()
         },
         line_spacing,
-        world_draw_queue_2d(),
+        wdq2d(),
     )
 }
 
@@ -788,7 +785,7 @@ pub fn draw_multiline_text_world_ex(
     params: TextDrawParams,
     line_spacing: f32,
 ) -> TextDimensions {
-    draw_multiline_text_to(text, params, line_spacing, world_draw_queue_2d())
+    draw_multiline_text_to(text, params, line_spacing, wdq2d())
 }
 
 pub fn measure_multiline_text(text: impl AsRef<str>, line_spacing: f32) -> TextDimensions {

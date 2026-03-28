@@ -1,4 +1,4 @@
-use d2::DrawQueue2D;
+use d2::{DrawQueue2D, Renderer2D};
 use d3::DrawQueue3D;
 use glium::Rect;
 use materials::init_materials;
@@ -39,4 +39,18 @@ pub fn init() {
     log::info!("Initialized render state");
     init_materials();
     log::info!("Initialized materials");
+}
+
+pub fn dq2d() -> Renderer2D {
+    get_render_state()
+        .render_pipeline
+        .draw_queue_2d()
+        .renderer()
+}
+
+pub fn wdq2d() -> Renderer2D {
+    get_render_state()
+        .render_pipeline
+        .world_draw_queue_2d()
+        .renderer()
 }

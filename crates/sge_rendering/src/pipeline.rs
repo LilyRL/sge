@@ -81,8 +81,8 @@ pub enum RenderStep {
 
 impl DrawQueues {
     pub fn empty() -> Self {
-        let draw_queue_2d = DrawQueue2D::empty();
-        let world_draw_queue_2d = DrawQueue2D::empty();
+        let draw_queue_2d = DrawQueue2D::screen();
+        let world_draw_queue_2d = DrawQueue2D::world();
         let draw_queue_3d = DrawQueue3D::empty();
 
         Self {

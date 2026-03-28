@@ -17,6 +17,8 @@
 - [ ] bitmap fonts
 - [ ] add post frame callback
 - [ ] add mf draw wireframe and shit
+- [ ] examples for all the ui elements
+- [ ] fix scenes
 - [X] load_sound
 - [X] load_sound_from_bytes
 - [ ] play_sound_looped
@@ -29,8 +31,13 @@
 - [X] functions to change cursor icon
 - [X] solid triangle arrow functions
 - [X] expandable <details> type thing
-- [ ] slider
+- [X] slider
 - [ ] safe multithreading
+- [ ] 3d scene for point lights
+- [ ] 2d scene for optimising static geometry
+- [ ] render geometry to scene or texture
+- [ ] render to scene yeah, so like more macro shit to add to_scene functions and maybe just have a 2d renderer trait and have draw queue 2d and scene implement it and then have draw_to take a 2d renderer reference
+- [ ] dirty struct macro, which automatically keeps track of what is dirty, and you can define computations as impls with a function that takes some fields and returns a value and adds that as a field on the struct with methods for getting and getting mut and setting fields which deals with making things dirty
 - [ ] more filters
   - [ ] crt
   - [ ] wobbly

@@ -11,12 +11,14 @@ use sge_textures::TextureRef;
 use sge_window::window_size;
 
 use crate::{
-    get_render_state,
+    d2::{Renderer2D, Scene2D},
+    dq2d, get_render_state,
     materials::{Material, MaterialRef},
     pipeline::{
         ClearColor, RenderPipeline, RenderTarget, RenderTextureRef, current_render_pipeline,
         draw_queue_2d, empty_render_texture, world_draw_queue_2d,
     },
+    wdq2d,
 };
 
 pub fn draw_texture(texture: TextureRef, position: Vec2, scale: f32) {
@@ -24,7 +26,7 @@ pub fn draw_texture(texture: TextureRef, position: Vec2, scale: f32) {
 }
 
 pub fn draw_texture_scaled(texture: TextureRef, position: Vec2, scale: Vec2) {
-    draw_queue_2d().add_sprite(
+    draw_queue_2d().renderer().add_sprite(
         texture,
         Transform2D::from_scale_translation(scale, position),
         Color::WHITE,
@@ -43,7 +45,7 @@ pub fn draw_texture_scaled_world(texture: TextureRef, position: Vec2, scale: Vec
         return;
     }
 
-    world_draw_queue_2d().add_sprite(
+    world_draw_queue_2d().renderer().add_sprite(
         texture,
         Transform2D::from_scale_translation(scale, position),
         Color::WHITE,
@@ -66,7 +68,9 @@ pub fn draw_texture_world_ex(
         return;
     }
 
-    world_draw_queue_2d().add_sprite(texture, transform, color, region);
+    world_draw_queue_2d()
+        .renderer()
+        .add_sprite(texture, transform, color, region);
 }
 
 pub fn draw_texture_ex(
@@ -75,7 +79,9 @@ pub fn draw_texture_ex(
     color: Color,
     region: Option<bevy_math::Rect>,
 ) {
-    draw_queue_2d().add_sprite(sprite, transform, color, region);
+    draw_queue_2d()
+        .renderer()
+        .add_sprite(sprite, transform, color, region);
 }
 
 pub fn create_flat_material(color: Color) -> MaterialRef {
@@ -156,4 +162,16 @@ pub fn dont_clear_screen() {
 
 pub fn draw_fullscreen_texture(texture: TextureRef) {
     draw_texture_scaled(texture, Vec2::ZERO, window_size());
+}
+
+pub fn draw_scene(scene: &Scene2D) {
+    dq2d().add_scene(scene);
+}
+
+pub fn draw_scene_world(scene: &Scene2D) {
+    wdq2d().add_scene(scene);
+}
+
+pub fn draw_scene_to(scene: &Scene2D, mut renderer: Renderer2D) {
+    renderer.add_scene(scene);
 }

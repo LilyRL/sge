@@ -6,6 +6,7 @@ use rapier2d::prelude::*;
 use sge_api::shapes_2d::*;
 use sge_color::Color;
 use sge_macros::gen_ref_type;
+use sge_rendering::{d2::Renderer2D, dq2d, wdq2d};
 use sge_time::physics_delta_time;
 use slotmap::{SlotMap, new_key_type};
 
@@ -226,12 +227,12 @@ fn bounds_to_builder(bounds: &Bounds) -> ColliderBuilder {
     }
 }
 
-fn draw_bounds(pos: Vec2, bounds: &Bounds, color: Color, thickness: f32, world: bool) {
+fn draw_bounds(pos: Vec2, bounds: &Bounds, color: Color, thickness: f32, renderer: Renderer2D) {
     match bounds {
-        Bounds::Point => draw_circle_to(pos, 2.0, color, world),
-        Bounds::Circle(r) => draw_circle_outline_to(pos, *r, color, thickness, world), // needs a _to variant
+        Bounds::Point => draw_circle_to(pos, 2.0, color, renderer),
+        Bounds::Circle(r) => draw_circle_outline_to(pos, *r, color, thickness, renderer),
         Bounds::Rect(size) => {
-            draw_rect_outline_to(pos - *size * 0.5, *size, thickness, color, world)
+            draw_rect_outline_to(pos - *size * 0.5, *size, thickness, color, renderer)
         }
         Bounds::Capsule {
             half_height,
@@ -242,21 +243,21 @@ fn draw_bounds(pos: Vec2, bounds: &Bounds, color: Color, thickness: f32, world: 
                 Vec2::new(radius * 2.0, (half_height + radius) * 2.0),
                 thickness,
                 color,
-                world,
+                renderer,
             );
             draw_circle_outline_to(
                 pos + Vec2::new(0.0, *half_height),
                 *radius,
                 color,
                 thickness,
-                world,
+                renderer,
             );
             draw_circle_outline_to(
                 pos - Vec2::new(0.0, *half_height),
                 *radius,
                 color,
                 thickness,
-                world,
+                renderer,
             );
         }
         Bounds::CapsuleX { half_width, radius } => {
@@ -265,27 +266,27 @@ fn draw_bounds(pos: Vec2, bounds: &Bounds, color: Color, thickness: f32, world: 
                 Vec2::new((half_width + radius) * 2.0, radius * 2.0),
                 thickness,
                 color,
-                world,
+                renderer,
             );
             draw_circle_outline_to(
                 pos + Vec2::new(*half_width, 0.0),
                 *radius,
                 color,
                 thickness,
-                world,
+                renderer,
             );
             draw_circle_outline_to(
                 pos - Vec2::new(*half_width, 0.0),
                 *radius,
                 color,
                 thickness,
-                world,
+                renderer,
             );
         }
         Bounds::Triangle(a, b, c) => {
             let pts = [pos + *a, pos + *b, pos + *c];
             for i in 0..3 {
-                draw_line_to(pts[i], pts[(i + 1) % 3], thickness, color, world);
+                draw_line_to(pts[i], pts[(i + 1) % 3], thickness, color, renderer);
             }
         }
         Bounds::ConvexHull(pts) if pts.len() >= 2 => {
@@ -296,21 +297,21 @@ fn draw_bounds(pos: Vec2, bounds: &Bounds, color: Color, thickness: f32, world: 
                     world_pts[(i + 1) % world_pts.len()],
                     thickness,
                     color,
-                    world,
+                    renderer,
                 );
             }
         }
         Bounds::Polyline(pts) if pts.len() >= 2 => {
             for i in 0..pts.len() - 1 {
-                draw_line_to(pos + pts[i], pos + pts[i + 1], thickness, color, world);
+                draw_line_to(pos + pts[i], pos + pts[i + 1], thickness, color, renderer);
             }
         }
         Bounds::Line { a, b } => {
-            draw_line_to(pos + *a, pos + *b, thickness, color, world);
+            draw_line_to(pos + *a, pos + *b, thickness, color, renderer);
         }
         Bounds::Compound(children) => {
             for (offset, child) in children {
-                draw_bounds(pos + *offset, child, color, thickness, world);
+                draw_bounds(pos + *offset, child, color, thickness, renderer);
             }
         }
         _ => {}
@@ -705,17 +706,17 @@ impl World {
     }
 
     pub fn draw_colliders(&self) {
-        self.draw_colliders_to(false);
+        self.draw_colliders_to(dq2d());
     }
 
     pub fn draw_colliders_world(&self) {
-        self.draw_colliders_to(true);
+        self.draw_colliders_to(wdq2d());
     }
 
-    fn draw_colliders_to(&self, world: bool) {
+    fn draw_colliders_to(&self, renderer: Renderer2D) {
         for handles in self.objects.values() {
             let pos = pos_from_rapier(self.rigid_body_set[handles.rigid_body].position());
-            draw_bounds(pos, &handles.bounds, Color::RED_500, 1.5, world);
+            draw_bounds(pos, &handles.bounds, Color::RED_500, 1.5, renderer);
         }
 
         for (a, infos) in &self.collisions {
@@ -733,12 +734,12 @@ impl World {
                     pos + info.points.normal * display_length,
                     2.0,
                     Color::NEUTRAL_500.with_alpha(0.3),
-                    world,
+                    renderer,
                 );
             }
 
             if !infos.is_empty() {
-                draw_bounds(pos, &a.bounds, Color::YELLOW_500, 3.0, world);
+                draw_bounds(pos, &a.bounds, Color::YELLOW_500, 3.0, renderer);
             }
         }
     }

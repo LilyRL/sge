@@ -67,6 +67,7 @@ pub use sge_physics::{
 pub use sge_programs::include_program;
 pub use sge_programs::load_program;
 pub use sge_rendering::api::*;
+pub use sge_rendering::d2::{Renderer2D, Scene2D};
 pub use sge_rendering::materials::{DEFAULT_MATERIAL, Material, MaterialRef, UniformData};
 pub use sge_rendering::object_3d::{
     Mesh, MeshRef, Object3D, Object3DRef, ObjectLoadingError, ObjectToDraw,

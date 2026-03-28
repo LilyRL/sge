@@ -1,9 +1,6 @@
 use bevy_math::Vec2;
 use sge_color::{Color, str_to_color};
-use sge_rendering::{
-    d2::DrawQueue2D,
-    pipeline::{draw_queue_2d, world_draw_queue_2d},
-};
+use sge_rendering::{d2::Renderer2D, dq2d, wdq2d};
 use thiserror::Error;
 
 use crate::draw_text_to;
@@ -207,7 +204,7 @@ impl RichText {
         RichTextParser::new(input.as_ref()).parse()
     }
 
-    fn draw_to(&self, params: RichTextDrawParams, draw_queue: &mut DrawQueue2D) -> TextDimensions {
+    fn draw_to(&self, params: RichTextDrawParams, renderer: Renderer2D) -> TextDimensions {
         let left_edge = params.position.x;
         let mut cursor = params.position;
         let mut max_width = 0.0f32;
@@ -229,7 +226,7 @@ impl RichText {
                 let mut text_params = params.to_text_params(block.color);
                 text_params.position = cursor;
 
-                let dimensions = draw_text_to(line, text_params, draw_queue);
+                let dimensions = draw_text_to(line, text_params, renderer);
 
                 cursor.x += dimensions.size.x;
                 max_width = max_width.max(cursor.x - params.position.x);
@@ -253,11 +250,11 @@ impl RichText {
     }
 
     pub fn draw(&self, params: RichTextDrawParams) -> TextDimensions {
-        self.draw_to(params, draw_queue_2d())
+        self.draw_to(params, dq2d())
     }
 
     pub fn draw_world(&self, params: RichTextDrawParams) -> TextDimensions {
-        self.draw_to(params, world_draw_queue_2d())
+        self.draw_to(params, wdq2d())
     }
 
     pub fn print_to_stdout(&self) {

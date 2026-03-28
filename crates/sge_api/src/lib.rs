@@ -1,27 +1,39 @@
-use shapes_2d::{Shape2DExt, draw_shape, draw_shape_world};
+use sge_rendering::{d2::Renderer2D, dq2d, wdq2d};
+use shapes_2d::Shape2DExt;
 
 pub mod area;
 pub mod shapes_2d;
 
 pub trait Drawable {
+    fn draw_to(&self, renderer: Renderer2D);
     fn draw(&self);
-    fn draw_word(&self);
+    fn draw_world(&self);
 }
 
 impl<T: Shape2DExt> Drawable for T {
+    fn draw_to(&self, mut renderer: Renderer2D) {
+        renderer.add_shape(self);
+    }
+
     fn draw(&self) {
-        draw_shape(self);
+        self.draw_to(dq2d())
     }
 
-    fn draw_word(&self) {
-        draw_shape_world(self);
+    fn draw_world(&self) {
+        if self.is_visible_in_world() {
+            self.draw_to(wdq2d())
+        }
     }
 }
 
-pub fn draw<T: Drawable>(o: T) {
-    o.draw();
+pub fn draw<T: Drawable>(v: &T) {
+    v.draw()
 }
 
-pub fn draw_world<T: Drawable>(o: T) {
-    o.draw_word();
+pub fn draw_world<T: Drawable>(v: &T) {
+    v.draw_world()
+}
+
+pub fn draw_to<T: Drawable>(v: &T, renderer: Renderer2D) {
+    v.draw_to(renderer)
 }

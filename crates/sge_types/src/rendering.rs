@@ -8,6 +8,7 @@ use crate::Vertex3D;
 //                                  Rounded                                  //
 ///////////////////////////////////////////////////////////////////////////////
 
+#[derive(Clone)]
 pub struct RoundedBatch {
     pub instances: Vec<RoundedInstance>,
     pub scissor: Option<glium::Rect>,
@@ -66,6 +67,7 @@ impl RoundedBatch {
 //                                   Circle                                  //
 ///////////////////////////////////////////////////////////////////////////////
 
+#[derive(Clone)]
 pub struct CircleBatch {
     pub instances: Vec<CircleInstance>,
     pub scissor: Option<glium::Rect>,
@@ -130,6 +132,7 @@ impl CircleInstance {
 //                                   Shape                                   //
 ///////////////////////////////////////////////////////////////////////////////
 
+#[derive(Clone)]
 pub struct ShapeBatch {
     pub vertices: Vec<Vertex3D>,
     pub indices: Vec<u32>,
@@ -227,6 +230,7 @@ impl RadialGradientInstance {
     }
 }
 
+#[derive(Clone)]
 pub struct RadialGradientBatch {
     pub instances: Vec<RadialGradientInstance>,
     pub scissor: Option<glium::Rect>,
