@@ -8,9 +8,8 @@ fn main() -> anyhow::Result<()> {
 
     let mut clear_color = Color::PURPLE_300;
 
-    mutate_camera_3d(|c| {
-        c.fovy = 80.0;
-    });
+    let camera = get_camera_3d_mut();
+    camera.set_fov(80.0);
 
     let mut show_many = false;
     let mut orbit_controller = OrbitCameraController::new(Vec3::ZERO);
@@ -38,7 +37,7 @@ fn main() -> anyhow::Result<()> {
     loop {
         dont_clear_screen();
         let ui = {
-            use ui::prelude::*;
+            use ui::*;
             let len = min_window_dimension() / 6.0;
             let color = Color::NEUTRAL_950;
 
@@ -110,7 +109,7 @@ fn main() -> anyhow::Result<()> {
                 ),
             ])
         };
-        draw_ui(ui, Vec2::ZERO);
+        ui::draw_ui(ui, Vec2::ZERO);
 
         new_draw_queues();
 
@@ -156,9 +155,7 @@ fn main() -> anyhow::Result<()> {
         }
 
         if key_pressed(KeyCode::KeyI) {
-            mutate_camera_3d(|c| {
-                c.isometric = !c.isometric;
-            });
+            camera.toggle_isometric();
         }
 
         if key_pressed(KeyCode::KeyX) {
@@ -178,18 +175,16 @@ fn main() -> anyhow::Result<()> {
         if light_on_camera {
             suzanne
                 .material()
-                .set_vec3("light_pos", get_camera_3d().eye);
+                .set_vec3("light_pos", get_camera_3d().eye());
         }
 
         if show_many {
-            mutate_camera_3d(|camera| {
-                camera.eye = Vec3::new(
-                    grid_center,
-                    grid_center * 0.4,
-                    grid_center + grid_width * 0.6,
-                );
-                camera.target = Vec3::new(grid_center, -grid_center, 0.0);
-            });
+            *camera.eye_mut() = Vec3::new(
+                grid_center,
+                grid_center * 0.4,
+                grid_center + grid_width * 0.6,
+            );
+            *camera.target_mut() = Vec3::new(grid_center, -grid_center, 0.0);
 
             suzanne.draw_many(transforms.clone());
         } else {

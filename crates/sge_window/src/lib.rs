@@ -15,9 +15,12 @@ use glium::{
     },
     winit::{
         dpi::PhysicalSize,
+        error::ExternalError,
         event_loop::EventLoop,
         raw_window_handle::HasRawWindowHandle,
-        window::{Cursor, CursorIcon, Window, WindowAttributes},
+        window::{
+            Cursor, CursorGrabMode, CursorIcon, Fullscreen, Window, WindowAttributes, WindowLevel,
+        },
     },
 };
 use glutin_winit::{DisplayBuilder, GlWindow};
@@ -335,4 +338,78 @@ pub fn use_dnd_ask_cursor_icon() {
 /// only active for one frame
 pub fn use_all_resize_cursor_icon() {
     use_cursor_icon(CursorIcon::AllResize);
+}
+
+pub fn grab_cursor() -> Result<(), ExternalError> {
+    let window = &mut get_window_state().window;
+    window.set_cursor_visible(false);
+    window
+        .set_cursor_grab(CursorGrabMode::Confined)
+        .or_else(|_e| window.set_cursor_grab(CursorGrabMode::Locked))
+}
+
+pub fn release_cursor() -> Result<(), ExternalError> {
+    let window = &mut get_window_state().window;
+    window.set_cursor_visible(true);
+    window.set_cursor_grab(CursorGrabMode::None)
+}
+
+pub fn set_cursor_visible(visible: bool) {
+    get_window_state().window.set_cursor_visible(visible);
+}
+
+pub fn set_cursor_grab(grab_mode: CursorGrabMode) -> Result<(), ExternalError> {
+    get_window_state().window.set_cursor_grab(grab_mode)
+}
+
+pub fn availible_monitors() -> impl Iterator<Item = glium::winit::monitor::MonitorHandle> {
+    get_window_state().window.available_monitors()
+}
+
+pub fn current_monitor() -> Option<glium::winit::monitor::MonitorHandle> {
+    get_window_state().window.current_monitor()
+}
+
+pub fn fullscreen() -> Option<Fullscreen> {
+    get_window_state().window.fullscreen()
+}
+
+pub fn set_decorations(decorations: bool) {
+    get_window_state().window.set_decorations(decorations);
+}
+
+pub fn is_decorated() -> bool {
+    get_window_state().window.is_decorated()
+}
+
+pub fn set_window_level(level: WindowLevel) {
+    get_window_state().window.set_window_level(level);
+}
+
+pub fn set_window_icon(icon: Option<glium::winit::window::Icon>) {
+    get_window_state().window.set_window_icon(icon);
+}
+
+pub fn has_focus() -> bool {
+    get_window_state().window.has_focus()
+}
+
+pub fn set_window_theme(theme: Option<glium::winit::window::Theme>) {
+    get_window_state().window.set_theme(theme);
+}
+
+pub fn window_theme() -> Option<glium::winit::window::Theme> {
+    get_window_state().window.theme()
+}
+
+pub fn window_title() -> String {
+    get_window_state().window.title().to_string()
+}
+
+pub fn set_window_content_protected(protected: bool) {
+    get_window_state().window.set_content_protected(protected);
+}
+
+pub fn set_window_cursor_hittest(enabled: bool) -> Result<(), ExternalError> {
+    get_window_state().window.set_cursor_hittest(enabled)
 }

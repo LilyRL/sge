@@ -1,7 +1,7 @@
 use glium::winit::event::MouseButton;
 use sge_input::{Button, button_held, cursor_diff, last_cursor_pos, scroll_diff};
 
-use crate::{camera2d_zoom_at, mutate_camera_2d};
+use crate::{camera2d_zoom_at, get_camera_2d_mut};
 
 pub struct PanningCameraController {
     pub allow_panning: bool,
@@ -13,9 +13,8 @@ impl PanningCameraController {
     pub fn update(&mut self) {
         if self.allow_panning && button_held(self.pan_button) {
             let diff = cursor_diff();
-            mutate_camera_2d(|camera| {
-                camera.translation -= diff / camera.scale;
-            });
+            let camera = get_camera_2d_mut();
+            camera.translate_by(-diff / camera.scale());
         }
 
         if self.allow_zooming && scroll_diff().y != 0.0 {

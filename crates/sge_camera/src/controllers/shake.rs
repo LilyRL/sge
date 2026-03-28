@@ -1,4 +1,4 @@
-use crate::{get_camera_2d, mutate_camera_2d};
+use crate::{get_camera_2d, get_camera_2d_mut};
 use bevy_math::Vec2;
 use sge_time::{delta_time, time};
 
@@ -35,12 +35,12 @@ impl CameraShakeController {
                     * shake
                     * (smooth_noise(time() * self.frequency + 999.0) - 0.5)
                     * 2.0,
-            ) / get_camera_2d().scale
+            ) / get_camera_2d().scale()
         } else {
             Vec2::ZERO
         };
 
-        mutate_camera_2d(|c| c.offset = offset);
+        get_camera_2d_mut().set_offset(offset);
     }
 }
 

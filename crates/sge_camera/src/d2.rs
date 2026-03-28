@@ -1,16 +1,16 @@
-use bevy_math::{Mat3, Mat4, Vec2, Vec4, vec2};
+use bevy_math::{Mat3, Mat4, Rect, Vec2, Vec4, vec2};
 use glium::winit::window::Window;
 
 const BIG_NUMBER: f32 = 9999.9;
 
 #[derive(Clone, Debug, Copy)]
 pub struct Camera2D {
-    pub translation: Vec2,
-    pub scale: f32,
-    pub rotation: f32,
-    /// for temporary translation, like screenshake
-    pub offset: Vec2,
-    pub flip_y: bool,
+    translation: Vec2,
+    scale: f32,
+    rotation: f32,
+
+    offset: Vec2,
+    flip_y: bool,
 
     window_size: Vec2,
 
@@ -74,7 +74,7 @@ impl Camera2D {
         self.visible_bounds = self.calculate_visible_bounds();
     }
 
-    fn screen_center(&self) -> Vec2 {
+    pub fn screen_center(&self) -> Vec2 {
         self.window_size * 0.5
     }
 
@@ -102,7 +102,6 @@ impl Camera2D {
 
     pub fn visible_bounds(&mut self) -> (Vec2, Vec2) {
         self.update_matrices();
-
         self.visible_bounds
     }
 
@@ -126,6 +125,43 @@ impl Camera2D {
         screen_distance / self.scale
     }
 
+    pub fn translate_by(&mut self, delta: Vec2) {
+        self.translation += delta;
+        self.mark_dirty();
+    }
+
+    pub fn pan_to(&mut self, world_pos: Vec2) {
+        self.translation = world_pos;
+        self.mark_dirty();
+    }
+
+    pub fn pan_by_screen(&mut self, screen_delta: Vec2) {
+        let world_delta = self.screen_distance_to_world(1.0) * screen_delta;
+
+        let angle = if self.flip_y {
+            self.rotation
+        } else {
+            -self.rotation
+        };
+        let cos = angle.cos();
+        let sin = angle.sin();
+        let rotated = Vec2::new(
+            world_delta.x * cos - world_delta.y * sin,
+            world_delta.x * sin + world_delta.y * cos,
+        );
+        self.translate_by(rotated);
+    }
+
+    pub fn lerp_to(&mut self, target: Vec2, t: f32) {
+        self.translation = self.translation.lerp(target, t);
+        self.mark_dirty();
+    }
+
+    pub fn clamp_to_bounds(&mut self, min: Vec2, max: Vec2) {
+        self.translation = self.translation.clamp(min, max);
+        self.mark_dirty();
+    }
+
     pub fn zoom_at(&mut self, screen_pos: Vec2, zoom_factor: f32) {
         let world_pos = self.screen_to_world(screen_pos);
         self.scale *= zoom_factor;
@@ -136,6 +172,74 @@ impl Camera2D {
         let world_delta = screen_delta / self.scale;
         self.translation -= world_delta;
         self.mark_dirty();
+    }
+
+    pub fn set_scale(&mut self, new_scale: f32) {
+        let center = self.screen_center();
+        let factor = new_scale / self.scale.max(f32::EPSILON);
+        self.zoom_at(center, factor);
+    }
+
+    pub fn zoom_to_fit(&mut self, rect: Rect, padding: f32) {
+        let world_w = rect.width() + padding * 2.0;
+        let world_h = rect.height() + padding * 2.0;
+        let scale_x = self.window_size.x / world_w.max(f32::EPSILON);
+        let scale_y = self.window_size.y / world_h.max(f32::EPSILON);
+        self.scale = scale_x.min(scale_y);
+        self.translation = rect.center();
+        self.mark_dirty();
+    }
+
+    pub fn lerp_zoom_to(&mut self, target_scale: f32, t: f32) {
+        self.scale = self.scale + (target_scale - self.scale) * t;
+        self.mark_dirty();
+    }
+
+    pub fn rotate_by(&mut self, delta_radians: f32) {
+        self.rotation += delta_radians;
+        self.mark_dirty();
+    }
+
+    pub fn set_rotation(&mut self, radians: f32) {
+        self.rotation = radians;
+        self.mark_dirty();
+    }
+
+    pub fn rotate_around(&mut self, pivot: Vec2, delta_radians: f32) {
+        let to_pivot = self.translation - pivot;
+        let cos = delta_radians.cos();
+        let sin = delta_radians.sin();
+        let rotated = Vec2::new(
+            to_pivot.x * cos - to_pivot.y * sin,
+            to_pivot.x * sin + to_pivot.y * cos,
+        );
+        self.translation = pivot + rotated;
+        self.rotation += delta_radians;
+        self.mark_dirty();
+    }
+
+    pub fn clear_offset(&mut self) {
+        self.offset = Vec2::ZERO;
+        self.mark_dirty();
+    }
+
+    pub fn center(&self) -> Vec2 {
+        self.translation
+    }
+
+    pub fn contains_point(&mut self, world_pos: Vec2) -> bool {
+        let (min, max) = self.visible_bounds();
+        world_pos.cmpge(min).all() && world_pos.cmple(max).all()
+    }
+
+    pub fn overlaps_aabb(&mut self, min: Vec2, max: Vec2) -> bool {
+        let (vmin, vmax) = self.visible_bounds();
+        min.x <= vmax.x && max.x >= vmin.x && min.y <= vmax.y && max.y >= vmin.y
+    }
+
+    pub fn visible_rect(&mut self) -> Rect {
+        let (min, max) = self.visible_bounds();
+        Rect::from_corners(min, max)
     }
 
     pub fn window_size(&self) -> Vec2 {
@@ -167,13 +271,64 @@ impl Camera2D {
 
     pub fn projection_matrix(&mut self) -> Mat4 {
         self.update_matrices();
-
         self.projection_matrix
     }
 
-    pub fn translate_by(&mut self, delta: Vec2) {
-        self.translation += delta;
+    pub fn offset(&self) -> Vec2 {
+        self.offset
+    }
+
+    pub fn offset_mut(&mut self) -> &mut Vec2 {
         self.mark_dirty();
+        &mut self.offset
+    }
+
+    pub fn set_offset(&mut self, offset: Vec2) {
+        self.offset = offset;
+        self.mark_dirty();
+    }
+
+    pub fn offset_by(&mut self, delta: Vec2) {
+        self.offset += delta;
+        self.mark_dirty();
+    }
+
+    pub fn translation(&self) -> Vec2 {
+        self.translation
+    }
+
+    pub fn translation_mut(&mut self) -> &mut Vec2 {
+        self.mark_dirty();
+        &mut self.translation
+    }
+
+    pub fn scale(&self) -> f32 {
+        self.scale
+    }
+
+    pub fn scale_mut(&mut self) -> &mut f32 {
+        self.mark_dirty();
+        &mut self.scale
+    }
+
+    pub fn rotation(&self) -> f32 {
+        self.rotation
+    }
+
+    pub fn rotation_mut(&mut self) -> &mut f32 {
+        self.mark_dirty();
+        &mut self.rotation
+    }
+
+    pub fn flip_y(&self) -> bool {
+        self.flip_y
+    }
+
+    pub fn set_flip_y(&mut self, flip: bool) {
+        if self.flip_y != flip {
+            self.flip_y = flip;
+            self.mark_dirty();
+        }
     }
 }
 

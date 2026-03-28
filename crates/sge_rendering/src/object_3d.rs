@@ -19,6 +19,7 @@ pub struct Object3D {
     pub mesh: MeshRef,
     pub material: MaterialRef,
     pub transform: Transform3D,
+    pub flip_normals: bool,
 }
 
 pub enum ObjectToDraw {
@@ -75,6 +76,7 @@ impl Object3D {
             mesh: Mesh { vertices, indices }.create(),
             material,
             transform: Transform3D::IDENTITY,
+            flip_normals: false,
         };
 
         Ok(object.create())
@@ -131,6 +133,7 @@ impl Object3D {
             mesh,
             material,
             transform: Transform3D::IDENTITY,
+            flip_normals: false,
         }
         .create()
     }
@@ -164,6 +167,12 @@ impl Object3DRef {
 
     pub fn transform(&self) -> &mut Transform3D {
         &mut self.get_mut().transform
+    }
+
+    pub fn with_flipped_normals(self) -> Object3DRef {
+        let object = self.get_mut();
+        object.flip_normals = true;
+        self
     }
 
     // pub fn vertices(&self) -> &mut Vec<MaterialVertex3D> {
@@ -206,6 +215,7 @@ pub fn test_triangle() -> Result<Object3DRef, BufferError> {
         mesh,
         material: create_flat_material(Color::RED_500),
         transform: Transform3D::IDENTITY,
+        flip_normals: false,
     };
 
     Ok(triangle.create())

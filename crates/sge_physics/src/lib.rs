@@ -545,8 +545,8 @@ impl World {
             }
         }
 
-        let pos1 = self.get_position_by_key(key1);
-        let pos2 = self.get_position_by_key(key2);
+        let pos1 = self.get_position(key1);
+        let pos2 = self.get_position(key2);
         let delta = pos1 - pos2;
         let dist = delta.length();
         let normal = if dist > 0.0 { delta / dist } else { Vec2::X };
@@ -555,11 +555,6 @@ impl World {
             depth: 0.0,
             collision: true,
         }
-    }
-
-    fn get_position_by_key(&self, key: ObjectKey) -> Vec2 {
-        let rb_handle = self.objects[key].rigid_body;
-        pos_from_rapier(self.rigid_body_set[rb_handle].position())
     }
 
     fn insert_object(
@@ -659,7 +654,20 @@ impl World {
     }
 
     fn get_position(&self, key: ObjectKey) -> Vec2 {
-        self.get_position_by_key(key)
+        let rb_handle = self.objects[key].rigid_body;
+        pos_from_rapier(self.rigid_body_set[rb_handle].position())
+    }
+
+    fn get_rotation(&self, key: ObjectKey) -> f32 {
+        let rb_handle = self.objects[key].rigid_body;
+        -self.rigid_body_set[rb_handle].rotation().angle()
+    }
+
+    fn set_rotation(&mut self, key: ObjectKey, angle: f32) {
+        let rb_handle = self.objects[key].rigid_body;
+        let pos = self.rigid_body_set[rb_handle].position().translation.vector;
+        let iso = Isometry::new(pos, -angle);
+        self.rigid_body_set[rb_handle].set_position(iso, true);
     }
 
     fn set_position(&mut self, key: ObjectKey, pos: Vec2) {
@@ -680,6 +688,21 @@ impl World {
     fn add_velocity(&mut self, key: ObjectKey, vel: Vec2) {
         let current = self.get_velocity(key);
         self.set_velocity(key, current + vel);
+    }
+
+    fn get_angvel(&self, key: ObjectKey) -> f32 {
+        let rb_handle = self.objects[key].rigid_body;
+        -self.rigid_body_set[rb_handle].angvel()
+    }
+
+    fn set_angvel(&mut self, key: ObjectKey, angvel: f32) {
+        let rb_handle = self.objects[key].rigid_body;
+        self.rigid_body_set[rb_handle].set_angvel(-angvel, true);
+    }
+
+    fn add_angvel(&mut self, key: ObjectKey, angvel: f32) {
+        let current = self.get_angvel(key);
+        self.set_angvel(key, current + angvel);
     }
 
     fn add_force(&mut self, key: ObjectKey, force: Vec2) {
@@ -769,6 +792,16 @@ impl ObjectRef {
         self
     }
 
+    pub fn with_velocity(mut self, vel: Vec2) -> Self {
+        self.set_velocity(vel);
+        self
+    }
+
+    pub fn with_angvel(mut self, angvel: f32) -> Self {
+        self.set_angvel(angvel);
+        self
+    }
+
     pub fn get_position(&self) -> Vec2 {
         self.world.get_position(self.key)
     }
@@ -798,6 +831,25 @@ impl ObjectRef {
     }
     pub fn is_dynamic(&self) -> bool {
         self.world.is_dynamic(self.key)
+    }
+    pub fn get_angvel(&self) -> f32 {
+        self.world.get_angvel(self.key)
+    }
+    pub fn set_angvel(&mut self, angvel: f32) {
+        self.world.set_angvel(self.key, angvel);
+    }
+    pub fn add_angvel(&mut self, angvel: f32) {
+        self.world.add_angvel(self.key, angvel);
+    }
+    pub fn get_rotation(&self) -> f32 {
+        self.world.get_rotation(self.key)
+    }
+    pub fn set_rotation(&mut self, angle: f32) {
+        self.world.set_rotation(self.key, angle);
+    }
+    pub fn with_rotation(mut self, angle: f32) -> Self {
+        self.set_rotation(angle);
+        self
     }
 
     pub fn collisions(&self) -> &[CollisionInfo] {

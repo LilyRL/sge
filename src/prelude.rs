@@ -11,6 +11,7 @@ pub use bevy_math::{
 pub use glium::winit::dpi::{LogicalSize, PhysicalSize};
 pub use glium::winit::event::MouseButton;
 pub use glium::winit::keyboard::{Key, KeyCode, NamedKey};
+pub use glium::winit::monitor::MonitorHandle;
 pub use glium::{
     draw_parameters::PolygonMode,
     glutin::{
@@ -32,12 +33,13 @@ pub use sge_animation::*;
 pub use sge_api::area::AreaExt;
 pub use sge_api::shapes_2d::*;
 pub use sge_api::{Drawable, draw, draw_world};
+pub use sge_camera::controllers::first_person::FirstPersonCameraController;
 pub use sge_camera::controllers::orbit::OrbitCameraController;
 pub use sge_camera::controllers::pan::PanningCameraController;
 pub use sge_camera::controllers::shake::CameraShakeController;
 pub use sge_camera::{
-    camera2d_zoom_at, cameras_for_resolution, get_camera_2d, get_camera_3d, get_flat_projection,
-    mutate_camera_2d, mutate_camera_3d, screen_to_world, world_to_screen,
+    camera2d_zoom_at, cameras_for_resolution, get_camera_2d, get_camera_2d_mut, get_camera_3d,
+    get_camera_3d_mut, get_flat_projection, screen_to_world, world_to_screen,
 };
 pub use sge_color::schemes::ColorScheme;
 pub use sge_color::{self as color, Color, Palette};
@@ -104,9 +106,25 @@ pub use sge_types::{
 };
 pub use sge_utils::RotatingArray;
 pub use sge_window::{
-    SgeDisplay, WindowCreationError, WindowOptions, WindowState, dpi_scaling, get_display,
-    get_display_mut, get_window_state, max_window_dimension, min_window_dimension, window_center,
-    window_height, window_size, window_size_u32, window_width,
+    SgeDisplay, WindowCreationError, WindowOptions, WindowState, availible_monitors,
+    current_monitor, dpi_scaling, fullscreen, get_display, get_display_mut, get_window_state,
+    grab_cursor, has_focus, is_decorated, max_window_dimension, min_window_dimension,
+    release_cursor, set_cursor_grab, set_cursor_visible, set_decorations,
+    set_window_content_protected, set_window_cursor_hittest, set_window_icon, set_window_level,
+    set_window_theme, use_alias_cursor_icon, use_all_resize_cursor_icon,
+    use_all_scroll_cursor_icon, use_cell_cursor_icon, use_col_resize_cursor_icon,
+    use_context_menu_cursor_icon, use_copy_cursor_icon, use_crosshair_cursor_icon, use_cursor_icon,
+    use_default_cursor_icon, use_dnd_ask_cursor_icon, use_e_resize_cursor_icon,
+    use_ew_resize_cursor_icon, use_grab_cursor_icon, use_grabbing_cursor_icon,
+    use_help_cursor_icon, use_move_cursor_icon, use_n_resize_cursor_icon,
+    use_ne_resize_cursor_icon, use_nesw_resize_cursor_icon, use_no_drop_cursor_icon,
+    use_not_allowed_cursor_icon, use_ns_resize_cursor_icon, use_nw_resize_cursor_icon,
+    use_nwse_resize_cursor_icon, use_pointer_cursor_icon, use_progress_cursor_icon,
+    use_row_resize_cursor_icon, use_s_resize_cursor_icon, use_se_resize_cursor_icon,
+    use_sw_resize_cursor_icon, use_text_cursor_icon, use_vertical_text_cursor_icon,
+    use_w_resize_cursor_icon, use_wait_cursor_icon, use_zoom_in_cursor_icon,
+    use_zoom_out_cursor_icon, window_center, window_height, window_size, window_size_u32,
+    window_theme, window_title, window_width,
 };
 pub use si;
 pub mod graph_networks {

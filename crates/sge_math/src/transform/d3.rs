@@ -58,8 +58,8 @@ impl Transform3D {
         mirror_count % 2 == 1
     }
 
-    pub fn desired_culling_mode(&self) -> BackfaceCullingMode {
-        if self.should_flip_culling() {
+    pub fn desired_culling_mode(&self, flip: bool) -> BackfaceCullingMode {
+        if self.should_flip_culling() ^ flip {
             glium::draw_parameters::BackfaceCullingMode::CullCounterClockwise
         } else {
             glium::draw_parameters::BackfaceCullingMode::CullClockwise

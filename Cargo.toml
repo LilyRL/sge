@@ -74,7 +74,6 @@ include_assets = { version = "0.1.0", path = "crates/include_assets" }
 persistence = { version = "0.1.0", path = "crates/persistence" }
 sge_graph_networks = { version = "0.1.0", path = "crates/sge_graph_networks" }
 sge_routines = { version = "0.1.0", path = "crates/sge_routines" }
-feature_gated = { version = "0.1.0", path = "crates/feature_gated" }
 heck = "0.5.0"
 proc-macro-crate = "3.5.0"
 ron = "0.12.0"

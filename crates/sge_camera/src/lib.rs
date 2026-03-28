@@ -18,8 +18,7 @@ pub struct Cameras {
 impl Cameras {
     pub fn set_flip_y(&mut self, value: bool) {
         self.flip_y = value;
-        self.d2.flip_y = value;
-        self.d2.mark_dirty();
+        self.d2.set_flip_y(value);
     }
 }
 
@@ -65,16 +64,6 @@ pub fn get_camera_3d_mut() -> &'static mut Camera3D {
 
 pub fn get_camera_2d_mut() -> &'static mut Camera2D {
     &mut get_cameras().d2
-}
-
-pub fn mutate_camera_2d<T: FnOnce(&'static mut Camera2D)>(f: T) {
-    f(get_camera_2d_mut());
-    get_camera_2d_mut().mark_dirty();
-}
-
-pub fn mutate_camera_3d<T: FnOnce(&'static mut Camera3D)>(f: T) {
-    f(get_camera_3d_mut());
-    get_camera_3d_mut().mark_dirty();
 }
 
 pub fn camera2d_zoom_at(screen_pos: Vec2, zoom_factor: f32) {

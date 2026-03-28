@@ -47,7 +47,7 @@ impl DrawQueue3D {
             material.set_float("delta_time", delta_time);
             material.set_float("random", random_number);
             material.set_vec2("screen_size", screen_size);
-            material.set_vec3("camera_pos", get_camera_3d().eye);
+            material.set_vec3("camera_pos", get_camera_3d().eye());
         };
 
         let draw_object = |frame: &mut T, object: &mut Object3D, transform: Transform3D| {
@@ -56,7 +56,7 @@ impl DrawQueue3D {
             let program = material.program.get();
 
             let default_params = DrawParameters {
-                backface_culling: object.transform.desired_culling_mode(),
+                backface_culling: object.transform.desired_culling_mode(object.flip_normals),
                 ..params.clone()
             };
             let params = object

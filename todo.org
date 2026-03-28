@@ -48,11 +48,11 @@
   - [ ] custom
 - [ ] coroutines, some kind of future management so that the user can ask to run some code at the end of the frame, in some number of frames, after some time, or when something next happens
 - [ ] crates.io
-- [-] macro based wrappers around structs for persistent (fs) storage and network sync
+- [X] macro based wrappers around structs for persistent (fs) storage and network sync
   - [X] fs
     - [X] implement macro
     - [X] add support for engine types
-  - [ ] network
+  - [X] network
 - [ ] fs/network functions sync/async that taps into the async runtime being worked on
 - [ ] make the ui more performant
 - [ ] re-add profiling

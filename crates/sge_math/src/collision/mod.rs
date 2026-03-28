@@ -79,7 +79,7 @@ impl Aabb2d {
         let camera = get_camera_2d_mut();
         let (view_min, view_max) = camera.visible_bounds();
 
-        let margin = window_height().max(window_width()) / camera.scale;
+        let margin = window_height().max(window_width()) / camera.scale();
         let view_bounds = Aabb2d::new(
             view_min - Vec2::splat(margin),
             view_max + Vec2::splat(margin),

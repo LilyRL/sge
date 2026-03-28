@@ -93,6 +93,7 @@ pub fn create_infinite_grid() -> Result<Object3DRef, GridCreationError> {
         .create(),
         material,
         transform: Transform3D::IDENTITY,
+        flip_normals: false,
     };
 
     Ok(object.create())
@@ -130,7 +131,7 @@ fn draw_grid(min: Vec2, max: Vec2, scale: f32, alpha: f32, thickness_mult: f32, 
     let tl = (min / scale).floor() * scale;
 
     let faded = Color::from_rgba(color.r, color.g, color.b, color.a * alpha);
-    let thickness = thickness_mult / get_camera_2d().scale;
+    let thickness = thickness_mult / get_camera_2d().scale();
 
     for x in 0..width {
         let x = x as f32 * scale + tl.x;

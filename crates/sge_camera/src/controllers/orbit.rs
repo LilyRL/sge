@@ -2,7 +2,7 @@ use bevy_math::{Vec2, Vec3};
 use glium::winit::event::MouseButton;
 use sge_input::get_input;
 
-use crate::mutate_camera_3d;
+use crate::get_camera_3d_mut;
 
 pub struct OrbitCameraController {
     pub target: Vec3,
@@ -127,10 +127,9 @@ impl OrbitCameraController {
         let y = self.distance * self.phi.cos();
         let z = self.distance * self.phi.sin() * self.theta.sin();
 
-        mutate_camera_3d(|camera| {
-            camera.eye = Vec3::new(x, y, z) + self.target;
-            camera.target = self.target;
-        });
+        let camera = get_camera_3d_mut();
+        *camera.eye_mut() = Vec3::new(x, y, z) + self.target;
+        *camera.target_mut() = self.target;
     }
 
     pub fn get_camera_position(&self) -> Vec3 {
