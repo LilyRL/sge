@@ -9,6 +9,7 @@ const PLAYER_TURN_SPEED: f32 = 0.1;
 const PLAYER_SIZE: f32 = 10.0;
 const FG: Color = Color::NEUTRAL_100;
 const BG: Color = Color::NEUTRAL_950;
+const RED: Color = Color::RED_500;
 const PLAYER_LIN_DECEL: f32 = 0.9;
 const PLAYER_ANG_DECEL: f32 = 0.9;
 const LINE_THICKNESS: f32 = 1.0;
@@ -75,9 +76,14 @@ impl State {
         for (bi, bullet) in self.player.bullets.iter().enumerate() {
             for asteroid in self.asteroids.iter_mut() {
                 let dist = bullet.pos.distance(asteroid.pos);
-                if dist <= asteroid.radius + BULLET_RADIUS {
+                if dist <= asteroid.radius + BULLET_RADIUS && asteroid.health != 0 {
+                    let impact_dir = (bullet.pos - asteroid.pos).normalize_or_zero();
+                    spawn_hit_particles(bullet.pos, impact_dir);
                     asteroid.health = asteroid.health.saturating_sub(1);
                     asteroid.last_hit = time();
+                    if asteroid.health == 0 {
+                        spawn_death_particles(asteroid.pos, asteroid.radius);
+                    }
                     bullets_to_remove.push(bi);
                     break;
                 }
@@ -105,12 +111,18 @@ impl State {
                 if dist <= asteroid.radius + PLAYER_SIZE {
                     self.player.health = self.player.health.saturating_sub(1);
                     self.player.last_hit = now;
+
+                    if self.player.health == 0 {
+                        play_sound(get_sounds().game_over);
+                    } else {
+                        play_sound(get_sounds().player_hit);
+                    }
                     break;
                 }
             }
         }
 
-        if rand_ratio(1, 1000) {
+        if rand_ratio(1, 100) {
             self.asteroids.push(Asteroid::new());
         }
     }
@@ -201,7 +213,7 @@ impl Player {
                 Vec2::splat(LINE_THICKNESS * 1.5),
                 FG,
             ))
-            .end_color(Color::RED_500.with_alpha(0.0))
+            .end_color(RED.with_alpha(0.0))
             .speed(self.speed * 0.8)
             .direction(-self.rotation - FRAC_PI_2)
             .direction_randomness(0.2)
@@ -221,6 +233,10 @@ impl Player {
         if action_held(UP) {
             self.speed += PLAYER_ACCEL;
             self.emit_movement_particles();
+
+            if once_per_n_seconds(0.1) {
+                play_sound_ex(get_sounds().engine).volume(0.1).start();
+            }
         }
 
         if action_held(DOWN) {
@@ -236,6 +252,7 @@ impl Player {
         }
 
         if action_pressed(SHOOT) {
+            play_sound(get_sounds().shoot);
             let tip = self.pos + vec2(0.0, PLAYER_SIZE).rotated_around_origin(-self.rotation);
             self.bullets
                 .push(Bullet::new(tip, self.rotation, self.vel()));
@@ -259,8 +276,6 @@ impl Player {
     }
 
     fn draw(&self) {
-        self.draw_healthbar();
-
         for bullet in &self.bullets {
             bullet.draw();
         }
@@ -272,12 +287,18 @@ impl Player {
         let right_wing = c + vec2(PLAYER_SIZE, -PLAYER_SIZE);
 
         let now = time();
-        let blink_on = ((now - self.last_hit) * 10.0) as i32 % 2 == 0;
-        let color = if now - self.last_hit < PLAYER_INVINCIBILITY_DURATION && blink_on {
+        let time = (now - self.last_hit) * 10.0;
+        let blink_on = time as i32 % 2 == 0;
+        let currently_invincible = now - self.last_hit < PLAYER_INVINCIBILITY_DURATION;
+        let color = if currently_invincible && blink_on {
             FG.with_alpha(0.3)
         } else {
             FG
         };
+
+        if currently_invincible && blink_on {
+            vignette_screen(RED, 0.5);
+        }
 
         draw_circle_path_world(
             &[tip, left_wing, elbow, right_wing, tip]
@@ -285,6 +306,8 @@ impl Player {
             LINE_THICKNESS,
             color,
         );
+
+        self.draw_healthbar();
     }
 
     fn draw_healthbar(&self) {
@@ -372,33 +395,33 @@ impl Asteroid {
     }
 }
 
-fn wrap_position(pos: Vec2, size: f32) -> Vec2 {
-    let half_w = screen_distance_to_world(window_width()) / 2.0 + size;
-    let half_h = screen_distance_to_world(window_height()) / 2.0 + size;
+struct Sounds {
+    shoot: SoundRef,
+    asteroid_hit: SoundRef,
+    asteroid_death: SoundRef,
+    player_hit: SoundRef,
+    game_over: SoundRef,
+    engine: SoundRef,
+}
 
-    let x = if pos.x > half_w {
-        -half_w
-    } else if pos.x < -half_w {
-        half_w
-    } else {
-        pos.x
-    };
-
-    let y = if pos.y > half_h {
-        -half_h
-    } else if pos.y < -half_h {
-        half_h
-    } else {
-        pos.y
-    };
-
-    Vec2::new(x, y)
+impl Sounds {
+    fn new() -> Result<Self, SoundLoadError> {
+        Ok(Self {
+            shoot: include_sound!("../assets/sounds/Gun.wav")?,
+            asteroid_hit: include_sound!("../assets/sounds/Click.wav")?,
+            asteroid_death: include_sound!("../assets/sounds/Explosion.wav")?,
+            player_hit: include_sound!("../assets/sounds/Hurt.wav")?,
+            game_over: include_sound!("../assets/sounds/Powerdown.wav")?,
+            engine: include_sound!("../assets/sounds/Crunch.wav")?,
+        })
+    }
 }
 
 fn main() -> anyhow::Result<()> {
     init("Space game")?;
 
     storage_store_state(ParticleSystem::new());
+    storage_store_state(Sounds::new()?);
 
     bind! {
         UP => KeyCode::ArrowUp;
@@ -438,4 +461,72 @@ fn main() -> anyhow::Result<()> {
 
 fn get_particles() -> &'static mut ParticleSystem {
     storage_get_state_mut()
+}
+
+fn get_sounds() -> &'static Sounds {
+    storage_get_state()
+}
+
+fn spawn_hit_particles(pos: Vec2, impact_dir: Vec2) {
+    play_sound(get_sounds().asteroid_hit);
+    let batch = ParticleBatch::builder()
+        .shape(Circle::new(
+            Vec2::ZERO,
+            Vec2::splat(LINE_THICKNESS * 1.5),
+            FG.with_alpha(0.5),
+        ))
+        .end_color(FG.with_alpha(0.0))
+        .speed(3.0)
+        .direction(impact_dir.to_angle())
+        .direction_randomness(1.5)
+        .speed_randomness(2.0)
+        .lifetime(0.4)
+        .lifetime_randomness(0.2)
+        .quantity(8)
+        .build();
+    get_particles().spawn_batch(&batch, pos);
+}
+
+fn spawn_death_particles(pos: Vec2, radius: f32) {
+    play_sound(get_sounds().asteroid_death);
+    let batch = ParticleBatch::builder()
+        .shape(Circle::new(
+            Vec2::ZERO,
+            Vec2::splat(LINE_THICKNESS * 2.0),
+            FG.with_alpha(0.7),
+        ))
+        .end_color(FG.with_alpha(0.0))
+        .speed(radius * 0.1)
+        .direction(0.0)
+        .direction_randomness(std::f32::consts::TAU)
+        .speed_randomness(radius * 0.2)
+        .lifetime(0.8)
+        .lifetime_randomness(0.4)
+        .quantity((radius * 1.5) as usize)
+        .position_randomness(Vec2::splat(radius * 0.5))
+        .build();
+    get_particles().spawn_batch(&batch, pos);
+}
+
+fn wrap_position(pos: Vec2, size: f32) -> Vec2 {
+    let half_w = screen_distance_to_world(window_width()) / 2.0 + size;
+    let half_h = screen_distance_to_world(window_height()) / 2.0 + size;
+
+    let x = if pos.x > half_w {
+        -half_w
+    } else if pos.x < -half_w {
+        half_w
+    } else {
+        pos.x
+    };
+
+    let y = if pos.y > half_h {
+        -half_h
+    } else if pos.y < -half_h {
+        half_h
+    } else {
+        pos.y
+    };
+
+    Vec2::new(x, y)
 }

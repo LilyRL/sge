@@ -220,8 +220,8 @@ pub use audio::*;
 #[cfg(feature = "audio")]
 mod audio {
     pub use sge_audio::{
-        Sound, SoundBuilder, SoundLoadError, SoundRef, load_sound, load_sound_from_bytes,
-        play_sound, play_sound_ex, rodio,
+        Sound, SoundBuilder, SoundLoadError, SoundRef, include_sound, load_sound,
+        load_sound_from_bytes, play_sound, play_sound_ex, rodio,
         rodio::BitDepth,
         rodio::source::{
             AutomaticGainControlSettings, LimitSettings, dither::Algorithm as DitherAlgorithm,

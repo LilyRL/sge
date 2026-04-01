@@ -568,7 +568,6 @@ uniform sampler2D tex;
 uniform vec4 vignette_color;
 uniform float vignette_intensity;
 uniform vec2 screen_size;
-
 const float BAYER_8X8[64] = float[64](
      0.0/64.0, 32.0/64.0,  8.0/64.0, 40.0/64.0,  2.0/64.0, 34.0/64.0, 10.0/64.0, 42.0/64.0,
     48.0/64.0, 16.0/64.0, 56.0/64.0, 24.0/64.0, 50.0/64.0, 18.0/64.0, 58.0/64.0, 26.0/64.0,
@@ -579,21 +578,29 @@ const float BAYER_8X8[64] = float[64](
     15.0/64.0, 47.0/64.0,  7.0/64.0, 39.0/64.0, 13.0/64.0, 45.0/64.0,  5.0/64.0, 37.0/64.0,
     63.0/64.0, 31.0/64.0, 55.0/64.0, 23.0/64.0, 61.0/64.0, 29.0/64.0, 53.0/64.0, 21.0/64.0
 );
-
 void main() {
     vec4 tex_color = texture(tex, v_tex_coords);
     vec2 center = vec2(0.5, 0.5);
     float dist = distance(v_tex_coords, center);
-
     float outer = 0.5 + (1.0 - vignette_intensity) * 0.5;
     float inner = outer * 0.5;
     float vignette = smoothstep(outer, inner, dist);
 
+    // Blend the two colours at the integer level
+    vec4 blended = mix(vignette_color, tex_color, vignette);
+
+    // Quantise to the number of representable steps per channel (8-bit = 255)
+    float levels = 255.0;
+    vec4 lo = floor(blended * levels) / levels;
+    vec4 hi = ceil(blended * levels) / levels;
+
+    // The fractional part is how far between lo and hi we are — dither that remainder
+    vec4 frac_part = (blended - lo) * levels;
     ivec2 pixel = ivec2(gl_FragCoord.xy) % 8;
     float threshold = BAYER_8X8[pixel.y * 8 + pixel.x];
-    vignette = step(threshold, vignette);
+    vec4 dithered = mix(lo, hi, step(threshold, frac_part));
 
-    color = mix(vignette_color, tex_color, vignette);
+    color = dithered;
 }
 "#;
 

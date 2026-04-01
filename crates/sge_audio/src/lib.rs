@@ -307,3 +307,10 @@ impl<S: Source<Item = f32> + Send + 'static> SoundBuilder<S> {
         }
     }
 }
+
+#[macro_export]
+macro_rules! include_sound {
+    ($path: literal) => {
+        ::sge::prelude::load_sound_from_bytes(include_bytes!($path))
+    };
+}
