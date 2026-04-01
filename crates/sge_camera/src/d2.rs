@@ -297,6 +297,11 @@ impl Camera2D {
         self.translation
     }
 
+    pub fn set_translation(&mut self, translation: Vec2) {
+        self.translation = translation;
+        self.mark_dirty();
+    }
+
     pub fn translation_mut(&mut self) -> &mut Vec2 {
         self.mark_dirty();
         &mut self.translation
@@ -328,6 +333,7 @@ impl Camera2D {
         if self.flip_y != flip {
             self.flip_y = flip;
             self.mark_dirty();
+            self.update_matrices();
         }
     }
 }

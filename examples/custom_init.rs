@@ -46,7 +46,7 @@ fn main() -> anyhow::Result<()> {
         obj.circle.center += obj.velocity * physics_delta_time();
         dbg!(obj.circle.center);
 
-        draw(obj.circle);
+        draw(&obj.circle);
         draw_fps();
 
         if should_quit() {

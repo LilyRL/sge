@@ -39,6 +39,11 @@ pub fn rand_usize() -> usize {
     get_random().rng.random::<u64>() as usize
 }
 
+/// generates f32 between -1 and 1
+pub fn rand_f32() -> f32 {
+    get_random().rng.random_range(-1.0..1.0)
+}
+
 /// Return a bool with a probability `p` of being true.
 pub fn rand_bool(p: f64) -> bool {
     get_random().rng.random_bool(p)

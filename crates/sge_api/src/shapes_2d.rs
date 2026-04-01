@@ -418,6 +418,15 @@ draw_variants! {
 }
 
 draw_variants! {
+    fn circle_path(points: &[Vec2], thickness: f32, color: Color) [renderer] {
+        for point in points {
+            draw_circle_to(*point, thickness / 2.0, color, renderer);
+        }
+        draw_path_to(points, thickness, color, renderer);
+    }
+}
+
+draw_variants! {
     fn arrow(start: Vec2, end: Vec2, thickness: f32, color: Color) [renderer] {
         let dir = (end - start).normalize();
         let perp = Vec2::new(-dir.y, dir.x);
@@ -585,13 +594,13 @@ draw_variants! {
 
 draw_variants! {
     fn rounded_rect(top_left: Vec2, size: Vec2, color: Color, corner_radius: f32) [renderer] {
-        draw_shape_to(&RoundedRectangle::new(top_left, size, color, corner_radius), renderer);
+        draw_to(&RoundedRectangle::new(top_left, size, color, corner_radius), renderer);
     }
 }
 
 draw_variants! {
     fn rounded_square(top_left: Vec2, size: f32, color: Color, corner_radius: f32) [renderer] {
-        draw_shape_to(&RoundedRectangle::new(top_left, Vec2::splat(size), color, corner_radius), renderer);
+        draw_to(&RoundedRectangle::new(top_left, Vec2::splat(size), color, corner_radius), renderer);
     }
 }
 
@@ -605,7 +614,7 @@ draw_variants! {
                 outline_thickness, outline_color }.draw_to(renderer);
         }
         world(renderer) {
-            draw_shape_to(&RoundedRectangle { top_left, size, fill_color: color, corner_radius,
+            draw_to(&RoundedRectangle { top_left, size, fill_color: color, corner_radius,
                 outline_thickness, outline_color }, renderer);
         }
     }
@@ -885,18 +894,6 @@ macro_rules! gen_radial_gradient_variants {
 }
 
 gen_radial_gradient_variants!();
-
-pub fn draw_shape(shape: &impl Shape2DExt) {
-    shape.draw();
-}
-
-pub fn draw_shape_world(shape: &impl Shape2DExt) {
-    shape.draw_world();
-}
-
-pub fn draw_shape_to(shape: &impl Shape2DExt, renderer: Renderer2D) {
-    shape.draw_to(renderer);
-}
 
 pub trait ToCollider<T> {
     fn to_collider(&self) -> T;

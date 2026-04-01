@@ -31,11 +31,91 @@ pub use log::{self, Level, LevelFilter, debug, error, info, trace, warn};
 pub use persistence::{Error as PersistenceError, persistent, rkyv};
 pub use sge_animation::*;
 pub use sge_api::area::AreaExt;
-pub use sge_api::shapes_2d::*;
+pub use sge_api::shapes_2d::{
+    ToCollider, draw_arrow, draw_arrow_to, draw_arrow_world, draw_capped_line, draw_capped_line_to,
+    draw_capped_line_world, draw_circle, draw_circle_line, draw_circle_line_to,
+    draw_circle_line_world, draw_circle_outline, draw_circle_outline_to, draw_circle_outline_world,
+    draw_circle_path, draw_circle_path_to, draw_circle_path_world, draw_circle_to,
+    draw_circle_with_outline, draw_circle_with_outline_to, draw_circle_with_outline_world,
+    draw_circle_world, draw_connected_path, draw_connected_path_to, draw_connected_path_world,
+    draw_custom_shape, draw_custom_shape_outline, draw_custom_shape_outline_to,
+    draw_custom_shape_outline_world, draw_custom_shape_to, draw_custom_shape_with_outline,
+    draw_custom_shape_with_outline_to, draw_custom_shape_with_outline_world,
+    draw_custom_shape_world, draw_ellipse, draw_ellipse_outline, draw_ellipse_outline_to,
+    draw_ellipse_outline_world, draw_ellipse_to, draw_ellipse_with_outline,
+    draw_ellipse_with_outline_to, draw_ellipse_with_outline_world, draw_ellipse_world,
+    draw_gradient_path, draw_gradient_path_to, draw_gradient_path_world, draw_half_capped_line,
+    draw_half_capped_line_to, draw_half_capped_line_world, draw_hexagon, draw_hexagon_outline,
+    draw_hexagon_outline_to, draw_hexagon_outline_world, draw_hexagon_pointy,
+    draw_hexagon_pointy_outline, draw_hexagon_pointy_outline_to, draw_hexagon_pointy_outline_world,
+    draw_hexagon_pointy_to, draw_hexagon_pointy_with_outline, draw_hexagon_pointy_with_outline_to,
+    draw_hexagon_pointy_with_outline_world, draw_hexagon_pointy_world, draw_hexagon_to,
+    draw_hexagon_with_outline, draw_hexagon_with_outline_to, draw_hexagon_with_outline_world,
+    draw_hexagon_world, draw_line, draw_line_gradient, draw_line_gradient_ex,
+    draw_line_gradient_ex_to, draw_line_gradient_ex_world, draw_line_gradient_to,
+    draw_line_gradient_world, draw_line_rotation, draw_line_rotation_to, draw_line_rotation_world,
+    draw_line_to, draw_line_world, draw_path, draw_path_to, draw_path_world, draw_poly,
+    draw_poly_outline, draw_poly_outline_to, draw_poly_outline_world, draw_poly_to,
+    draw_poly_with_outline, draw_poly_with_outline_to, draw_poly_with_outline_world,
+    draw_poly_world, draw_radial_gradient, draw_radial_gradient_circle,
+    draw_radial_gradient_circle_offset, draw_radial_gradient_circle_offset_to,
+    draw_radial_gradient_circle_offset_world, draw_radial_gradient_circle_to,
+    draw_radial_gradient_circle_with_outline, draw_radial_gradient_circle_with_outline_offset,
+    draw_radial_gradient_circle_with_outline_offset_to,
+    draw_radial_gradient_circle_with_outline_offset_world,
+    draw_radial_gradient_circle_with_outline_to, draw_radial_gradient_circle_with_outline_world,
+    draw_radial_gradient_circle_world, draw_radial_gradient_ellipse,
+    draw_radial_gradient_ellipse_offset, draw_radial_gradient_ellipse_offset_to,
+    draw_radial_gradient_ellipse_offset_world, draw_radial_gradient_ellipse_to,
+    draw_radial_gradient_ellipse_with_outline, draw_radial_gradient_ellipse_with_outline_offset,
+    draw_radial_gradient_ellipse_with_outline_offset_to,
+    draw_radial_gradient_ellipse_with_outline_offset_world,
+    draw_radial_gradient_ellipse_with_outline_to, draw_radial_gradient_ellipse_with_outline_world,
+    draw_radial_gradient_ellipse_world, draw_radial_gradient_to, draw_radial_gradient_world,
+    draw_rect, draw_rect_gradient, draw_rect_gradient_horizontal, draw_rect_gradient_horizontal_to,
+    draw_rect_gradient_horizontal_world, draw_rect_gradient_tl_br, draw_rect_gradient_tl_br_to,
+    draw_rect_gradient_tl_br_world, draw_rect_gradient_to, draw_rect_gradient_tr_bl,
+    draw_rect_gradient_tr_bl_to, draw_rect_gradient_tr_bl_world, draw_rect_gradient_vertical,
+    draw_rect_gradient_vertical_to, draw_rect_gradient_vertical_world, draw_rect_gradient_world,
+    draw_rect_outline, draw_rect_outline_rotation, draw_rect_outline_rotation_to,
+    draw_rect_outline_rotation_world, draw_rect_outline_to, draw_rect_outline_world,
+    draw_rect_rotation, draw_rect_rotation_to, draw_rect_rotation_world, draw_rect_to,
+    draw_rect_with_outline, draw_rect_with_outline_rotation, draw_rect_with_outline_rotation_to,
+    draw_rect_with_outline_rotation_world, draw_rect_with_outline_to, draw_rect_with_outline_world,
+    draw_rect_world, draw_right_angled_arrow, draw_right_angled_arrow_to,
+    draw_right_angled_arrow_world, draw_right_angled_sharp_arrow, draw_right_angled_sharp_arrow_to,
+    draw_right_angled_sharp_arrow_world, draw_right_angled_solid_arrow,
+    draw_right_angled_solid_arrow_to, draw_right_angled_solid_arrow_world, draw_rounded_rect,
+    draw_rounded_rect_to, draw_rounded_rect_with_outline, draw_rounded_rect_with_outline_to,
+    draw_rounded_rect_with_outline_world, draw_rounded_rect_world, draw_rounded_square,
+    draw_rounded_square_to, draw_rounded_square_world, draw_sharp_arrow, draw_sharp_arrow_to,
+    draw_sharp_arrow_world, draw_solid_arrow, draw_solid_arrow_to, draw_solid_arrow_world,
+    draw_square, draw_square_gradient_all, draw_square_gradient_all_to,
+    draw_square_gradient_all_world, draw_square_gradient_horizontal,
+    draw_square_gradient_horizontal_to, draw_square_gradient_horizontal_world,
+    draw_square_gradient_tl_br, draw_square_gradient_tl_br_to, draw_square_gradient_tl_br_world,
+    draw_square_gradient_tr_bl, draw_square_gradient_tr_bl_to, draw_square_gradient_tr_bl_world,
+    draw_square_gradient_vertical, draw_square_gradient_vertical_to,
+    draw_square_gradient_vertical_world, draw_square_outline, draw_square_outline_rotation,
+    draw_square_outline_rotation_to, draw_square_outline_rotation_world, draw_square_outline_to,
+    draw_square_outline_world, draw_square_rotation, draw_square_rotation_to,
+    draw_square_rotation_world, draw_square_to, draw_square_with_outline,
+    draw_square_with_outline_rotation, draw_square_with_outline_rotation_to,
+    draw_square_with_outline_rotation_world, draw_square_with_outline_to,
+    draw_square_with_outline_world, draw_square_world, draw_tri, draw_tri_outline,
+    draw_tri_outline_rotation, draw_tri_outline_rotation_to, draw_tri_outline_rotation_world,
+    draw_tri_outline_to, draw_tri_outline_world, draw_tri_rotation, draw_tri_rotation_to,
+    draw_tri_rotation_world, draw_tri_to, draw_tri_with_outline, draw_tri_with_outline_rotation,
+    draw_tri_with_outline_rotation_to, draw_tri_with_outline_rotation_world,
+    draw_tri_with_outline_to, draw_tri_with_outline_world, draw_tri_world, draw_triangle_gradient,
+    draw_triangle_gradient_to, draw_triangle_gradient_world, draw_zig_zag, draw_zig_zag_ex,
+    draw_zig_zag_ex_to, draw_zig_zag_ex_world, draw_zig_zag_to, draw_zig_zag_world,
+};
 pub use sge_api::{Drawable, draw, draw_world};
 pub use sge_camera::{
     camera2d_zoom_at, cameras_for_resolution, get_camera_2d, get_camera_2d_mut, get_camera_3d,
-    get_camera_3d_mut, get_flat_projection, screen_to_world, world_to_screen,
+    get_camera_3d_mut, get_flat_projection, screen_distance_to_world, screen_to_world,
+    world_distance_to_screen, world_to_screen,
 };
 pub use sge_camera_controllers::first_person::FirstPersonCameraController;
 pub use sge_camera_controllers::orbit::OrbitCameraController;
@@ -87,7 +167,10 @@ pub use sge_rendering::scissor::{
     clear_scissor_stack, current_scissor, get_scissor_stack, pop_scissor, push_scissor,
 };
 pub use sge_rendering::shapes_3d::*;
-pub use sge_rng::{rand, rand_bool, rand_color, rand_range, rand_ratio, rand_usize};
+pub use sge_rng::{
+    const_random, get_next_counter, get_random, id, rand, rand_bool, rand_color, rand_f32,
+    rand_range, rand_ratio, rand_usize, rand_vec2, rand_vec3, rand_vec4,
+};
 pub use sge_shapes::d2::*;
 pub use sge_texture_atlas::{
     LoadImageError, Sprite, SpriteKey, TextureAtlas, TextureAtlasRef, create_spritesheet,
@@ -159,14 +242,13 @@ pub use input::*;
 pub mod input {
     pub use sge_input::{
         Action, Button, Input, action_held, action_pressed, action_pressed_os, action_released,
-        bind, bind_button, bind_key, bind_mouse, button_held, button_pressed, button_released,
-        close_requested, cursor, cursor_diff, cursor_movements, cursor_prev, destroyed,
-        dropped_file, gamepad::GamepadExt, get_all_binds, get_binding, get_input, get_key_binding,
-        get_mouse_binding, held_alt, held_control, held_shift, input_text, key_held,
-        key_held_logical, key_pressed, key_pressed_logical, key_pressed_os, key_pressed_os_logical,
-        key_released, key_released_logical, keys::KeyToString, last_cursor_pos, mouse_diff,
-        mouse_held, mouse_pressed, mouse_released, resolution, scale_factor, scale_factor_changed,
-        scroll_diff, should_quit, window_resized,
+        bind, button_held, button_pressed, button_released, close_requested, cursor, cursor_diff,
+        cursor_movements, cursor_prev, destroyed, dropped_file, gamepad::GamepadExt, get_all_binds,
+        held_alt, held_control, held_shift, input_text, key_held, key_held_logical, key_pressed,
+        key_pressed_logical, key_pressed_os, key_pressed_os_logical, key_released,
+        key_released_logical, keys::KeyToString, last_cursor_pos, mouse_diff, mouse_held,
+        mouse_pressed, mouse_released, resolution, scale_factor, scale_factor_changed, scroll_diff,
+        should_quit, window_resized,
     };
 }
 

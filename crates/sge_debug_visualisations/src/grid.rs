@@ -110,7 +110,7 @@ pub fn draw_2d_grid_world(color: Color) {
     let (min, max) = get_camera_2d_mut().visible_bounds();
     let size = max - min;
 
-    let rough_spacing = size.x / 5.0;
+    let rough_spacing = size.x.min(size.y) / 5.0;
     let log = rough_spacing.log10();
     let large_scale = 10_f32.powi(log.ceil() as i32);
     let small_scale = 10_f32.powi(log.floor() as i32);

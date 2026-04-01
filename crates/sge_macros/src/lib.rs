@@ -114,7 +114,7 @@ pub fn bind(input: TokenStream) -> TokenStream {
         tokens = quote! {
             #tokens
 
-            ::sge::prelude::bind_button(#name, #value.into());
+            ::sge::prelude::bind(#name, #value);
         };
     }
 

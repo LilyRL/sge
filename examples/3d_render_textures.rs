@@ -45,7 +45,7 @@ fn main() -> anyhow::Result<()> {
             circle.velocity += Vec2::new(r(), r());
             circle.circle.center += circle.velocity;
             circle.circle.center %= 1000.0;
-            draw_shape(&circle.circle);
+            draw(&circle.circle);
         }
         end_rendering_to_texture();
 

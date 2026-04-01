@@ -11,12 +11,12 @@
 - [ ] space invaders using some new features
 - [ ] constant particle emitters
 - [ ] texture/atlas particles
-- [ ] have a look at texture atlasses and see if we can make somethjng good for 2d platformer levels. maybe an add colliders toggle
+- [ ] have a look at texture atlasses and see if we can make something good for 2d platformer levels. maybe an add colliders toggle
 - [ ] some kinda mf https://docs.rs/macroquad/latest/macroquad/telemetry/index.html
 - [ ] miniquad backend + web
 - [ ] bitmap fonts
 - [ ] add post frame callback
-- [ ] add mf draw wireframe and shit
+- [X] add mf draw wireframe and shit
 - [ ] examples for all the ui elements
 - [ ] fix scenes
 - [X] load_sound
@@ -169,9 +169,9 @@ fn main() {
 - [ ] player controllers
 - [ ] easy physics like godot where you can say is_on_floor is_in_air is_on_wall etc.
 - [ ] platformer example
-- [ ] input
+- [X] input
 - [ ] number input
-- [ ] slider
+- [X] slider
 - [ ] text box
 - [X] button
 - [X] align
@@ -439,19 +439,19 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord) {
 - [X] sge_api/area.rs
 - [X] sge_api/lib.rs
 - [X] sge_api/shapes_2d.rs
-- [ ] sge_audio/lib.rs
-- [ ] sge_camera/controllers/mod.rs
-- [ ] sge_camera/controllers/orbit.rs
-- [ ] sge_camera/controllers/pan.rs
-- [ ] sge_camera/controllers/shake.rs
-- [ ] sge_camera/d2.rs
-- [ ] sge_camera/d3.rs
-- [ ] sge_camera/lib.rs
-- [ ] sge_color/build.rs
-- [ ] sge_color/colors.json
-- [ ] sge_color/lib.rs
-- [ ] sge_color/schemes.rs
-- [ ] sge_color/tests.rs
+- [X] sge_audio/lib.rs
+- [X] sge_camera/controllers/mod.rs
+- [X] sge_camera/controllers/orbit.rs
+- [X] sge_camera/controllers/pan.rs
+- [X] sge_camera/controllers/shake.rs
+- [X] sge_camera/d2.rs
+- [X] sge_camera/d3.rs
+- [X] sge_camera/lib.rs
+- [X] sge_color/build.rs
+- [X] sge_color/colors.json
+- [X] sge_color/lib.rs
+- [X] sge_color/schemes.rs
+- [X] sge_color/tests.rs
 - [ ] sge_color/u8.rs
 - [ ] sge_config/lib.rs
 - [ ] sge_debug_visualisations/grid.rs

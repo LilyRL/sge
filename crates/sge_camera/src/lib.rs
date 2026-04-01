@@ -1,5 +1,5 @@
 use bevy_math::{Mat4, Vec2};
-use d2::{projection, Camera2D};
+use d2::{Camera2D, projection};
 use d3::Camera3D;
 use global::global;
 
@@ -90,4 +90,12 @@ pub fn screen_to_world(screen_pos: Vec2) -> Vec2 {
 
 pub fn world_to_screen(world_pos: Vec2) -> Vec2 {
     get_camera_2d_mut().world_to_screen(world_pos)
+}
+
+pub fn screen_distance_to_world(screen_length: f32) -> f32 {
+    get_camera_2d_mut().screen_distance_to_world(screen_length)
+}
+
+pub fn world_distance_to_screen(world_length: f32) -> f32 {
+    get_camera_2d_mut().world_distance_to_screen(world_length)
 }

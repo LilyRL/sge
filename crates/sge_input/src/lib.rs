@@ -23,7 +23,7 @@ pub mod keys;
 
 pub struct Input {
     helper: WinitInputHelper,
-    action_map: HashMap<Action, Button>,
+    action_map: HashMap<Action, Vec<Button>>,
     #[cfg(feature = "gamepad")]
     pub gamepad: Gilrs,
     last_cursor_position: Vec2,
@@ -139,79 +139,59 @@ impl Input {
         }
     }
 
-    pub fn bind_key(&mut self, action: Action, key: KeyCode) {
-        self.action_map.insert(action, key.into());
-    }
-
-    pub fn bind_mouse(&mut self, action: Action, mouse_button: MouseButton) {
-        self.action_map.insert(action, mouse_button.into());
-    }
-
-    pub fn bind_button(&mut self, action: Action, button: Button) {
-        self.action_map.insert(action, button);
-    }
-
     pub fn bind(&mut self, action: Action, button: impl Into<Button>) {
-        self.action_map.insert(action, button.into());
+        let button = button.into();
+
+        if let Some(list) = self.action_map.get_mut(&action) {
+            list.push(button);
+        } else {
+            self.action_map.insert(action, vec![button]);
+        }
     }
 
-    pub fn get_key(&self, action: Action) -> Option<&KeyCode> {
-        self.action_map.get(&action).and_then(|n| n.as_keyboard())
-    }
+    fn action_query(&self, action: Action, f: impl Fn(Button) -> bool) -> bool {
+        if let Some(buttons) = self.action_map.get(&action) {
+            for button in buttons {
+                if f(*button) {
+                    return true;
+                }
+            }
 
-    pub fn get_mouse(&self, action: Action) -> Option<&MouseButton> {
-        self.action_map.get(&action).and_then(|n| n.as_mouse())
-    }
-
-    pub fn get_button(&self, action: Action) -> Option<&Button> {
-        self.action_map.get(&action)
+            false
+        } else {
+            false
+        }
     }
 
     pub fn action_pressed(&self, action: Action) -> bool {
-        if let Some(button) = self.get_button(action) {
-            match button {
-                Button::Keyboard(key) => self.key_pressed(*key),
-                Button::Mouse(button) => self.mouse_pressed(*button),
-            }
-        } else {
-            false
-        }
+        self.action_query(action, |button| match button {
+            Button::Keyboard(key) => self.key_pressed(key),
+            Button::Mouse(key) => self.mouse_held(key),
+        })
     }
 
     pub fn action_pressed_os(&self, action: Action) -> bool {
-        if let Some(button) = self.get_button(action) {
-            match button {
-                Button::Keyboard(key) => self.key_pressed_os(*key),
-                Button::Mouse(button) => self.mouse_pressed(*button),
-            }
-        } else {
-            false
-        }
+        self.action_query(action, |button| match button {
+            Button::Keyboard(key) => self.key_pressed_os(key),
+            Button::Mouse(key) => self.mouse_held(key),
+        })
     }
 
     pub fn action_released(&self, action: Action) -> bool {
-        if let Some(button) = self.get_button(action) {
-            match button {
-                Button::Keyboard(key) => self.key_released(*key),
-                Button::Mouse(button) => self.mouse_released(*button),
-            }
-        } else {
-            false
-        }
+        self.action_query(action, |button| match button {
+            Button::Keyboard(key) => self.key_released(key),
+            Button::Mouse(key) => self.mouse_released(key),
+        })
     }
 
     pub fn action_held(&self, action: Action) -> bool {
-        if let Some(button) = self.get_button(action) {
-            match button {
-                Button::Keyboard(key) => self.key_held(*key),
-                Button::Mouse(button) => self.mouse_held(*button),
-            }
-        } else {
-            false
-        }
+        self.action_query(action, |button| match button {
+            Button::Keyboard(key) => self.key_held(key),
+            Button::Mouse(key) => self.mouse_held(key),
+        })
     }
 
-    pub fn get_all_binds(&self) -> &HashMap<Action, Button> {
+    pub fn get_all_binds(&self) -> &HashMap<Action, Vec<Button>> {
         &self.action_map
     }
 
@@ -483,27 +463,6 @@ pub fn action_held(action: Action) -> bool {
     get_input().action_held(action)
 }
 
-/// Binds a keyboard key to an action.
-///
-/// When the key is pressed, `action_pressed()` and related functions will return true for this action.
-pub fn bind_key(action: Action, key: KeyCode) {
-    get_input().bind_key(action, key)
-}
-
-/// Binds a mouse button to an action.
-///
-/// When the mouse button is pressed, `action_pressed()` and related functions will return true for this action.
-pub fn bind_mouse(action: Action, mouse_button: MouseButton) {
-    get_input().bind_mouse(action, mouse_button)
-}
-
-/// Binds a button (either keyboard or mouse) to an action.
-///
-/// When the button is pressed, `action_pressed()` and related functions will return true for this action.
-pub fn bind_button(action: Action, button: Button) {
-    get_input().bind_button(action, button)
-}
-
 /// Binds a button (either keyboard or mouse) to an action.
 ///
 /// When the button is pressed, `action_pressed()` and related functions will return true for this action.
@@ -511,29 +470,8 @@ pub fn bind(action: Action, button: impl Into<Button>) {
     get_input().bind(action, button)
 }
 
-/// Returns the keyboard key bound to the specified action, if any.
-///
-/// Returns None if the action is not bound or is bound to a mouse button instead.
-pub fn get_key_binding(action: Action) -> Option<&'static KeyCode> {
-    get_input().get_key(action)
-}
-
-/// Returns the mouse button bound to the specified action, if any.
-///
-/// Returns None if the action is not bound or is bound to a keyboard key instead.
-pub fn get_mouse_binding(action: Action) -> Option<&'static MouseButton> {
-    get_input().get_mouse(action)
-}
-
-/// Returns the button (keyboard or mouse) bound to the specified action, if any.
-///
-/// Returns None if the action is not bound to any button.
-pub fn get_binding(action: Action) -> Option<&'static Button> {
-    get_input().get_button(action)
-}
-
 /// Get a map of all the bindings that have been registered with the engine.
-pub fn get_all_binds() -> &'static HashMap<Action, Button> {
+pub fn get_all_binds() -> &'static HashMap<Action, Vec<Button>> {
     get_input().get_all_binds()
 }
 

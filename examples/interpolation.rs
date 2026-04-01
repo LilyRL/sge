@@ -18,7 +18,7 @@ fn main() -> anyhow::Result<()> {
         AnimationController::new(random_rect(), random_rect(), 1.0, EaseOutElastic);
 
     loop {
-        draw_shape(&animation_controller.value());
+        draw(&animation_controller.value());
 
         if animation_controller.is_complete() {
             animation_controller.now_animate_towards(random_rect());

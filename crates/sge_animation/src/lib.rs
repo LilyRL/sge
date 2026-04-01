@@ -11,7 +11,7 @@ use sge_shapes::d2::{Circle, Rect};
 use sge_time::time;
 
 pub trait Animatable {
-    fn lerp(a: Self, b: Self, progress: f32) -> Self;
+    fn interpolate(a: Self, b: Self, progress: f32) -> Self;
 }
 
 pub trait EasingFunction {
@@ -45,7 +45,7 @@ impl<T: Animatable + Copy, E: EasingFunction> AnimationController<T, E> {
         let progress = self
             .easing_function
             .progress(self.time_elapsed() / self.length);
-        T::lerp(self.start, self.end, progress)
+        T::interpolate(self.start, self.end, progress)
     }
 
     pub fn is_complete(&self) -> bool {
@@ -64,73 +64,73 @@ pub fn lerp(a: f32, b: f32, progress: f32) -> f32 {
 }
 
 impl Animatable for f32 {
-    fn lerp(a: Self, b: Self, progress: f32) -> Self {
+    fn interpolate(a: Self, b: Self, progress: f32) -> Self {
         lerp(a, b, progress)
     }
 }
 
 impl Animatable for f64 {
-    fn lerp(a: Self, b: Self, progress: f32) -> Self {
+    fn interpolate(a: Self, b: Self, progress: f32) -> Self {
         a.lerp(b, progress as f64)
     }
 }
 
 impl Animatable for u8 {
-    fn lerp(a: Self, b: Self, progress: f32) -> Self {
+    fn interpolate(a: Self, b: Self, progress: f32) -> Self {
         (a as f32).lerp(b as f32, progress) as u8
     }
 }
 
 impl Animatable for u16 {
-    fn lerp(a: Self, b: Self, progress: f32) -> Self {
+    fn interpolate(a: Self, b: Self, progress: f32) -> Self {
         (a as f32).lerp(b as f32, progress) as u16
     }
 }
 
 impl Animatable for u32 {
-    fn lerp(a: Self, b: Self, progress: f32) -> Self {
+    fn interpolate(a: Self, b: Self, progress: f32) -> Self {
         (a as f32).lerp(b as f32, progress) as u32
     }
 }
 
 impl Animatable for u64 {
-    fn lerp(a: Self, b: Self, progress: f32) -> Self {
+    fn interpolate(a: Self, b: Self, progress: f32) -> Self {
         (a as f32).lerp(b as f32, progress) as u64
     }
 }
 
 impl Animatable for usize {
-    fn lerp(a: Self, b: Self, progress: f32) -> Self {
+    fn interpolate(a: Self, b: Self, progress: f32) -> Self {
         (a as f32).lerp(b as f32, progress) as usize
     }
 }
 
 impl Animatable for Vec2 {
-    fn lerp(a: Self, b: Self, progress: f32) -> Self {
+    fn interpolate(a: Self, b: Self, progress: f32) -> Self {
         a.lerp(b, progress)
     }
 }
 
 impl Animatable for Vec3 {
-    fn lerp(a: Self, b: Self, progress: f32) -> Self {
+    fn interpolate(a: Self, b: Self, progress: f32) -> Self {
         a.lerp(b, progress)
     }
 }
 
 impl Animatable for Vec4 {
-    fn lerp(a: Self, b: Self, progress: f32) -> Self {
+    fn interpolate(a: Self, b: Self, progress: f32) -> Self {
         a.lerp(b, progress)
     }
 }
 
 impl Animatable for Color {
-    fn lerp(a: Self, b: Self, progress: f32) -> Self {
+    fn interpolate(a: Self, b: Self, progress: f32) -> Self {
         Color::from_vec4(a.to_vec4().lerp(b.to_vec4(), progress))
     }
 }
 
 impl Animatable for Transform2D {
-    fn lerp(a: Self, b: Self, progress: f32) -> Self {
+    fn interpolate(a: Self, b: Self, progress: f32) -> Self {
         let translation = a.translation().lerp(b.translation(), progress);
         let rotation = a.rotation().lerp(b.rotation(), progress);
         let scale = a.scale().lerp(b.scale(), progress);
@@ -139,7 +139,7 @@ impl Animatable for Transform2D {
 }
 
 impl Animatable for Transform3D {
-    fn lerp(a: Self, b: Self, progress: f32) -> Self {
+    fn interpolate(a: Self, b: Self, progress: f32) -> Self {
         let translation = a.translation().lerp(b.translation(), progress);
         let rotation = a.rotation().slerp(b.rotation(), progress);
         let scale = a.scale().lerp(b.scale(), progress);
@@ -148,23 +148,23 @@ impl Animatable for Transform3D {
 }
 
 impl Animatable for Quat {
-    fn lerp(a: Self, b: Self, progress: f32) -> Self {
+    fn interpolate(a: Self, b: Self, progress: f32) -> Self {
         a.slerp(b, progress)
     }
 }
 
 impl Animatable for Circle {
-    fn lerp(a: Self, b: Self, progress: f32) -> Self {
+    fn interpolate(a: Self, b: Self, progress: f32) -> Self {
         Self {
             center: Vec2::lerp(a.center, b.center, progress),
             radius: Vec2::lerp(a.radius, b.radius, progress),
-            color: Color::lerp(a.color, b.color, progress),
+            color: Color::interpolate(a.color, b.color, progress),
         }
     }
 }
 
 impl Animatable for collision::Circle {
-    fn lerp(a: Self, b: Self, progress: f32) -> Self {
+    fn interpolate(a: Self, b: Self, progress: f32) -> Self {
         Self {
             center: Vec2::lerp(a.center, b.center, progress),
             radius: a.radius.lerp(b.radius, progress),
@@ -173,18 +173,18 @@ impl Animatable for collision::Circle {
 }
 
 impl Animatable for Rect {
-    fn lerp(a: Self, b: Self, progress: f32) -> Self {
+    fn interpolate(a: Self, b: Self, progress: f32) -> Self {
         Self {
             top_left: Vec2::lerp(a.top_left, b.top_left, progress),
             size: Vec2::lerp(a.size, b.size, progress),
-            color: Color::lerp(a.color, b.color, progress),
+            color: Color::interpolate(a.color, b.color, progress),
             rot: a.rot.lerp(b.rot, progress),
         }
     }
 }
 
 impl Animatable for collision::Square {
-    fn lerp(a: Self, b: Self, progress: f32) -> Self {
+    fn interpolate(a: Self, b: Self, progress: f32) -> Self {
         Self {
             center: a.center.lerp(b.center, progress),
             half_size: a.half_size.lerp(b.half_size, progress),
@@ -193,13 +193,13 @@ impl Animatable for collision::Square {
 }
 
 impl Animatable for bevy_math::Rect {
-    fn lerp(a: Self, b: Self, progress: f32) -> Self {
+    fn interpolate(a: Self, b: Self, progress: f32) -> Self {
         Self::from_corners(a.min.lerp(b.min, progress), a.max.lerp(b.max, progress))
     }
 }
 
 impl Animatable for Aabb2d {
-    fn lerp(a: Self, b: Self, progress: f32) -> Self {
+    fn interpolate(a: Self, b: Self, progress: f32) -> Self {
         Self {
             min: Vec2::lerp(a.min, b.min, progress),
             max: Vec2::lerp(a.max, b.max, progress),
@@ -208,7 +208,7 @@ impl Animatable for Aabb2d {
 }
 
 impl Animatable for AABB3D {
-    fn lerp(a: Self, b: Self, progress: f32) -> Self {
+    fn interpolate(a: Self, b: Self, progress: f32) -> Self {
         Self {
             min: Vec3::lerp(a.min, b.min, progress),
             max: Vec3::lerp(a.max, b.max, progress),
@@ -217,17 +217,17 @@ impl Animatable for AABB3D {
 }
 
 impl<T: Animatable + Copy, const N: usize> Animatable for [T; N] {
-    fn lerp(a: Self, b: Self, progress: f32) -> Self {
-        std::array::from_fn(|i| T::lerp(a[i], b[i], progress))
+    fn interpolate(a: Self, b: Self, progress: f32) -> Self {
+        std::array::from_fn(|i| T::interpolate(a[i], b[i], progress))
     }
 }
 
 impl<T: Animatable + Default> Animatable for Option<T> {
-    fn lerp(a: Self, b: Self, progress: f32) -> Self {
+    fn interpolate(a: Self, b: Self, progress: f32) -> Self {
         match (a, b) {
-            (Some(a), Some(b)) => Some(T::lerp(a, b, progress)),
-            (None, Some(b)) => Some(T::lerp(T::default(), b, progress)),
-            (Some(a), None) => Some(T::lerp(a, T::default(), progress)),
+            (Some(a), Some(b)) => Some(T::interpolate(a, b, progress)),
+            (None, Some(b)) => Some(T::interpolate(T::default(), b, progress)),
+            (Some(a), None) => Some(T::interpolate(a, T::default(), progress)),
             (None, None) => None,
         }
     }

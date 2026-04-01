@@ -153,12 +153,12 @@ fn main() -> anyhow::Result<()> {
 
         {
             let ppos = player.controller.position();
-            let cpos = get_camera_2d().translation;
+            let cpos = get_camera_2d().translation();
             let (normal, len) = (ppos - cpos).normalize_and_length();
 
             if len > 300.0 {
                 let pos = -normal * 300.0 + ppos;
-                mutate_camera_2d(|c| c.translation = pos);
+                get_camera_2d_mut().set_translation(pos);
             }
         }
 
@@ -184,7 +184,7 @@ fn main() -> anyhow::Result<()> {
             draw_circle_world(player.controller.position(), PLAYER_RADIUS, player.color);
 
             for p in &platforms {
-                draw_world(*p);
+                draw_world(p);
             }
 
             ps.draw_world();

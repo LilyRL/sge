@@ -166,7 +166,7 @@ impl<T: Shape2DExt + 'static> ParticleBatch<T> {
             quantity_randomness: quantity_randomness.unwrap_or(0.0),
             size_randomness: size_randomness.unwrap_or(0.0),
             direction: direction.unwrap_or(0.0),
-            direction_randomness: direction_randomness.unwrap_or(TAU),
+            direction_randomness: direction_randomness.unwrap_or(0.0),
             rotation_speed: rotation_speed.unwrap_or(0.0),
             rotation_speed_randomness: rotation_speed_randomness.unwrap_or(0.0),
             speed: speed.unwrap_or(5.0),
