@@ -2,14 +2,14 @@ cargo-features = ["codegen-backend"]
 
 [package]
 name = "sge"
-version = "0.1.0"
+version = "1.0.0"
 edition = "2024"
 description = "Simple game engine"
 
 [workspace.dependencies]
 egui_plot = "0.31"
 anyhow = "1.0.100"
-sge_vectors = { path = "./crates/sge_vectors", version = "0.1.0" }
+sge_vectors = { path = "./crates/sge_vectors", version = "1.0.0" }
 bon = "3.8.1"
 bumpalo = { version = "3.19.0", features = ["collections"] }
 color-eyre = "0.6.5"
@@ -32,12 +32,12 @@ phf = { version = "0.11", features = ["macros"] }
 rand = "0.9.2"
 rapier2d = { version = "0.30.1", features = ["simd-stable"] }
 rayon = "1.11.0"
-sge_color = { path = "./crates/sge_color", version = "0.1.0" }
-sge_macros = { path = "./crates/sge_macros", version = "0.1.0" }
-sge_math = { path = "./crates/sge_math", version = "0.1.0" }
-sge_shapes = { path = "./crates/sge_shapes", version = "0.1.0" }
-sge_input = { path = "./crates/sge_input", version = "0.1.0" }
-sge_si = { path = "./crates/sge_si", version = "0.1.0" }
+sge_color = { path = "./crates/sge_color", version = "1.0.0" }
+sge_macros = { path = "./crates/sge_macros", version = "1.0.0" }
+sge_math = { path = "./crates/sge_math", version = "1.0.0" }
+sge_shapes = { path = "./crates/sge_shapes", version = "1.0.0" }
+sge_input = { path = "./crates/sge_input", version = "1.0.0" }
+sge_si = { path = "./crates/sge_si", version = "1.0.0" }
 termcolor = "1.4.1"
 thiserror = "2.0.17"
 trig-const = "0.3.0"
@@ -45,35 +45,35 @@ proc-macro2 = "1.0.106"
 quote = "1.0.45"
 syn = { version = "2.0.117", features = ["full"] }
 sge_error_union = { path = "./crates/sge_error_union" }
-sge_window = { version = "0.1.0", path = "crates/sge_window" }
-sge_config = { version = "0.1.0", path = "crates/sge_config" }
-sge_logging = { version = "0.1.0", path = "crates/sge_logging" }
-sge_camera = { version = "0.1.0", path = "crates/sge_camera" }
-sge_egui = { version = "0.1.0", path = "crates/sge_egui" }
-sge_debugging = { version = "0.1.0", path = "crates/sge_debugging" }
-sge_programs = { version = "0.1.0", path = "crates/sge_programs" }
-sge_textures = { version = "0.1.0", path = "crates/sge_textures" }
-sge_rendering = { version = "0.1.0", path = "crates/sge_rendering" }
-sge_rng = { version = "0.1.0", path = "crates/sge_rng" }
-sge_time = { version = "0.1.0", path = "crates/sge_time" }
-sge_audio = { version = "0.1.0", path = "crates/sge_audio" }
-sge_global = { version = "0.1.0", path = "crates/sge_global" }
-sge_ui = { version = "0.1.0", path = "crates/sge_ui" }
-sge_animation = { version = "0.1.0", path = "crates/sge_animation" }
-sge_debug_visualisations = { version = "0.1.0", path = "crates/sge_debug_visualisations" }
-sge_types = { version = "0.1.0", path = "crates/sge_types" }
-sge_api = { version = "0.1.0", path = "crates/sge_api" }
-sge_image = { version = "0.1.0", path = "crates/sge_image" }
-sge_physics = { version = "0.1.0", path = "crates/sge_physics" }
-sge_text = { version = "0.1.0", path = "crates/sge_text" }
-sge_texture_atlas = { version = "0.1.0", path = "crates/sge_texture_atlas" }
-sge_utils = { version = "0.1.0", path = "crates/sge_utils" }
-sge_particles = { version = "0.1.0", path = "crates/sge_particles" }
-sge_include_assets = { version = "0.1.0", path = "crates/sge_include_assets" }
-sge_persistence = { version = "0.1.0", path = "crates/sge_persistence" }
-sge_graph_networks = { version = "0.1.0", path = "crates/sge_graph_networks" }
-sge_routines = { version = "0.1.0", path = "crates/sge_routines" }
-sge_camera_controllers = { version = "0.1.0", path = "crates/sge_camera_controllers" }
+sge_window = { version = "1.0.0", path = "crates/sge_window" }
+sge_config = { version = "1.0.0", path = "crates/sge_config" }
+sge_logging = { version = "1.0.0", path = "crates/sge_logging" }
+sge_camera = { version = "1.0.0", path = "crates/sge_camera" }
+sge_egui = { version = "1.0.0", path = "crates/sge_egui" }
+sge_debugging = { version = "1.0.0", path = "crates/sge_debugging" }
+sge_programs = { version = "1.0.0", path = "crates/sge_programs" }
+sge_textures = { version = "1.0.0", path = "crates/sge_textures" }
+sge_rendering = { version = "1.0.0", path = "crates/sge_rendering" }
+sge_rng = { version = "1.0.0", path = "crates/sge_rng" }
+sge_time = { version = "1.0.0", path = "crates/sge_time" }
+sge_audio = { version = "1.0.0", path = "crates/sge_audio" }
+sge_global = { version = "1.0.0", path = "crates/sge_global" }
+sge_ui = { version = "1.0.0", path = "crates/sge_ui" }
+sge_animation = { version = "1.0.0", path = "crates/sge_animation" }
+sge_debug_visualisations = { version = "1.0.0", path = "crates/sge_debug_visualisations" }
+sge_types = { version = "1.0.0", path = "crates/sge_types" }
+sge_api = { version = "1.0.0", path = "crates/sge_api" }
+sge_image = { version = "1.0.0", path = "crates/sge_image" }
+sge_physics = { version = "1.0.0", path = "crates/sge_physics" }
+sge_text = { version = "1.0.0", path = "crates/sge_text" }
+sge_texture_atlas = { version = "1.0.0", path = "crates/sge_texture_atlas" }
+sge_utils = { version = "1.0.0", path = "crates/sge_utils" }
+sge_particles = { version = "1.0.0", path = "crates/sge_particles" }
+sge_include_assets = { version = "1.0.0", path = "crates/sge_include_assets" }
+sge_persistence = { version = "1.0.0", path = "crates/sge_persistence" }
+sge_graph_networks = { version = "1.0.0", path = "crates/sge_graph_networks" }
+sge_routines = { version = "1.0.0", path = "crates/sge_routines" }
+sge_camera_controllers = { version = "1.0.0", path = "crates/sge_camera_controllers" }
 heck = "0.5.0"
 proc-macro-crate = "3.5.0"
 ron = "0.12.0"

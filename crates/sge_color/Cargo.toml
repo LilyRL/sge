@@ -1,6 +1,6 @@
 [package]
 name = "sge_color"
-version = "0.1.0"
+version = "1.0.0"
 authors = [ "Lily Lopes <joshrl@proton.me>" ]
 edition = "2024"
 description = "Color functionality for SGE"
