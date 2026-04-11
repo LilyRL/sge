@@ -44,7 +44,7 @@ trig-const = "0.3.0"
 proc-macro2 = "1.0.106"
 quote = "1.0.45"
 syn = { version = "2.0.117", features = ["full"] }
-sge_error_union = { path = "./crates/sge_error_union" }
+sge_error_union = { path = "./crates/sge_error_union", version = "1.0.0" }
 sge_window = { version = "1.0.0", path = "crates/sge_window" }
 sge_config = { version = "1.0.0", path = "crates/sge_config" }
 sge_logging = { version = "1.0.0", path = "crates/sge_logging" }
