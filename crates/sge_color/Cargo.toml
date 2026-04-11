@@ -1,6 +1,6 @@
 [package]
 name = "sge_color"
-version = "0.0.1"
+version = "0.1.0"
 authors = [ "Lily Lopes <joshrl@proton.me>" ]
 edition = "2024"
 description = "Color functionality for SGE"
@@ -8,7 +8,7 @@ license = "MIT"
 repository = "https://github.com/LilyRL/sge"
 
 [dependencies]
-sge_vectors = { version = "0.1.0" }
+sge_vectors = { workspace = true }
 egui_glium = { workspace = true }
 palette = { workspace = true }
 phf = { workspace = true }

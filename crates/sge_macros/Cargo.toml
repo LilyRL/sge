@@ -1,7 +1,11 @@
 [package]
 name = "sge_macros"
 version = "0.1.0"
+authors = [ "Lily Lopes <joshrl@proton.me>" ]
 edition = "2024"
+description = "Macro functionality for SGE"
+license = "MIT"
+repository = "https://github.com/LilyRL/sge"
 
 [lib]
 proc-macro = true
