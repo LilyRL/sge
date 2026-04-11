@@ -1,7 +1,11 @@
 [package]
 name = "sge_audio"
 version = "1.0.0"
+authors = [ "Lily Lopes <joshrl@proton.me>" ]
 edition = "2024"
+description = "Audio functionality for SGE"
+license = "MIT"
+repository = "https://github.com/LilyRL/sge"
 
 [dependencies]
 sge_error_union.workspace = true

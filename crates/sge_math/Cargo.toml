@@ -3,6 +3,9 @@ name = "sge_math"
 version = "1.0.0"
 authors = [ "Lily Lopes <joshrl@proton.me>" ]
 edition = "2024"
+description = "Macro functionality for SGE"
+license = "MIT"
+repository = "https://github.com/LilyRL/sge"
 
 [dependencies]
 sge_vectors.workspace = true

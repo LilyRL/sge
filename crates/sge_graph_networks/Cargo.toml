@@ -1,7 +1,11 @@
 [package]
 name = "sge_graph_networks"
 version = "1.0.0"
+authors = [ "Lily Lopes <joshrl@proton.me>" ]
 edition = "2024"
+description = "Graph network functionality for SGE"
+license = "MIT"
+repository = "https://github.com/LilyRL/sge"
 
 [dependencies]
 sge_vectors.workspace = true

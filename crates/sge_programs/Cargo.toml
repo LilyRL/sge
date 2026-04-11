@@ -1,7 +1,11 @@
 [package]
 name = "sge_programs"
 version = "1.0.0"
+authors = [ "Lily Lopes <joshrl@proton.me>" ]
 edition = "2024"
+description = "Shader functionality for SGE"
+license = "MIT"
+repository = "https://github.com/LilyRL/sge"
 
 [dependencies]
 glium.workspace = true

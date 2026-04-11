@@ -1,7 +1,11 @@
 [package]
 name = "sge_si"
 version = "1.0.0"
+authors = [ "Lily Lopes <joshrl@proton.me>" ]
 edition = "2024"
+description = "SI unit system as rust types, for SGE"
+license = "MIT"
+repository = "https://github.com/LilyRL/sge"
 
 [dependencies]
 num-traits = "0.2.19"

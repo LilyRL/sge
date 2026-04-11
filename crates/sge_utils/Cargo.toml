@@ -1,6 +1,10 @@
 [package]
 name = "sge_utils"
 version = "1.0.0"
+authors = [ "Lily Lopes <joshrl@proton.me>" ]
 edition = "2024"
+description = "Utilities for SGE"
+license = "MIT"
+repository = "https://github.com/LilyRL/sge"
 
 [dependencies]

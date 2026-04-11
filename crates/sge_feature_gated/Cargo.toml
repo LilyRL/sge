@@ -1,7 +1,11 @@
 [package]
 name = "sge_feature_gated"
 version = "1.0.0"
+authors = [ "Lily Lopes <joshrl@proton.me>" ]
 edition = "2024"
+description = "Feature gating functionality for SGE"
+license = "MIT"
+repository = "https://github.com/LilyRL/sge"
 
 [lib]
 proc-macro = true

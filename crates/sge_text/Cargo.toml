@@ -1,7 +1,11 @@
 [package]
 name = "sge_text"
 version = "1.0.0"
+authors = [ "Lily Lopes <joshrl@proton.me>" ]
 edition = "2024"
+description = "Text rendering functionality for SGE"
+license = "MIT"
+repository = "https://github.com/LilyRL/sge"
 
 [features]
 extra_fonts = []

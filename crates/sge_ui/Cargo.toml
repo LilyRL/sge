@@ -1,7 +1,11 @@
 [package]
 name = "sge_ui"
 version = "1.0.0"
+authors = [ "Lily Lopes <joshrl@proton.me>" ]
 edition = "2024"
+description = "UI library for SGE"
+license = "MIT"
+repository = "https://github.com/LilyRL/sge"
 
 [dependencies]
 sge_vectors.workspace = true

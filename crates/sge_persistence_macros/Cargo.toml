@@ -1,7 +1,11 @@
 [package]
 name = "sge_persistence_macros"
 version = "1.0.0"
+authors = [ "Lily Lopes <joshrl@proton.me>" ]
 edition = "2024"
+description = "Macros for sge_persistence"
+license = "MIT"
+repository = "https://github.com/LilyRL/sge"
 
 [lib]
 proc-macro = true

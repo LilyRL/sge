@@ -1,7 +1,11 @@
 [package]
 name = "sge_error_union"
 version = "1.0.0"
+authors = [ "Lily Lopes <joshrl@proton.me>" ]
 edition = "2024"
+description = "Crate to create 'union' enums (especially for errors)"
+license = "MIT"
+repository = "https://github.com/LilyRL/sge"
 
 [lib]
 proc-macro = true
