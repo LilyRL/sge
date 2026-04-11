@@ -1,0 +1,2 @@
+[http]
+cainfo = "/etc/ssl/certs/ca-bundle.crt"
