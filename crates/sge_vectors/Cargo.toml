@@ -2,11 +2,9 @@
 name = "sge_vectors"
 version = "0.1.0"
 edition = "2024"
-description = "Provides math functionality for Bevy Engine"
-homepage = "https://bevy.org"
-repository = "https://github.com/bevyengine/bevy"
+description = "Fork of bevy_math"
+repository = "https://github.com/LilyRL/sge"
 license = "MIT OR Apache-2.0"
-keywords = ["bevy"]
 rust-version = "1.85.0"
 
 [dependencies]
