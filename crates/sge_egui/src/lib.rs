@@ -6,7 +6,7 @@ use egui_glium::{
 };
 use sge_window::{get_display, get_window_state};
 
-global::global!(EguiState, egui_state);
+sge_global::sge_global!(EguiState, egui_state);
 
 pub struct EguiState {
     pub egui: EguiGlium,

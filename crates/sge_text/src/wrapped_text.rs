@@ -1,4 +1,4 @@
-use bevy_math::Vec2;
+use sge_vectors::Vec2;
 use sge_color::Color;
 use sge_types::Area;
 use sge_window::dpi_scaling;

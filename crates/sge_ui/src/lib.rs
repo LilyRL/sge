@@ -8,7 +8,7 @@ use std::{
 };
 
 use base::{Empty, FloatingWindow};
-use bevy_math::Vec2;
+use sge_vectors::Vec2;
 use glium::winit::event::MouseButton;
 use sge_color::Color;
 use sge_input::{Input, get_input};
@@ -32,7 +32,7 @@ pub struct UiStorage {
     windows: Vec<*const FloatingWindow>,
 }
 
-global::global!(UiStorage, ui_storage);
+sge_global::sge_global!(UiStorage, ui_storage);
 
 pub fn init_ui() {
     init_ui_nodes_storage();

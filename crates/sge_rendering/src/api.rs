@@ -1,4 +1,4 @@
-use bevy_math::{Vec2, Vec3};
+use sge_vectors::{Vec2, Vec3};
 use glium::texture::TextureCreationError;
 use log::warn;
 use sge_camera::cameras_for_resolution;
@@ -57,7 +57,7 @@ pub fn draw_texture_world_ex(
     texture: TextureRef,
     transform: Transform2D,
     color: Color,
-    region: Option<bevy_math::Rect>,
+    region: Option<sge_vectors::Rect>,
 ) {
     let bounds = Aabb2d::new(
         transform.translation() - transform.scale(),
@@ -77,7 +77,7 @@ pub fn draw_texture_ex(
     sprite: TextureRef,
     transform: Transform2D,
     color: Color,
-    region: Option<bevy_math::Rect>,
+    region: Option<sge_vectors::Rect>,
 ) {
     draw_queue_2d()
         .renderer()

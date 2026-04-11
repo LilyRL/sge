@@ -1,5 +1,5 @@
-use bevy_math::Vec2;
-use error_union::ErrorUnion;
+use sge_vectors::Vec2;
+use sge_error_union::ErrorUnion;
 use glium::{IndexBuffer, ProgramCreationError, VertexBuffer, implement_vertex};
 use sge_api::shapes_2d::draw_line_world;
 use sge_camera::{get_camera_2d, get_camera_2d_mut};

@@ -1,0 +1,9 @@
+[package]
+name = "sge_persistence"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+sge_error_union.workspace = true
+sge_persistence_macros = { path = "../sge_persistence_macros" }
+rkyv.workspace = true

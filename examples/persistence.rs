@@ -89,7 +89,7 @@ fn draw_big_number(texture: RenderTextureRef, bg: Color, number: u64) {
         texture.color_texture,
         Transform2D::from_scale_translation(window_size(), Vec2::ZERO),
         Color::WHITE,
-        Some(bevy_math::Rect::from_corners(
+        Some(sge_vectors::Rect::from_corners(
             vec2(4.0, height * 0.25),
             size,
         )),

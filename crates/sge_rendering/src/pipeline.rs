@@ -2,7 +2,7 @@ use crate::d3::DrawQueue3D;
 use crate::get_render_state;
 use crate::post_processing::PostProcessingEffect;
 use crate::{DrawQueues, d2::DrawQueue2D};
-use bevy_math::{Mat4, UVec2, Vec2, Vec3};
+use sge_vectors::{Mat4, UVec2, Vec2, Vec3};
 use glium::Texture2d;
 use glium::{
     Surface,

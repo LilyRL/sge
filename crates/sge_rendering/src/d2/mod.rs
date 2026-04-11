@@ -1,4 +1,4 @@
-use bevy_math::{Mat4, Rect, Vec2, Vec3};
+use sge_vectors::{Mat4, Rect, Vec2, Vec3};
 use glium::vertex::Vertex as GliumVertex;
 use glium::{Blend, DrawParameters, IndexBuffer, Surface, VertexBuffer, uniform};
 use glium::{Depth, DepthTest, implement_vertex};

@@ -1,6 +1,6 @@
 use core::f32;
 
-use bevy_math::vec2;
+use sge_vectors::vec2;
 
 use super::*;
 

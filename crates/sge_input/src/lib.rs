@@ -1,13 +1,14 @@
-use bevy_math::{UVec2, Vec2, vec2};
-use error_union::Union;
 #[cfg(feature = "gamepad")]
 pub use gilrs;
 #[cfg(feature = "gamepad")]
 use gilrs::Gilrs;
 use glium::winit;
-use global::global;
+use helper::WinitInputHelper;
 use log::info;
+use sge_error_union::Union;
+use sge_global::sge_global;
 use sge_types::Area;
+use sge_vectors::{UVec2, Vec2, vec2};
 use std::path::PathBuf;
 use std::{
     collections::HashMap,
@@ -15,10 +16,10 @@ use std::{
 };
 pub use winit::event::MouseButton;
 pub use winit::keyboard::{Key, KeyCode};
-use winit_input_helper::WinitInputHelper;
 
 #[cfg(feature = "gamepad")]
 pub mod gamepad;
+mod helper;
 pub mod keys;
 
 pub struct Input {
@@ -29,7 +30,7 @@ pub struct Input {
     last_cursor_position: Vec2,
 }
 
-global!(Input, input);
+sge_global!(Input, input);
 
 #[cfg(feature = "gamepad")]
 pub fn init() -> Result<(), GilrsError> {

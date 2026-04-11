@@ -1,4 +1,4 @@
-use bevy_math::Vec2;
+use sge_vectors::Vec2;
 use sge_color::{Color, str_to_color};
 use sge_rendering::{d2::Renderer2D, dq2d, wdq2d};
 use thiserror::Error;

@@ -2,12 +2,6 @@ pub use crate::api::*;
 pub use crate::next_frame;
 pub use crate::{init, init_custom};
 pub use anyhow;
-pub use bevy_math::{
-    IVec2, IVec3, IVec4, Mat2, Mat3, Mat4, Quat, USizeVec2, USizeVec3, USizeVec4, UVec2, UVec3,
-    UVec4, Vec2, Vec2Swizzles, Vec3, Vec3Swizzles, Vec4, Vec4Swizzles, VectorSpace, ivec2, ivec3,
-    ivec4, mat2, mat3, mat4, ops::*, usizevec2, usizevec3, usizevec4, uvec2, uvec3, uvec4, vec2,
-    vec3, vec4,
-};
 pub use glium::winit::dpi::{LogicalSize, PhysicalSize};
 pub use glium::winit::event::MouseButton;
 pub use glium::winit::keyboard::{Key, KeyCode, NamedKey};
@@ -26,9 +20,7 @@ pub use glium::{
     },
 };
 pub use image::{self, ImageFormat};
-pub use include_assets::include_assets;
 pub use log::{self, Level, LevelFilter, debug, error, info, trace, warn};
-pub use persistence::{Error as PersistenceError, persistent, rkyv};
 pub use sge_animation::*;
 pub use sge_api::area::AreaExt;
 pub use sge_api::shapes_2d::{
@@ -131,6 +123,7 @@ pub use sge_config::{
     use_nearest_filtering, use_positive_y_down, use_positive_y_up, wait_for_events,
 };
 pub use sge_image::{Image, ImageRef};
+pub use sge_include_assets::sge_include_assets;
 pub use sge_logging::{
     Logger, draw_logs, log_lines, log_to_file, set_logger_verbosity, set_max_drawn_log_lines,
     set_min_log_level,
@@ -142,6 +135,7 @@ pub use sge_math::collision::{self, Aabb2d, IntersectsWith};
 pub use sge_math::transform::{Transform2D, Transform3D};
 pub use sge_math::usize_rect::USizeRect;
 pub use sge_particles::*;
+pub use sge_persistence::{Error as PersistenceError, persistent, rkyv};
 pub use sge_physics::{
     Bounds, ColliderConfig, CollisionPoints, ObjectRef, World, WorldRef, player::PlayerBindBuilder,
     player::PlayerController,
@@ -172,6 +166,7 @@ pub use sge_rng::{
     rand_range, rand_ratio, rand_usize, rand_vec2, rand_vec3, rand_vec4,
 };
 pub use sge_shapes::d2::*;
+pub use sge_si as si;
 pub use sge_texture_atlas::{
     LoadImageError, Sprite, SpriteKey, TextureAtlas, TextureAtlasRef, create_spritesheet,
     load_image,
@@ -188,6 +183,12 @@ pub use sge_types::{
     Vertex3D,
 };
 pub use sge_utils::RotatingArray;
+pub use sge_vectors::{
+    IVec2, IVec3, IVec4, Mat2, Mat3, Mat4, Quat, USizeVec2, USizeVec3, USizeVec4, UVec2, UVec3,
+    UVec4, Vec2, Vec2Swizzles, Vec3, Vec3Swizzles, Vec4, Vec4Swizzles, VectorSpace, ivec2, ivec3,
+    ivec4, mat2, mat3, mat4, ops::*, usizevec2, usizevec3, usizevec4, uvec2, uvec3, uvec4, vec2,
+    vec3, vec4,
+};
 pub use sge_window::{
     SgeDisplay, WindowCreationError, WindowOptions, WindowState, availible_monitors,
     current_monitor, dpi_scaling, fullscreen, get_display, get_display_mut, get_window_state,
@@ -209,7 +210,6 @@ pub use sge_window::{
     use_zoom_out_cursor_icon, window_center, window_height, window_size, window_size_u32,
     window_theme, window_title, window_width,
 };
-pub use si;
 pub mod graph_networks {
     pub use sge_graph_networks::*;
 }
@@ -234,6 +234,11 @@ mod audio {
 pub mod gamepad {
     pub use sge_input::gamepad_input as input;
     pub use sge_input::gilrs::*;
+}
+
+pub mod math {
+    pub use sge_math::*;
+    pub use sge_vectors::*;
 }
 
 #[cfg(feature = "input")]

@@ -1,4 +1,4 @@
-use bevy_math::Vec4;
+use sge_vectors::Vec4;
 use egui_glium::egui_winit::egui::Color32;
 use palette::{Hsl, IntoColor, LinSrgb, LinSrgba, Oklch, Srgb, Srgba};
 use rkyv::{Archive, Deserialize, Serialize};

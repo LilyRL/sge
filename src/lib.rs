@@ -4,8 +4,8 @@
 use std::collections::HashMap;
 use std::time::Instant;
 
-use bevy_math::Vec2;
-use error_union::ErrorUnion;
+use sge_vectors::Vec2;
+use sge_error_union::ErrorUnion;
 use glium::winit::{
     dpi::PhysicalSize,
     event::{Event, WindowEvent},

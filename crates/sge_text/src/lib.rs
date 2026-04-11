@@ -1,7 +1,7 @@
 use std::{collections::HashMap, hash::Hash};
 
-use bevy_math::{IVec2, Rect, Vec2};
-use error_union::ErrorUnion;
+use sge_vectors::{IVec2, Rect, Vec2};
+use sge_error_union::ErrorUnion;
 use fontdue::{Metrics, layout::TextStyle};
 use glium::uniforms::{MagnifySamplerFilter, MinifySamplerFilter};
 use sge_color::{Color, u8::Pixel};
@@ -61,7 +61,7 @@ pub struct TextMeasureCache {
     map: HashMap<(u32, String), Vec2>,
 }
 
-global::global!(TextMeasureCache, text_measure_cache);
+sge_global::sge_global!(TextMeasureCache, text_measure_cache);
 
 pub fn default_font() -> FontRef {
     FontRef(0)

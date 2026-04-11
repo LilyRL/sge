@@ -1,6 +1,6 @@
 use std::io::Cursor;
 
-use error_union::ErrorUnion;
+use sge_error_union::ErrorUnion;
 use glium::{IndexBuffer, VertexBuffer};
 use obj::load_obj;
 use sge_color::Color;
@@ -83,7 +83,7 @@ impl Object3D {
     }
 
     pub fn compute_smooth_normals(&mut self) {
-        use bevy_math::Vec3;
+        use sge_vectors::Vec3;
         use std::collections::HashMap;
 
         let vertices: Vec<MaterialVertex3D> = self.mesh.vertices.read().unwrap();

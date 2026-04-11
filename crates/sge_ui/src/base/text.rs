@@ -1,4 +1,4 @@
-use bevy_math::Vec2;
+use sge_vectors::Vec2;
 use log::warn;
 use sge_color::Color;
 
@@ -312,7 +312,7 @@ impl Text {
 }
 
 impl UiNode for Text {
-    fn preferred_dimensions(&self) -> bevy_math::Vec2 {
+    fn preferred_dimensions(&self) -> sge_vectors::Vec2 {
         let params: TextDrawParams = self.into();
         measure_text_ex(&self.text, params).size
     }

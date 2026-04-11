@@ -1,7 +1,7 @@
 pub use area::*;
 pub mod area;
 
-use error_union::ErrorUnion;
+use sge_error_union::ErrorUnion;
 pub use rendering::*;
 pub mod rendering;
 

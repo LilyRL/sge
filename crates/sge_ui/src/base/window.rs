@@ -1,4 +1,4 @@
-use bevy_math::{FloatPow, vec2};
+use sge_vectors::{FloatPow, vec2};
 use bon::bon;
 use sge_api::shapes_2d::{draw_rect, draw_rect_with_outline};
 use sge_input::{cursor_diff, last_cursor_pos, mouse_held, mouse_pressed, mouse_released};

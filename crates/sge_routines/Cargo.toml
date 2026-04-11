@@ -4,5 +4,5 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-global.workspace = true
+sge_global.workspace = true
 slotmap.workspace = true

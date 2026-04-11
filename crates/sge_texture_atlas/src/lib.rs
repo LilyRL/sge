@@ -1,8 +1,8 @@
 use std::collections::HashMap;
 use std::io::Cursor;
 
-use bevy_math::{USizeVec2, Vec2};
-use error_union::ErrorUnion;
+use sge_vectors::{USizeVec2, Vec2};
+use sge_error_union::ErrorUnion;
 use glium::{
     texture::{RawImage2d, TextureCreationError},
     uniforms::{MagnifySamplerFilter, MinifySamplerFilter},

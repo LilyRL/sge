@@ -1,4 +1,4 @@
-use bevy_math::{IVec2, USizeVec2, Vec2, ivec2};
+use sge_vectors::{IVec2, USizeVec2, Vec2, ivec2};
 use rayon::iter::{IntoParallelIterator, ParallelIterator};
 
 use sge_camera::d2::Camera2D;

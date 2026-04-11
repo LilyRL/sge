@@ -1,5 +1,5 @@
 use super::*;
-use bevy_math::{usizevec2, vec2};
+use sge_vectors::{usizevec2, vec2};
 
 /// Requires sized container outside
 #[derive(Debug)]

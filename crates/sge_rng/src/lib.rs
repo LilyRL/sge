@@ -1,5 +1,5 @@
-use bevy_math::{Vec2, Vec3, Vec4};
-use global::global;
+use sge_vectors::{Vec2, Vec3, Vec4};
+use sge_global::sge_global;
 use rand::{
     Rng,
     distr::{
@@ -18,7 +18,7 @@ pub struct RandomState {
     counter: usize,
 }
 
-global!(RandomState, random);
+sge_global!(RandomState, random);
 
 pub fn init() {
     set_random(RandomState {

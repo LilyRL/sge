@@ -423,10 +423,10 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord) {
 - [ ] include_(texture|object|model|sound) macros (macro crate)
 
 * Make everything good
-- [X] error_union/lib.rs
+- [X] sge_error_union/lib.rs
 - [X] gilrs_input_helper/gamepad_state.rs
 - [X] gilrs_input_helper/lib.rs
-- [X] global/lib.rs
+- [X] sge_global/lib.rs
 - [X] include_folder/include_folder_macros/lib.rs
 - [X] include_folder/include_folder_shared/globbing.rs
 - [X] include_folder/include_folder_shared/lib.rs

@@ -7,11 +7,11 @@ edition = "2024"
 extra_fonts = []
 
 [dependencies]
-bevy_math.workspace = true
-error_union.workspace = true
+sge_vectors.workspace = true
+sge_error_union.workspace = true
 fontdue.workspace = true
 glium.workspace = true
-global.workspace = true
+sge_global.workspace = true
 sge_color.workspace = true
 sge_image.workspace = true
 sge_macros.workspace = true

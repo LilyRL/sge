@@ -1,4 +1,4 @@
-use bevy_math::{FloatExt, vec2};
+use sge_vectors::{FloatExt, vec2};
 use sge_api::shapes_2d::draw_rounded_rect;
 use sge_rendering::scissor::{pop_scissor, push_scissor};
 

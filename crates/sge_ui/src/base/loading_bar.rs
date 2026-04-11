@@ -1,5 +1,5 @@
 use super::*;
-use bevy_math::vec2;
+use sge_vectors::vec2;
 use sge_api::{area::AreaExt, shapes_2d::draw_custom_shape};
 use sge_rendering::scissor::{pop_scissor, push_scissor};
 

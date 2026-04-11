@@ -1,4 +1,4 @@
-use bevy_math::Vec2;
+use sge_vectors::Vec2;
 use glium::winit::event::MouseButton;
 use sge_camera::get_camera_2d_mut;
 use sge_input::{cursor, mouse_held, mouse_pressed};

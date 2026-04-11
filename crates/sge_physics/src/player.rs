@@ -4,7 +4,7 @@ use std::{
     ops::{Deref, DerefMut},
 };
 
-use bevy_math::Vec2;
+use sge_vectors::Vec2;
 use nalgebra::{Vector2, vector};
 use rapier2d::{control::KinematicCharacterController, math::Isometry, prelude::QueryFilter};
 use sge_input::{Button, KeyCode, button_held, button_pressed};

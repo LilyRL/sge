@@ -1,4 +1,4 @@
-use bevy_math::Mat4;
+use sge_vectors::Mat4;
 use glium::{DrawParameters, Surface};
 use sge_camera::get_camera_3d;
 use sge_config::get_dithering;

@@ -1,0 +1,8 @@
+#!/usr/bin/env sh
+
+if [ -z "$1" ]; then
+    echo "Usage: $0 's/old/new/g'"
+    exit 1
+fi
+
+find . \( -type d \( -name .git -o -name target -o -path './assets' \) -prune \) -o -type f -print0 | xargs -0 sed -i "$1"

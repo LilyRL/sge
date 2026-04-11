@@ -1,4 +1,4 @@
-use bevy_math::UVec2;
+use sge_vectors::UVec2;
 use sge::prelude::*;
 
 fn main() -> anyhow::Result<()> {

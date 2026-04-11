@@ -2,7 +2,7 @@ use fps_ticker::Fps;
 
 pub const FRAME_BACKLOG: usize = 1000;
 
-global::global!(DebugInfo, debug_info);
+sge_global::sge_global!(DebugInfo, debug_info);
 
 pub struct DebugInfo {
     pub fps: Fps,

@@ -1,4 +1,4 @@
-use bevy_math::Vec2;
+use sge_vectors::Vec2;
 use egui_glium::egui_winit::egui::Window;
 use egui_plot::{Line, Plot, PlotPoints};
 use sge_debugging::{FRAME_BACKLOG, avg_fps, get_debug_info};

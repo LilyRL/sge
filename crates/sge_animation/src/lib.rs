@@ -1,6 +1,6 @@
 use std::f32::consts::PI;
 
-use bevy_math::{FloatExt, Quat, Vec2, Vec3, Vec4};
+use sge_vectors::{FloatExt, Quat, Vec2, Vec3, Vec4};
 use sge_color::Color;
 use sge_math::{
     collision::{self, Aabb2d},
@@ -192,7 +192,7 @@ impl Animatable for collision::Square {
     }
 }
 
-impl Animatable for bevy_math::Rect {
+impl Animatable for sge_vectors::Rect {
     fn interpolate(a: Self, b: Self, progress: f32) -> Self {
         Self::from_corners(a.min.lerp(b.min, progress), a.max.lerp(b.max, progress))
     }

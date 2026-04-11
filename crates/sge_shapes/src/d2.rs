@@ -1,4 +1,4 @@
-use bevy_math::{Mat3, Vec2, vec2};
+use sge_vectors::{Mat3, Vec2, vec2};
 use dyn_clone::DynClone;
 use sge_color::Color;
 use sge_math::collision::{Aabb2d, HasBounds2D};

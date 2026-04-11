@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use bevy_math::Vec2;
+use sge_vectors::Vec2;
 use player::{Player, PlayerKey};
 use rapier2d::prelude::*;
 use sge_api::shapes_2d::*;

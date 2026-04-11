@@ -1,4 +1,4 @@
-use bevy_math::vec2;
+use sge_vectors::vec2;
 use glium::winit::keyboard::{Key, NamedKey};
 use sge_api::shapes_2d::draw_rect;
 use sge_input::input_text;

@@ -3,7 +3,7 @@ use std::{
     ops::{Deref, DerefMut},
 };
 
-use bevy_math::Vec2;
+use sge_vectors::Vec2;
 use bvh::{
     aabb::{Aabb, Bounded},
     bounding_hierarchy::BHShape,

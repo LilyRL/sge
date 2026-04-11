@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-bevy_math.workspace = true
+sge_vectors.workspace = true
 rayon.workspace = true
 sge_camera.workspace = true
 sge_color.workspace = true

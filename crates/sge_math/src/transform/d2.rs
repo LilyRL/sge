@@ -1,4 +1,4 @@
-use bevy_math::{BVec2, Mat4, Quat, Vec2, Vec4Swizzles};
+use sge_vectors::{BVec2, Mat4, Quat, Vec2, Vec4Swizzles};
 use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Sub, SubAssign};
 
 #[derive(Clone, Copy)]

@@ -1,4 +1,4 @@
-use bevy_math::{BVec3, Mat3, Mat4, Quat, Vec3, Vec4Swizzles};
+use sge_vectors::{BVec3, Mat3, Mat4, Quat, Vec3, Vec4Swizzles};
 use glium::BackfaceCullingMode;
 use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Sub, SubAssign};
 

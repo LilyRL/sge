@@ -1,4 +1,4 @@
-use bevy_math::{IRect, Rect, USizeVec2};
+use sge_vectors::{IRect, Rect, USizeVec2};
 
 /// A rectangle defined by two opposite corners.
 ///

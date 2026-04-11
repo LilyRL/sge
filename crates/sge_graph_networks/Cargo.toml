@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-bevy_math.workspace = true
+sge_vectors.workspace = true
 nalgebra.workspace = true
 sge_api.workspace = true
 sge_camera.workspace = true

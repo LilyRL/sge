@@ -3,7 +3,7 @@ use std::{
     fmt::{Debug, Display},
 };
 
-use bevy_math::Vec2;
+use sge_vectors::Vec2;
 use nalgebra::{DMatrix, SymmetricEigen};
 use sge_camera::screen_to_world;
 use sge_color::Color;

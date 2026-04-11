@@ -1,4 +1,4 @@
-use bevy_math::{Mat4, Quat, Vec2, Vec3};
+use sge_vectors::{Mat4, Quat, Vec2, Vec3};
 use glium::winit::window::Window;
 
 #[derive(Clone, Copy, Debug)]

@@ -26,7 +26,7 @@ pub struct RenderState {
     pub scissor_stack: Vec<Rect>,
 }
 
-global::global!(RenderState, render_state);
+sge_global::sge_global!(RenderState, render_state);
 
 pub fn init() {
     object_3d::init();

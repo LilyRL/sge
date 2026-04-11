@@ -1,4 +1,4 @@
-use bevy_math::{Vec2, Vec3};
+use sge_vectors::{Vec2, Vec3};
 use glium::implement_vertex;
 use obj::{FromRawVertex, raw::object::Polygon};
 use sge_color::Color;

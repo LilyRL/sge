@@ -1,6 +1,6 @@
 use std::collections::BTreeMap;
 
-use bevy_math::{Mat3, Mat4, Vec2, Vec3, Vec4};
+use sge_vectors::{Mat3, Mat4, Vec2, Vec3, Vec4};
 use glium::uniforms::{SamplerBehavior, UniformValue};
 use sge_color::Color;
 use sge_macros::gen_ref_type;

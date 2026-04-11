@@ -6,7 +6,7 @@ edition = "2024"
 [dependencies]
 bon.workspace = true
 glium.workspace = true
-global.workspace = true
+sge_global.workspace = true
 log.workspace = true
 sge_camera.workspace = true
 sge_types.workspace = true

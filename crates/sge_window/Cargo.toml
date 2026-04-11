@@ -4,8 +4,8 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-bevy_math.workspace = true
-error_union.workspace = true
+sge_vectors.workspace = true
+sge_error_union.workspace = true
 glium.workspace = true
-global.workspace = true
+sge_global.workspace = true
 glutin-winit.workspace = true

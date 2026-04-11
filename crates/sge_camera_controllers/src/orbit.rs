@@ -1,4 +1,4 @@
-use bevy_math::{Vec2, Vec3};
+use sge_vectors::{Vec2, Vec3};
 use glium::winit::event::MouseButton;
 use sge_input::get_input;
 

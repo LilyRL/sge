@@ -2,8 +2,8 @@
 
 use std::num::NonZeroU32;
 
-use bevy_math::Vec2;
-use error_union::ErrorUnion;
+use sge_vectors::Vec2;
+use sge_error_union::ErrorUnion;
 use glium::{
     backend::glutin::Display,
     glutin::{
@@ -48,7 +48,7 @@ pub fn end_of_frame() {
     }
 }
 
-global::global!(WindowState, window_state);
+sge_global::sge_global!(WindowState, window_state);
 
 pub struct WindowOptions {
     pub template: ConfigTemplateBuilder,

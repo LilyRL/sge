@@ -1,4 +1,4 @@
-use bevy_math::Vec2;
+use sge_vectors::Vec2;
 use glium::implement_vertex;
 use sge_color::Color;
 

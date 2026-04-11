@@ -9,7 +9,7 @@ description = "Simple game engine"
 [workspace.dependencies]
 egui_plot = "0.31"
 anyhow = "1.0.100"
-bevy_math = { path = "./crates/bevy_math" }
+sge_vectors = { path = "./crates/sge_vectors" }
 bon = "3.8.1"
 bumpalo = { version = "3.19.0", features = ["collections"] }
 color-eyre = "0.6.5"
@@ -37,15 +37,14 @@ sge_macros = { path = "./crates/sge_macros" }
 sge_math = { path = "./crates/sge_math" }
 sge_shapes = { path = "./crates/sge_shapes" }
 sge_input = { path = "./crates/sge_input" }
-si = { path = "./crates/si" }
+sge_si = { path = "./crates/sge_si" }
 termcolor = "1.4.1"
 thiserror = "2.0.17"
 trig-const = "0.3.0"
 proc-macro2 = "1.0.106"
 quote = "1.0.45"
 syn = { version = "2.0.117", features = ["full"] }
-error_union = { path = "./crates/error_union" }
-winit_input_helper = { path = "./crates/winit_input_helper" }
+sge_error_union = { path = "./crates/sge_error_union" }
 sge_window = { version = "0.1.0", path = "crates/sge_window" }
 sge_config = { version = "0.1.0", path = "crates/sge_config" }
 sge_logging = { version = "0.1.0", path = "crates/sge_logging" }
@@ -58,7 +57,7 @@ sge_rendering = { version = "0.1.0", path = "crates/sge_rendering" }
 sge_rng = { version = "0.1.0", path = "crates/sge_rng" }
 sge_time = { version = "0.1.0", path = "crates/sge_time" }
 sge_audio = { version = "0.1.0", path = "crates/sge_audio" }
-global = { version = "0.1.0", path = "crates/global" }
+sge_global = { version = "0.1.0", path = "crates/sge_global" }
 sge_ui = { version = "0.1.0", path = "crates/sge_ui" }
 sge_animation = { version = "0.1.0", path = "crates/sge_animation" }
 sge_debug_visualisations = { version = "0.1.0", path = "crates/sge_debug_visualisations" }
@@ -70,8 +69,8 @@ sge_text = { version = "0.1.0", path = "crates/sge_text" }
 sge_texture_atlas = { version = "0.1.0", path = "crates/sge_texture_atlas" }
 sge_utils = { version = "0.1.0", path = "crates/sge_utils" }
 sge_particles = { version = "0.1.0", path = "crates/sge_particles" }
-include_assets = { version = "0.1.0", path = "crates/include_assets" }
-persistence = { version = "0.1.0", path = "crates/persistence" }
+sge_include_assets = { version = "0.1.0", path = "crates/sge_include_assets" }
+sge_persistence = { version = "0.1.0", path = "crates/sge_persistence" }
 sge_graph_networks = { version = "0.1.0", path = "crates/sge_graph_networks" }
 sge_routines = { version = "0.1.0", path = "crates/sge_routines" }
 sge_camera_controllers = { version = "0.1.0", path = "crates/sge_camera_controllers" }
@@ -94,14 +93,14 @@ dyn-clone = "1.0.20"
 
 [dependencies]
 anyhow = { workspace = true }
-bevy_math = { workspace = true }
+sge_vectors = { workspace = true }
 bon = { workspace = true }
 bumpalo = { workspace = true }
 color-eyre = { workspace = true }
 const-random = "0.1.18"
 egui_glium = { workspace = true }
 env_logger = { workspace = true }
-error_union = { workspace = true }
+sge_error_union = { workspace = true }
 fontdue = { workspace = true }
 fps_ticker = { workspace = true }
 glium = { workspace = true }
@@ -109,7 +108,6 @@ glutin-winit = { workspace = true }
 glyph_brush = { workspace = true }
 image = { workspace = true }
 log = { workspace = true }
-lyon = { workspace = true }
 nalgebra = { workspace = true }
 obj-rs = { workspace = true }
 palette = { workspace = true }
@@ -121,14 +119,13 @@ rayon = { workspace = true }
 sge_color = { workspace = true }
 sge_macros = { workspace = true }
 sge_input = { workspace = true, optional = true }
-si = { workspace = true }
+sge_si = { workspace = true }
 termcolor = { workspace = true }
 thiserror = { workspace = true }
 trig-const = { workspace = true }
 sge_math = { workspace = true }
 sge_shapes = { workspace = true }
 rkyv = { workspace = true }
-winit_input_helper = { workspace = true }
 sge_window = { workspace = true }
 sge_config = { workspace = true }
 sge_logging = { workspace = true }
@@ -141,7 +138,7 @@ sge_rendering = { workspace = true }
 sge_rng = { workspace = true }
 sge_time = { workspace = true }
 sge_audio = {workspace = true ,optional = true}
-global = { workspace = true }
+sge_global = { workspace = true }
 sge_ui = { workspace = true, optional = true }
 sge_animation = { workspace = true }
 sge_debug_visualisations = { workspace = true, optional = true }
@@ -153,8 +150,8 @@ sge_text = { workspace = true, optional = true }
 sge_texture_atlas = { workspace = true }
 sge_utils = { workspace = true }
 sge_particles = { workspace = true }
-include_assets = { workspace = true }
-persistence = { workspace = true }
+sge_include_assets = { workspace = true }
+sge_persistence = { workspace = true }
 sge_graph_networks = { workspace = true }
 sge_routines = { workspace = true }
 sge_camera_controllers.workspace = true
@@ -208,19 +205,17 @@ debug_visualisations = ["debugging", "egui", "dep:sge_debug_visualisations"]
 [workspace]
 members = [
     ".",
-    "crates/error_union",
+    "crates/sge_error_union",
     "crates/sge_color",
     "crates/sge_macros",
-    "crates/include_folder",
-    "crates/si",
-    "crates/winit_input_helper",
+    "crates/sge_si",
     "crates/sge_math",
     "crates/sge_types",
     "crates/sge_shapes",
     "crates/sge_logging",
     "crates/sge_shapes",
     "crates/sge_camera",
-    "crates/global",
+    "crates/sge_global",
     "crates/sge_input",
     "crates/sge_window",
     "crates/sge_textures",
@@ -242,12 +237,13 @@ members = [
     "crates/sge_egui",
     "crates/sge_physics",
     "crates/sge_particles",
-    "crates/include_assets",
-    "crates/bevy_math",
-    "crates/persistence",
+    "crates/sge_include_assets",
+    "crates/sge_vectors",
+    "crates/sge_persistence",
     "crates/sge_async",
     "crates/sge_graph_networks",
     "crates/sge_routines",
-    "crates/feature_gated"
-, "crates/sge_camera_controllers"]
+    "crates/sge_feature_gated",
+    "crates/sge_camera_controllers"
+]
 resolver = "3"

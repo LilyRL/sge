@@ -4,9 +4,9 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-bevy_math.workspace = true
+sge_vectors.workspace = true
 glium.workspace = true
-global.workspace = true
+sge_global.workspace = true
 log.workspace = true
 sge_input.workspace = true
 sge_rng.workspace = true

@@ -1,6 +1,6 @@
 use std::f32::consts::TAU;
 
-use bevy_math::Vec2;
+use sge_vectors::Vec2;
 use bon::bon;
 use rayon::{iter::ParallelIterator, slice::ParallelSliceMut};
 use sge_api::shapes_2d::Shape2DExt;

@@ -1,4 +1,4 @@
-use bevy_math::{Mat3, Vec3};
+use sge_vectors::{Mat3, Vec3};
 use sge_color::Color;
 use sge_types::MaterialVertex3D;
 

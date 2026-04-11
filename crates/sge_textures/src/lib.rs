@@ -1,7 +1,7 @@
 use std::{fmt::Debug, io::Cursor};
 
-use bevy_math::{UVec2, Vec2};
-use error_union::ErrorUnion;
+use sge_vectors::{UVec2, Vec2};
+use sge_error_union::ErrorUnion;
 use glium::{
     Texture2d,
     texture::{RawImage2d, TextureCreationError},
