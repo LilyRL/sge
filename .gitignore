@@ -7,3 +7,5 @@ assets/shader_test
 si/target
 si/si_macros/target
 documentation/book
+config.bin
+profile.json.gz
