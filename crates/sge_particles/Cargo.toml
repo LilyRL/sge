@@ -1,6 +1,6 @@
 [package]
 name = "sge_particles"
-version = "1.0.1"
+version = "1.0.2"
 authors = [ "Lily Lopes <joshrl@proton.me>" ]
 edition = "2024"
 description = "Particle effects for SGE"

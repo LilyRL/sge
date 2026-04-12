@@ -15,6 +15,10 @@ fn main() {
     println!("cargo:rerun-if-changed=colors.json");
     println!("cargo:rerun-if-changed=build.rs");
 
+    if Path::new("src/data.rs").exists() {
+        return;
+    }
+
     let colors_json = fs::read_to_string("colors.json").expect("failed to read colors.json");
     let data: serde_json::Map<String, serde_json::Value> =
         serde_json::from_str(&colors_json).expect("failed to parse colors.json");
