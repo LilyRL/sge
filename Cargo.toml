@@ -209,6 +209,7 @@ members = [
     "crates/sge_color",
     "crates/sge_macros",
     "crates/sge_si",
+    "crates/sge_si/sge_si_macros",
     "crates/sge_math",
     "crates/sge_types",
     "crates/sge_shapes",
