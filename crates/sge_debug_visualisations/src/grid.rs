@@ -1,9 +1,8 @@
-use sge_vectors::Vec2;
-use sge_error_union::ErrorUnion;
 use glium::{IndexBuffer, ProgramCreationError, VertexBuffer, implement_vertex};
 use sge_api::shapes_2d::draw_line_world;
 use sge_camera::{get_camera_2d, get_camera_2d_mut};
 use sge_color::Color;
+use sge_error_union::ErrorUnion;
 use sge_math::transform::Transform3D;
 use sge_programs::{ProgramRef, load_program};
 use sge_rendering::{
@@ -11,6 +10,7 @@ use sge_rendering::{
     object_3d::{Mesh, Object3D, Object3DRef},
 };
 use sge_types::MaterialVertex3D;
+use sge_vectors::Vec2;
 use sge_window::get_display;
 
 implement_vertex!(GridVertex, position);
@@ -100,8 +100,8 @@ pub fn create_infinite_grid() -> Result<Object3DRef, GridCreationError> {
 }
 
 fn load_grid_program() -> Result<ProgramRef, ProgramCreationError> {
-    let vertex_shader = include_str!("../../sge_programs/shaders/grid/vertex.glsl");
-    let fragment_shader = include_str!("../../sge_programs/shaders/grid/fragment.glsl");
+    let vertex_shader = include_str!("../assets/vertex.glsl");
+    let fragment_shader = include_str!("../assets/fragment.glsl");
 
     load_program(vertex_shader, fragment_shader)
 }
