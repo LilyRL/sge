@@ -18,7 +18,7 @@ impl Parse for Input {
 }
 
 #[proc_macro]
-pub fn sge_global(input: TokenStream) -> TokenStream {
+pub fn global(input: TokenStream) -> TokenStream {
     let Input { ty, name } = parse_macro_input!(input as Input);
 
     let state = format!("{}_STATE", name.to_string().to_uppercase());

@@ -8,20 +8,28 @@ use std::{
 };
 
 use base::{Empty, FloatingWindow};
-use sge_vectors::Vec2;
 use glium::winit::event::MouseButton;
 use sge_color::Color;
 use sge_input::{Input, get_input};
-use sge_macros::gen_ref_type;
+use sge_macros::{gen_ref_type, include_texture};
+use sge_textures::{ImageFormat, TextureRef, load_texture};
 use sge_time::{delta_time, frame_count, time};
 use sge_types::Area;
+use sge_vectors::Vec2;
 use sge_window::window_size;
 
 /// base building blocks
 pub mod base;
-/// more complex widgets made of components
+/// more complex/pre-styled widgets made of components
 pub mod library;
 pub mod prelude;
+
+sge_global::global!(Textures, ui_textures);
+
+struct Textures {
+    close: TextureRef,
+    minimise: TextureRef,
+}
 
 pub use sge_rng::id;
 
@@ -32,9 +40,14 @@ pub struct UiStorage {
     windows: Vec<*const FloatingWindow>,
 }
 
-sge_global::sge_global!(UiStorage, ui_storage);
+sge_global::global!(UiStorage, ui_storage);
 
 pub fn init_ui() {
+    let close = include_texture!("../assets/textures/close.png");
+    let minimise = include_texture!("../assets/textures/minimise.png");
+
+    set_ui_textures(Textures { close, minimise });
+
     init_ui_nodes_storage();
     set_ui_storage(UiStorage {
         states: HashMap::new(),

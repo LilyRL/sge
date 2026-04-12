@@ -5,7 +5,7 @@ use std::{
 
 pub struct UserStorage(HashMap<TypeId, Box<dyn Any>>);
 
-sge_global::sge_global!(UserStorage, user_storage);
+sge_global::global!(UserStorage, user_storage);
 
 pub fn init() {
     set_user_storage(UserStorage::new());

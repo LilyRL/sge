@@ -1,7 +1,7 @@
-use sge_vectors::{Mat4, Vec2};
 use d2::{Camera2D, projection};
 use d3::Camera3D;
-use sge_global::sge_global;
+use sge_global::global;
+use sge_vectors::{Mat4, Vec2};
 
 pub mod d2;
 pub mod d3;
@@ -21,7 +21,7 @@ impl Cameras {
     }
 }
 
-sge_global!(Cameras, cameras);
+global!(Cameras, cameras);
 
 pub fn init(width: u32, height: u32, flip_y: bool) {
     let flat = projection(width, height, flip_y);

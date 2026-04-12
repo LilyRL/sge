@@ -1,4 +1,4 @@
-use sge_vectors::{FloatPow, vec2};
+use crate::get_ui_textures;
 use bon::bon;
 use sge_api::shapes_2d::{draw_rect, draw_rect_with_outline};
 use sge_input::{cursor_diff, last_cursor_pos, mouse_held, mouse_pressed, mouse_released};
@@ -7,7 +7,7 @@ use sge_rendering::{
     api::draw_texture_ex,
     scissor::{pop_scissor, push_scissor},
 };
-use sge_textures::{CLOSE_TEXTURE, MINIMISE_TEXTURE};
+use sge_vectors::{FloatPow, vec2};
 use sge_window::{use_move_cursor_icon, use_nwse_resize_cursor_icon, use_pointer_cursor_icon};
 
 use super::*;
@@ -142,7 +142,7 @@ impl FloatingWindow {
                 self.button_color
             };
             draw_texture_ex(
-                MINIMISE_TEXTURE,
+                get_ui_textures().minimise,
                 Transform2D::new()
                     .with_translation(button_area.top_left)
                     .with_scale(Vec2::splat(button_height)),
@@ -178,7 +178,7 @@ impl FloatingWindow {
                 self.button_color
             };
             draw_texture_ex(
-                CLOSE_TEXTURE,
+                get_ui_textures().close,
                 Transform2D::new()
                     .with_translation(button_area.top_left)
                     .with_scale(Vec2::splat(button_height)),

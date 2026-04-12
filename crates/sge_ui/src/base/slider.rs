@@ -1,9 +1,9 @@
 use super::*;
-use sge_vectors::vec2;
 use core::f32;
 use sge_input::{cursor, mouse_pressed, mouse_released};
 use sge_utils::{FromF32, PartialClamp, ToF32};
-use sge_window::{use_default_cursor_icon, use_grab_cursor_icon, use_grabbing_cursor_icon};
+use sge_vectors::vec2;
+use sge_window::{use_grab_cursor_icon, use_grabbing_cursor_icon};
 use std::ops::{Add, Div, Mul, Sub};
 
 pub trait SliderValue = Add<Self, Output = Self>
@@ -107,8 +107,6 @@ impl<T: SliderValue> UiNode for Slider<T> {
             use_grabbing_cursor_icon();
         } else if is_handle_hovered || is_bar_hovered {
             use_grab_cursor_icon();
-        } else {
-            use_default_cursor_icon();
         }
 
         if !state.captured && (is_handle_hovered || is_bar_hovered) {

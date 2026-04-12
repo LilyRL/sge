@@ -12,9 +12,9 @@ use glium::{
         window::{Cursor, Fullscreen, Icon, Theme, WindowAttributes, WindowButtons, WindowLevel},
     },
 };
-use sge_global::sge_global;
 use log::{LevelFilter, info};
 use sge_camera::get_cameras;
+use sge_global::global;
 use sge_types::Verbosity;
 use sge_window::WindowOptions;
 
@@ -417,7 +417,7 @@ impl Default for EngineConfig {
     }
 }
 
-sge_global!(EngineConfig, config);
+global!(EngineConfig, config);
 
 pub fn init(config: EngineConfig) {
     set_config(config);

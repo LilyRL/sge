@@ -2,8 +2,6 @@
 
 use std::num::NonZeroU32;
 
-use sge_vectors::Vec2;
-use sge_error_union::ErrorUnion;
 use glium::{
     backend::glutin::Display,
     glutin::{
@@ -24,6 +22,8 @@ use glium::{
     },
 };
 use glutin_winit::{DisplayBuilder, GlWindow};
+use sge_error_union::ErrorUnion;
+use sge_vectors::Vec2;
 
 pub type SgeDisplay = Display<WindowSurface>;
 
@@ -48,7 +48,7 @@ pub fn end_of_frame() {
     }
 }
 
-sge_global::sge_global!(WindowState, window_state);
+sge_global::global!(WindowState, window_state);
 
 pub struct WindowOptions {
     pub template: ConfigTemplateBuilder,
@@ -195,6 +195,7 @@ pub fn use_cursor_icon(icon: CursorIcon) {
     state.window.set_cursor(Cursor::Icon(icon));
     state.using_custom_cursor = true;
 }
+
 /// only active for one frame
 pub fn use_default_cursor_icon() {
     use_cursor_icon(CursorIcon::Default);

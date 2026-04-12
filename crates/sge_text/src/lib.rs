@@ -1,10 +1,9 @@
 use std::{collections::HashMap, hash::Hash};
 
-use sge_vectors::{IVec2, Rect, Vec2};
-use sge_error_union::ErrorUnion;
 use fontdue::{Metrics, layout::TextStyle};
 use glium::uniforms::{MagnifySamplerFilter, MinifySamplerFilter};
 use sge_color::{Color, u8::Pixel};
+use sge_error_union::ErrorUnion;
 use sge_image::Image;
 use sge_macros::gen_ref_type;
 use sge_math::transform::Transform2D;
@@ -12,6 +11,7 @@ use sge_rendering::{d2::Renderer2D, dq2d, wdq2d};
 use sge_rng::rand;
 use sge_texture_atlas::{SpriteKey, TextureAtlas};
 use sge_textures::TextureRef;
+use sge_vectors::{IVec2, Rect, Vec2};
 use sge_window::dpi_scaling;
 
 pub mod icons;
@@ -61,7 +61,7 @@ pub struct TextMeasureCache {
     map: HashMap<(u32, String), Vec2>,
 }
 
-sge_global::sge_global!(TextMeasureCache, text_measure_cache);
+sge_global::global!(TextMeasureCache, text_measure_cache);
 
 pub fn default_font() -> FontRef {
     FontRef(0)

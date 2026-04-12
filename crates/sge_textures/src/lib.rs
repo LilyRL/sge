@@ -5,11 +5,11 @@ use glium::{
     texture::{RawImage2d, TextureCreationError},
     uniforms::{MagnifySamplerFilter, MinifySamplerFilter},
 };
-use image::ImageFormat;
+pub use image::ImageFormat;
 use sge_config::get_config;
 use sge_error_union::ErrorUnion;
 use sge_image::Image;
-use sge_macros::{gen_ref_type, include_texture};
+use sge_macros::gen_ref_type;
 use sge_vectors::{UVec2, Vec2};
 use sge_window::get_window_state;
 
@@ -19,13 +19,8 @@ pub enum LoadTextureError {
     Engine(TextureCreationError),
 }
 
-pub const CLOSE_TEXTURE: TextureRef = TextureRef(0);
-pub const MINIMISE_TEXTURE: TextureRef = TextureRef(1);
-
 pub fn init() {
     init_texture_storage();
-    include_texture!("../../sge_ui/assets/textures/close.png");
-    include_texture!("../../sge_ui/assets/textures/minimise.png");
     log::info!("Initialized textures");
 }
 
@@ -102,4 +97,8 @@ impl SgeTexture {
 
         Ok(SgeTexture::new(texture))
     }
+}
+
+pub fn num_registered_textures() -> usize {
+    get_texture_state().len()
 }

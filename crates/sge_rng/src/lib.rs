@@ -1,5 +1,3 @@
-use sge_vectors::{Vec2, Vec3, Vec4};
-use sge_global::sge_global;
 use rand::{
     Rng,
     distr::{
@@ -10,6 +8,8 @@ use rand::{
     rngs::ThreadRng,
 };
 use sge_color::Color;
+use sge_global::global;
+use sge_vectors::{Vec2, Vec3, Vec4};
 
 pub use const_random;
 
@@ -18,7 +18,7 @@ pub struct RandomState {
     counter: usize,
 }
 
-sge_global!(RandomState, random);
+global!(RandomState, random);
 
 pub fn init() {
     set_random(RandomState {

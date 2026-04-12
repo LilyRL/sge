@@ -5,13 +5,13 @@ use std::{
     time::Duration,
 };
 
-use sge_error_union::ErrorUnion;
 pub use rodio;
 use rodio::BitDepth;
 use rodio::source::{AutomaticGainControlSettings, DitherAlgorithm, LimitSettings};
 use rodio::{Decoder, DeviceSinkBuilder, MixerDeviceSink, Source, buffer::SamplesBuffer};
+use sge_error_union::ErrorUnion;
 
-sge_global::sge_global!(AudioState, audio_state);
+sge_global::global!(AudioState, audio_state);
 sge_macros::gen_ref_type!(Sound, SoundRef, sounds);
 
 pub struct AudioState {

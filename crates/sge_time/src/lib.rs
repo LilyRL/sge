@@ -1,9 +1,9 @@
 use std::time::Instant;
 
-use sge_global::sge_global;
 use log::info;
+use sge_global::global;
 
-sge_global!(Time, time_state);
+global!(Time, time_state);
 pub struct Time {
     time: f32,
     physics_time: f32,

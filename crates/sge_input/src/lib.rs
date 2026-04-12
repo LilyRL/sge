@@ -6,7 +6,7 @@ use glium::winit;
 use helper::WinitInputHelper;
 use log::info;
 use sge_error_union::Union;
-use sge_global::sge_global;
+use sge_global::global;
 use sge_types::Area;
 use sge_vectors::{UVec2, Vec2, vec2};
 use std::path::PathBuf;
@@ -30,7 +30,7 @@ pub struct Input {
     last_cursor_position: Vec2,
 }
 
-sge_global!(Input, input);
+global!(Input, input);
 
 #[cfg(feature = "gamepad")]
 pub fn init() -> Result<(), GilrsError> {

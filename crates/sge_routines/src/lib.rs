@@ -1,9 +1,9 @@
-use sge_global::sge_global;
+use sge_global::global;
 use slotmap::{SlotMap, new_key_type};
 
 new_key_type! {pub struct RoutineKey;}
 
-sge_global!(Routines, routines);
+global!(Routines, routines);
 
 pub struct Routines {
     end_of_this_frame: SlotMap<RoutineKey, Routine>,

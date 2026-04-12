@@ -211,6 +211,10 @@ pub fn gen_ref_type(input: TokenStream) -> TokenStream {
             pub fn _id(&self) -> usize {
                 self.0
             }
+
+            pub const unsafe fn new_indexed(idx: usize) -> Self {
+                Self(idx)
+            }
         }
 
         impl #ty {
