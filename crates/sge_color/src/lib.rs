@@ -1,7 +1,7 @@
-use sge_vectors::Vec4;
 use egui_glium::egui_winit::egui::Color32;
 use palette::{Hsl, IntoColor, LinSrgb, LinSrgba, Oklch, Srgb, Srgba};
 use rkyv::{Archive, Deserialize, Serialize};
+use sge_vectors::Vec4;
 use u8::Pixel;
 
 mod data;
@@ -67,6 +67,41 @@ impl Color {
 
     pub const fn with_alpha(mut self, a: f32) -> Self {
         self.a = a;
+        self
+    }
+
+    pub const fn with_red(mut self, r: f32) -> Self {
+        self.r = r;
+        self
+    }
+
+    pub const fn with_green(mut self, g: f32) -> Self {
+        self.g = g;
+        self
+    }
+
+    pub const fn with_blue(mut self, b: f32) -> Self {
+        self.b = b;
+        self
+    }
+
+    pub const fn with_alpha8(mut self, a: u8) -> Self {
+        self.a = a as f32 / 255.0;
+        self
+    }
+
+    pub const fn with_red8(mut self, r: u8) -> Self {
+        self.r = r as f32 / 255.0;
+        self
+    }
+
+    pub const fn with_green8(mut self, g: u8) -> Self {
+        self.g = g as f32 / 255.0;
+        self
+    }
+
+    pub const fn with_blue8(mut self, b: u8) -> Self {
+        self.b = b as f32 / 255.0;
         self
     }
 

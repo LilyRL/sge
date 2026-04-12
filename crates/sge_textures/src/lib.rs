@@ -1,7 +1,5 @@
 use std::{fmt::Debug, io::Cursor};
 
-use sge_vectors::{UVec2, Vec2};
-use sge_error_union::ErrorUnion;
 use glium::{
     Texture2d,
     texture::{RawImage2d, TextureCreationError},
@@ -9,8 +7,10 @@ use glium::{
 };
 use image::ImageFormat;
 use sge_config::get_config;
+use sge_error_union::ErrorUnion;
 use sge_image::Image;
 use sge_macros::{gen_ref_type, include_texture};
+use sge_vectors::{UVec2, Vec2};
 use sge_window::get_window_state;
 
 #[derive(ErrorUnion, Debug)]
