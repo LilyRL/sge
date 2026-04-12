@@ -9,5 +9,5 @@ repository = "https://github.com/LilyRL/sge"
 
 [dependencies]
 sge_error_union.workspace = true
-sge_persistence_macros = { path = "../sge_persistence_macros" }
+sge_persistence_macros = { path = "../sge_persistence_macros", version = "1.0.1" }
 rkyv.workspace = true
