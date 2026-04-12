@@ -151,7 +151,6 @@ sge_particles = { workspace = true }
 sge_include_assets = { workspace = true }
 sge_persistence = { workspace = true }
 sge_graph_networks = { workspace = true }
-sge_routines = { workspace = true }
 sge_camera_controllers.workspace = true
 
 [profile.release]
