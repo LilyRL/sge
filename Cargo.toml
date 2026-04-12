@@ -37,7 +37,6 @@ sge_macros = { path = "./crates/sge_macros", version = "1.0.0" }
 sge_math = { path = "./crates/sge_math", version = "1.0.0" }
 sge_shapes = { path = "./crates/sge_shapes", version = "1.0.0" }
 sge_input = { path = "./crates/sge_input", version = "1.0.0" }
-sge_si = { path = "./crates/sge_si", version = "1.0.0" }
 termcolor = "1.4.1"
 thiserror = "2.0.17"
 trig-const = "0.3.0"
@@ -119,7 +118,6 @@ rayon = { workspace = true }
 sge_color = { workspace = true }
 sge_macros = { workspace = true }
 sge_input = { workspace = true, optional = true }
-sge_si = { workspace = true }
 termcolor = { workspace = true }
 thiserror = { workspace = true }
 trig-const = { workspace = true }

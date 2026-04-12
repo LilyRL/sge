@@ -6,6 +6,7 @@ edition = "2024"
 description = "SI unit system as rust types, for SGE"
 license = "MIT"
 repository = "https://github.com/LilyRL/sge"
+publish = false
 
 [dependencies]
 num-traits = "0.2.19"

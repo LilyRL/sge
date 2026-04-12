@@ -2,6 +2,7 @@
 name = "sge_si_macros"
 version = "1.0.1"
 edition = "2024"
+publish = false
 
 [lib]
 proc-macro = true

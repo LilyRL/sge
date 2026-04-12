@@ -166,7 +166,6 @@ pub use sge_rng::{
     rand_range, rand_ratio, rand_usize, rand_vec2, rand_vec3, rand_vec4,
 };
 pub use sge_shapes::d2::*;
-pub use sge_si as si;
 pub use sge_texture_atlas::{
     LoadImageError, Sprite, SpriteKey, TextureAtlas, TextureAtlasRef, create_spritesheet,
     load_image,
