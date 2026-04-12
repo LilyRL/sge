@@ -9,4 +9,4 @@ repository = "https://github.com/LilyRL/sge"
 
 [dependencies]
 num-traits = "0.2.19"
-sge_si_macros = {path = "./sge_si_macros"}
+sge_si_macros = { path = "./sge_si_macros", version = "1.0.1" }
