@@ -429,18 +429,18 @@ pub const SANS_BOLD_ITALIC: FontRef = FontRef(5);
 
 #[rustfmt::skip]
 pub(crate) fn init_fonts() -> Result<(), FontError> {
-    load_font(include_bytes!("../../../assets/fonts/jetbrains.ttf")).map(|_| ())?;
+    load_font(include_bytes!("../assets/jetbrains.ttf")).map(|_| ())?;
 
     #[cfg(feature = "extra_fonts")]
-    load_font(include_bytes!("../../../assets/fonts/inter.ttf")).map(|_| ())?;
+    load_font(include_bytes!("../assets/inter.ttf")).map(|_| ())?;
     #[cfg(feature = "extra_fonts")]
-    load_font(include_bytes!("../../../assets/fonts/inter-display-bold.ttf")).map(|_| ())?;
+    load_font(include_bytes!("../assets/inter-display-bold.ttf")).map(|_| ())?;
     #[cfg(feature = "extra_fonts")]
-    load_font(include_bytes!("../../../assets/fonts/inter-italic.ttf")).map(|_| ())?;
+    load_font(include_bytes!("../assets/inter-italic.ttf")).map(|_| ())?;
     #[cfg(feature = "extra_fonts")]
-    load_font(include_bytes!("../../../assets/fonts/inter-bold.ttf")).map(|_| ())?;
+    load_font(include_bytes!("../assets/inter-bold.ttf")).map(|_| ())?;
     #[cfg(feature = "extra_fonts")]
-    load_font(include_bytes!("../../../assets/fonts/inter-bold-italic.ttf")).map(|_| ())?;
+    load_font(include_bytes!("../assets/inter-bold-italic.ttf")).map(|_| ())?;
 
     Ok(())
 }
