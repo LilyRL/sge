@@ -1,6 +1,6 @@
 [package]
 name = "sge_macros"
-version = "1.0.0"
+version = "1.0.1"
 authors = [ "Lily Lopes <joshrl@proton.me>" ]
 edition = "2024"
 description = "Macro functionality for SGE"
