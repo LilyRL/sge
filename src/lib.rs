@@ -4,8 +4,6 @@
 use std::collections::HashMap;
 use std::time::Instant;
 
-use sge_vectors::Vec2;
-use sge_error_union::ErrorUnion;
 use glium::winit::{
     dpi::PhysicalSize,
     event::{Event, WindowEvent},
@@ -18,12 +16,14 @@ use sge_config::{EngineCreationOptions, Opts, get_config};
 use sge_debugging::get_debug_info;
 #[cfg(feature = "egui")]
 use sge_egui::{egui, get_egui_state};
+use sge_error_union::ErrorUnion;
 #[cfg(feature = "input")]
 use sge_input::get_input;
 pub use sge_math::collision;
 use sge_rendering::{get_render_state, pipeline::RenderPipeline};
 pub use sge_shapes::d2 as shapes_2d;
 use sge_time::frames_since_input;
+use sge_vectors::Vec2;
 use sge_window::{get_display, get_window_state, window_size, window_size_u32};
 
 const WAIT_FOR_EVENTS_EXTRA_FRAME_DRAWS: usize = 60 * 5; // stops rendering after 300 frames of no input, when config.wait_for_events is true
@@ -54,10 +54,6 @@ pub fn init_custom(mut opts: Opts) -> Result<(), InitError> {
     sge_logging::init()?;
     sge_logging::get_logger().min_log_level = opts.min_log_level;
     sge_logging::get_logger().verbosity = opts.log_verbosity;
-    match color_eyre::install() {
-        Ok(_) => (),
-        Err(e) => error!("Could not install color_eyre: {e}"),
-    }
 
     match sge_window::init(opts.window) {
         Ok(output) => {
@@ -94,6 +90,8 @@ pub fn init_custom(mut opts: Opts) -> Result<(), InitError> {
     sge_ui::init_ui();
     user_storage::init();
     sge_physics::init();
+    #[cfg(feature = "ecs")]
+    sge_ecs::init();
     // sge_routines::init();
 
     info!("Finished initializing engine.");
@@ -102,6 +100,10 @@ pub fn init_custom(mut opts: Opts) -> Result<(), InitError> {
 }
 
 pub fn next_frame() {
+    #[cfg(feature = "ecs")]
+    sge_ecs::update();
+    dbg!(get_render_state().render_pipeline.steps.is_empty());
+
     let engine_start_time = Instant::now();
 
     let has_input_event = process_events();
@@ -113,7 +115,6 @@ pub fn next_frame() {
     render_frame();
     #[cfg(feature = "egui")]
     sge_egui::update();
-    // sge_routines::update();
     sge_window::end_of_frame();
     sge_time::update(has_input_event);
     record_frame_time(engine_start_time);

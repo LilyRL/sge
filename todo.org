@@ -8,8 +8,8 @@
   - [X] draw queue with consecutive poly and circle draw calls grouped together so
     that they can be batch drawn together. use instancing for grouped circles
 - [X] toggle using positive y up
-- [ ] space invaders using some new features
-- [ ] constant particle emitters
+- [X] space invaders using some new features
+- [X] constant particle emitters
 - [ ] texture/atlas particles
 - [ ] have a look at texture atlasses and see if we can make something good for 2d platformer levels. maybe an add colliders toggle
 - [ ] some kinda mf https://docs.rs/macroquad/latest/macroquad/telemetry/index.html
@@ -22,6 +22,9 @@
 - [X] load_sound
 - [X] load_sound_from_bytes
 - [ ] play_sound_looped
+- [ ] port debug vis to sge_ui, and make egui non default feature, reduce number
+  of crates pulled in greatly
+- [ ] ecs
 - [X] play_sound_once
 - [X] set_sound_volume
 - [ ] stop_sound

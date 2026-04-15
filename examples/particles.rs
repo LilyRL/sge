@@ -1,16 +1,13 @@
-use std::f32::consts::FRAC_PI_2;
-
 use sge::prelude::*;
 
 fn main() -> anyhow::Result<()> {
     init("Particles")?;
 
     let mut ps = ParticleSystem::new();
-    let batch = ParticleBatch::builder()
+    let batch = ParticleOneshot::builder()
         .shape(Rect::new_square(Vec2::ZERO, 20.0, Color::YELLOW_500))
         .size_randomness(5.0)
         .color_randomness(Color::new(0.3, 0.1, 0.1))
-        .direction(-FRAC_PI_2)
         .direction_randomness(0.5)
         .speed(40.0)
         .speed_randomness(3.0)
@@ -34,7 +31,7 @@ fn main() -> anyhow::Result<()> {
         );
 
         if once_per_n_seconds(0.1) {
-            ps.spawn_batch(&batch, last_cursor_pos());
+            ps.spawn_oneshot(&batch, last_cursor_pos());
         }
 
         ps.update();

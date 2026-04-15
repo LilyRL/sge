@@ -9,7 +9,10 @@ fn main() -> anyhow::Result<()> {
         if key_pressed(KeyCode::Space) {
             play_sound(sound);
         } else if key_pressed(KeyCode::KeyR) {
-            play_sound_ex(sound).speed(1.5).start();
+            play_sound_ex(sound)
+                .fade_in(Duration::from_millis(800))
+                .volume(0.5)
+                .start();
         }
 
         if should_quit() {

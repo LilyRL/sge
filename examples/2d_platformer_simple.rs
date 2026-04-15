@@ -5,7 +5,7 @@ const PLAYER_RADIUS: f32 = 30.0;
 fn main() -> anyhow::Result<()> {
     init("2D Platformer")?;
 
-    let mut world = World::new();
+    let mut world = PhysicsWorld::new();
 
     let mut player = world
         .create_player_controller(Bounds::Circle(PLAYER_RADIUS))

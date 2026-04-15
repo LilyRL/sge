@@ -207,7 +207,7 @@ impl Player {
     }
 
     fn emit_movement_particles(&self) {
-        let batch = ParticleBatch::builder()
+        let batch = ParticleOneshot::builder()
             .shape(Circle::new(
                 Vec2::ZERO,
                 Vec2::splat(LINE_THICKNESS * 1.5),
@@ -223,7 +223,7 @@ impl Player {
             .quantity((self.speed * 5.0).max(1.0) as usize)
             .position_randomness(Vec2::splat(PLAYER_SIZE * 0.3))
             .build();
-        get_particles().spawn_batch(
+        get_particles().spawn_oneshot(
             &batch,
             self.pos + vec2(0.0, -PLAYER_SIZE * 0.3).rotated_around_origin(-self.rotation),
         );
@@ -469,7 +469,7 @@ fn get_sounds() -> &'static Sounds {
 
 fn spawn_hit_particles(pos: Vec2, impact_dir: Vec2) {
     play_sound(get_sounds().asteroid_hit);
-    let batch = ParticleBatch::builder()
+    let batch = ParticleOneshot::builder()
         .shape(Circle::new(
             Vec2::ZERO,
             Vec2::splat(LINE_THICKNESS * 1.5),
@@ -484,12 +484,12 @@ fn spawn_hit_particles(pos: Vec2, impact_dir: Vec2) {
         .lifetime_randomness(0.2)
         .quantity(8)
         .build();
-    get_particles().spawn_batch(&batch, pos);
+    get_particles().spawn_oneshot(&batch, pos);
 }
 
 fn spawn_death_particles(pos: Vec2, radius: f32) {
     play_sound(get_sounds().asteroid_death);
-    let batch = ParticleBatch::builder()
+    let batch = ParticleOneshot::builder()
         .shape(Circle::new(
             Vec2::ZERO,
             Vec2::splat(LINE_THICKNESS * 2.0),
@@ -505,7 +505,7 @@ fn spawn_death_particles(pos: Vec2, radius: f32) {
         .quantity((radius * 1.5) as usize)
         .position_randomness(Vec2::splat(radius * 0.5))
         .build();
-    get_particles().spawn_batch(&batch, pos);
+    get_particles().spawn_oneshot(&batch, pos);
 }
 
 fn wrap_position(pos: Vec2, size: f32) -> Vec2 {

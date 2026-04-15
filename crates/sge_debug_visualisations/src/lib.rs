@@ -1,6 +1,7 @@
-use sge_vectors::Vec2;
 use egui_glium::egui_winit::egui::Window;
 use egui_plot::{Line, Plot, PlotPoints};
+use sge_api::shapes_2d::draw_rect;
+use sge_color::Color;
 use sge_debugging::{FRAME_BACKLOG, avg_fps, get_debug_info};
 use sge_programs::get_programs_state;
 use sge_rendering::{
@@ -9,8 +10,9 @@ use sge_rendering::{
     object_3d::get_objects_state,
     pipeline::{RenderStep, get_render_textures_state},
 };
-use sge_text::draw_text;
+use sge_text::{draw_colored_text, draw_text};
 use sge_textures::get_texture_state;
+use sge_vectors::{Vec2, vec2};
 
 pub mod grid;
 
@@ -137,4 +139,23 @@ pub fn debug_render_steps() {
 
 pub fn draw_fps() {
     draw_text(format!("{:.1}FPS", avg_fps()), Vec2::new(10.0, 5.0));
+}
+
+pub fn draw_fps_bg() {
+    let fps_text = format!("{:.1}FPS", avg_fps());
+    let text_size = sge_text::measure_text(&fps_text).size;
+    draw_rect(
+        Vec2::ZERO,
+        text_size + vec2(20.0, 10.0),
+        Color::BLACK.with_alpha(0.5),
+    );
+    draw_text(format!("{:.1}FPS", avg_fps()), Vec2::new(10.0, 5.0));
+}
+
+pub fn draw_fps_black() {
+    draw_colored_text(
+        format!("{:.1}FPS", avg_fps()),
+        Vec2::new(10.0, 5.0),
+        Color::BLACK,
+    );
 }

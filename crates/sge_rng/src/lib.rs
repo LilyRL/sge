@@ -1,5 +1,5 @@
 use rand::{
-    Rng,
+    RngExt,
     distr::{
         Distribution, StandardUniform,
         uniform::{SampleRange, SampleUniform},

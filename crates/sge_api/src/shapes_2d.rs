@@ -1,6 +1,5 @@
 #![allow(clippy::too_many_arguments)]
 
-use sge_vectors::{Vec2, vec2};
 use sge_color::Color;
 use sge_macros::draw_shape_variants;
 use sge_math::collision::{self, HasBounds2D, Polygon};
@@ -12,9 +11,11 @@ use sge_rendering::{
 };
 use sge_shapes::d2::*;
 use sge_types::Vertex2D;
+use sge_vectors::{Vec2, vec2};
 
 use crate::draw_to;
 
+dyn_clone::clone_trait_object!(Shape2DExt);
 pub trait Shape2DExt: Shape2D {
     fn draw_to(&self, renderer: Renderer2D);
 

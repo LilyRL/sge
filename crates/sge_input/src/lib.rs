@@ -499,6 +499,23 @@ pub fn gamepad_input() -> &'static Gilrs {
     &get_input().gamepad
 }
 
+pub fn pressed_movement_vector(
+    up: impl Into<Button>,
+    down: impl Into<Button>,
+    left: impl Into<Button>,
+    right: impl Into<Button>,
+) -> Vec2 {
+    let up = up.into();
+    let down = down.into();
+    let left = left.into();
+    let right = right.into();
+
+    vec2(
+        (button_held(right) as i32 - button_held(left) as i32) as f32,
+        (button_held(down) as i32 - button_held(up) as i32) as f32,
+    )
+}
+
 #[non_exhaustive]
 #[derive(Debug)]
 #[cfg(feature = "gamepad")]

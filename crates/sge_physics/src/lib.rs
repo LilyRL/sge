@@ -1,6 +1,5 @@
 use std::collections::HashMap;
 
-use sge_vectors::Vec2;
 use player::{Player, PlayerKey};
 use rapier2d::prelude::*;
 use sge_api::shapes_2d::*;
@@ -8,6 +7,7 @@ use sge_color::Color;
 use sge_macros::gen_ref_type;
 use sge_rendering::{d2::Renderer2D, dq2d, wdq2d};
 use sge_time::physics_delta_time;
+use sge_vectors::Vec2;
 use slotmap::{SlotMap, new_key_type};
 
 pub mod player;
@@ -318,7 +318,7 @@ fn draw_bounds(pos: Vec2, bounds: &Bounds, color: Color, thickness: f32, rendere
     }
 }
 
-gen_ref_type!(World, WorldRef, worlds);
+gen_ref_type!(PhysicsWorld, WorldRef, worlds);
 
 new_key_type! {
     pub struct ObjectKey;
@@ -331,7 +331,7 @@ pub struct ObjectHandles {
     pub is_dynamic: bool,
 }
 
-pub struct World {
+pub struct PhysicsWorld {
     id: usize,
     gravity: f32,
 
@@ -372,7 +372,7 @@ impl CollisionType {
     }
 }
 
-impl World {
+impl PhysicsWorld {
     #[allow(clippy::new_ret_no_self)]
     pub fn new() -> WorldRef {
         Self {

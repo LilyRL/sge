@@ -2,7 +2,7 @@ use proc_macro::TokenStream;
 use proc_macro2::Span;
 use proc_macro2::TokenStream as Ts2;
 use quote::quote;
-use rand::Rng;
+use rand::RngExt;
 use rand::distr::Alphabetic;
 use std::fs;
 use std::path::Path;

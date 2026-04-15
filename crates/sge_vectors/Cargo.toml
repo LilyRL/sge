@@ -25,15 +25,6 @@ rand_distr = { version = "0.6", optional = true }
 arrayvec = { version = "0.7", default-features = false }
 variadics_please = "1.1"
 
-[dev-dependencies]
-approx = "0.5"
-# Supply rngs for examples and tests
-rand = "0.10"
-chacha20 = { version = "0.10.0", default-features = false, features = ["rng"] }
-# Enable the approx feature when testing.
-sge_vectors = { path = ".", default-features = false, features = ["approx"] }
-glam = { version = "0.32.0", default-features = false, features = ["approx", "rand", "mint", "serde", "rkyv"] }
-
 [target.'cfg(target_arch = "wasm32")'.dev-dependencies]
 getrandom = { version = "0.3", default-features = false, features = [
   "wasm_js",

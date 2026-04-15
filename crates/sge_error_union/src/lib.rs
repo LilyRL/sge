@@ -1,7 +1,12 @@
 use proc_macro::TokenStream;
 use proc_macro2::{Span, TokenStream as Ts2};
 use quote::quote;
-use syn::{Data, DeriveInput, Fields, LitStr, parse_macro_input};
+use syn::{
+    Data, DeriveInput, Fields, Ident, ItemStruct, LitStr, PatType, Token,
+    parse::{Parse, ParseStream},
+    parse_macro_input,
+    punctuated::Punctuated,
+};
 
 /// Derives automatic `From<T>` implementations for each variant of a tuple enum.
 ///
@@ -110,4 +115,82 @@ pub fn derive_sge_error_union(tokens: TokenStream) -> TokenStream {
         impl ::std::error::Error for #enum_name {}
     }
     .into()
+}
+
+struct WrapperArgs {
+    new_args: Option<Punctuated<PatType, Token![,]>>,
+}
+
+impl Parse for WrapperArgs {
+    fn parse(input: ParseStream) -> syn::Result<Self> {
+        if input.is_empty() {
+            return Ok(WrapperArgs { new_args: None });
+        }
+        let name: Ident = input.parse()?;
+        if name != "new" {
+            return Err(syn::Error::new(name.span().into(), "expected `new(...)`"));
+        }
+        let content;
+        syn::parenthesized!(content in input);
+        let args = Punctuated::<PatType, Token![,]>::parse_terminated(&content)?;
+        Ok(WrapperArgs {
+            new_args: Some(args),
+        })
+    }
+}
+
+#[proc_macro_attribute]
+pub fn wrapper(attr: TokenStream, item: TokenStream) -> TokenStream {
+    let args = parse_macro_input!(attr as WrapperArgs);
+    let input = parse_macro_input!(item as ItemStruct);
+
+    let struct_name = &input.ident;
+
+    let inner_type = match &input.fields {
+        Fields::Unnamed(fields) if fields.unnamed.len() == 1 => &fields.unnamed.first().unwrap().ty,
+        _ => {
+            return syn::Error::new_spanned(
+                &input,
+                "wrapper only works on newtype structs of the form: struct Foo(Bar);",
+            )
+            .to_compile_error()
+            .into();
+        }
+    };
+
+    let new_method = args.new_args.map(|params| {
+        let param_names = params.iter().map(|pt| &pt.pat);
+        quote! {
+            impl #struct_name {
+                pub fn new(#params) -> Self {
+                    #struct_name(<#inner_type>::new(#(#param_names),*))
+                }
+            }
+        }
+    });
+
+    let expanded = quote! {
+        #input
+
+        #new_method
+
+        impl std::ops::Deref for #struct_name {
+            type Target = #inner_type;
+            fn deref(&self) -> &Self::Target { &self.0 }
+        }
+
+        impl std::ops::DerefMut for #struct_name {
+            fn deref_mut(&mut self) -> &mut Self::Target { &mut self.0 }
+        }
+
+        impl From<#inner_type> for #struct_name {
+            fn from(val: #inner_type) -> Self { #struct_name(val) }
+        }
+
+        impl From<#struct_name> for #inner_type {
+            fn from(val: #struct_name) -> Self { val.0 }
+        }
+    };
+
+    expanded.into()
 }

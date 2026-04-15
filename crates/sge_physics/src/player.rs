@@ -4,12 +4,12 @@ use std::{
     ops::{Deref, DerefMut},
 };
 
-use sge_vectors::Vec2;
 use nalgebra::{Vector2, vector};
 use rapier2d::{control::KinematicCharacterController, math::Isometry, prelude::QueryFilter};
 use sge_input::{Button, KeyCode, button_held, button_pressed};
 use sge_time::{physics_delta_time, time};
 use sge_utils::RotatingArray;
+use sge_vectors::Vec2;
 use slotmap::new_key_type;
 
 new_key_type! {
@@ -217,7 +217,7 @@ pub struct PlayerController {
     value: PlayerRef,
 }
 
-impl World {
+impl PhysicsWorld {
     pub fn create_player_controller(&mut self, bounds: Bounds) -> PlayerController {
         let object = self.create_kinematic(bounds).key;
 

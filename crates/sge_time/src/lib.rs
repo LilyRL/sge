@@ -105,6 +105,10 @@ pub fn time() -> f32 {
     get_time_state().time
 }
 
+pub fn time_since(instant: f32) -> f32 {
+    get_time_state().time - instant
+}
+
 pub fn time_seconds() -> usize {
     get_time_state().time as usize
 }

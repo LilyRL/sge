@@ -69,7 +69,7 @@ pub fn default_font() -> FontRef {
 
 #[allow(unused)]
 impl FontRef {
-    pub fn draw_text(&self, text: impl AsRef<str>, position: Vec2, size: usize) -> TextDimensions {
+    pub fn draw_text(&self, text: impl ToString, position: Vec2, size: usize) -> TextDimensions {
         draw_text_custom(
             text,
             TextDrawParams {
@@ -83,7 +83,7 @@ impl FontRef {
 
     pub fn draw_text_world(
         &self,
-        text: impl AsRef<str>,
+        text: impl ToString,
         position: Vec2,
         size: usize,
     ) -> TextDimensions {
@@ -100,7 +100,7 @@ impl FontRef {
 
     pub fn draw_text_world_ex(
         &self,
-        text: impl AsRef<str>,
+        text: impl ToString,
         position: Vec2,
         size: usize,
         color: Color,
@@ -120,7 +120,7 @@ impl FontRef {
 
     pub fn draw_text_ex(
         &self,
-        text: impl AsRef<str>,
+        text: impl ToString,
         position: Vec2,
         size: usize,
         color: Color,
@@ -140,7 +140,7 @@ impl FontRef {
 
     pub fn draw_multiline_text(
         &self,
-        text: impl AsRef<str>,
+        text: impl ToString,
         position: Vec2,
         size: usize,
         line_spacing: f32,
@@ -159,7 +159,7 @@ impl FontRef {
 
     pub fn draw_multiline_text_world(
         &self,
-        text: impl AsRef<str>,
+        text: impl ToString,
         position: Vec2,
         size: usize,
         line_spacing: f32,
@@ -178,7 +178,7 @@ impl FontRef {
 
     pub fn draw_multiline_text_ex(
         &self,
-        text: impl AsRef<str>,
+        text: impl ToString,
         position: Vec2,
         size: usize,
         color: Color,
@@ -200,7 +200,7 @@ impl FontRef {
 
     pub fn draw_multiline_text_world_ex(
         &self,
-        text: impl AsRef<str>,
+        text: impl ToString,
         position: Vec2,
         size: usize,
         color: Color,
@@ -288,11 +288,11 @@ impl SgeFont {
 
     pub(crate) fn measure_text(
         &mut self,
-        text: impl AsRef<str>,
+        text: impl ToString,
         font_size: f32,
         do_dpi_scaling: bool,
     ) -> TextDimensions {
-        let text = text.as_ref().to_string();
+        let text = text.to_string();
         let cache = &mut get_text_measure_cache().map;
 
         if let Some(&size) = cache.get(&(self.id, text.clone())) {
@@ -309,11 +309,11 @@ impl SgeFont {
 
     fn measure_text_inner(
         &mut self,
-        text: impl AsRef<str>,
+        text: impl ToString,
         font_size: f32,
         do_dpi_scaling: bool,
     ) -> TextDimensions {
-        let text = text.as_ref();
+        let text = text.to_string();
 
         if text.is_empty() {
             return TextDimensions::default();
@@ -323,7 +323,7 @@ impl SgeFont {
         let font_size = (font_size * dpi_scaling).ceil();
         let mut layout =
             fontdue::layout::Layout::new(fontdue::layout::CoordinateSystem::PositiveYDown);
-        layout.append(&[&self.font], &TextStyle::new(text, font_size, 0));
+        layout.append(&[&self.font], &TextStyle::new(&text, font_size, 0));
 
         let mut width = 0.0f32;
 
@@ -446,11 +446,11 @@ pub(crate) fn init_fonts() -> Result<(), FontError> {
 }
 
 fn draw_text_to(
-    text: impl AsRef<str>,
+    text: impl ToString,
     params: TextDrawParams,
     mut renderer: Renderer2D,
 ) -> TextDimensions {
-    let text = text.as_ref();
+    let text = text.to_string();
     let TextDrawParams {
         font,
         font_size,
@@ -467,7 +467,7 @@ fn draw_text_to(
     let font_size = (font_size as f32 * dpi_scaling).ceil();
     let mut font = font.unwrap_or(default_font());
     let mut layout = fontdue::layout::Layout::new(fontdue::layout::CoordinateSystem::PositiveYDown);
-    layout.append(&[&font.font], &TextStyle::new(text, font_size, 0));
+    layout.append(&[&font.font], &TextStyle::new(&text, font_size, 0));
 
     let mut width = 0.0f32;
 
@@ -506,12 +506,12 @@ fn draw_text_to(
     }
 }
 
-pub fn draw_text_custom(text: impl AsRef<str>, params: TextDrawParams) -> TextDimensions {
+pub fn draw_text_custom(text: impl ToString, params: TextDrawParams) -> TextDimensions {
     draw_text_to(text, params, dq2d())
 }
 
 pub fn draw_text_ex(
-    text: impl AsRef<str>,
+    text: impl ToString,
     position: Vec2,
     color: Color,
     font_size: usize,
@@ -529,7 +529,7 @@ pub fn draw_text_ex(
 }
 
 pub fn draw_text_world_ex(
-    text: impl AsRef<str>,
+    text: impl ToString,
     position: Vec2,
     color: Color,
     font_size: usize,
@@ -546,7 +546,7 @@ pub fn draw_text_world_ex(
     )
 }
 
-pub fn draw_text(text: impl AsRef<str>, position: Vec2) -> TextDimensions {
+pub fn draw_text(text: impl ToString, position: Vec2) -> TextDimensions {
     draw_text_to(
         text,
         TextDrawParams {
@@ -557,7 +557,7 @@ pub fn draw_text(text: impl AsRef<str>, position: Vec2) -> TextDimensions {
     )
 }
 
-pub fn draw_colored_text(text: impl AsRef<str>, position: Vec2, color: Color) -> TextDimensions {
+pub fn draw_colored_text(text: impl ToString, position: Vec2, color: Color) -> TextDimensions {
     draw_text_to(
         text,
         TextDrawParams {
@@ -570,7 +570,7 @@ pub fn draw_colored_text(text: impl AsRef<str>, position: Vec2, color: Color) ->
 }
 
 pub fn draw_colored_text_world(
-    text: impl AsRef<str>,
+    text: impl ToString,
     position: Vec2,
     color: Color,
 ) -> TextDimensions {
@@ -585,7 +585,7 @@ pub fn draw_colored_text_world(
     )
 }
 
-pub fn draw_text_size(text: impl AsRef<str>, position: Vec2, size: usize) -> TextDimensions {
+pub fn draw_text_size(text: impl ToString, position: Vec2, size: usize) -> TextDimensions {
     draw_text_to(
         text,
         TextDrawParams {
@@ -597,11 +597,11 @@ pub fn draw_text_size(text: impl AsRef<str>, position: Vec2, size: usize) -> Tex
     )
 }
 
-pub fn draw_text_world_custom(text: impl AsRef<str>, params: TextDrawParams) -> TextDimensions {
+pub fn draw_text_world_custom(text: impl ToString, params: TextDrawParams) -> TextDimensions {
     draw_text_to(text, params, wdq2d())
 }
 
-pub fn draw_text_world(text: impl AsRef<str>, position: Vec2) -> TextDimensions {
+pub fn draw_text_world(text: impl ToString, position: Vec2) -> TextDimensions {
     draw_text_to(
         text,
         TextDrawParams {
@@ -612,7 +612,7 @@ pub fn draw_text_world(text: impl AsRef<str>, position: Vec2) -> TextDimensions 
     )
 }
 
-pub fn draw_text_size_world(text: impl AsRef<str>, position: Vec2, size: usize) -> TextDimensions {
+pub fn draw_text_size_world(text: impl ToString, position: Vec2, size: usize) -> TextDimensions {
     draw_text_to(
         text,
         TextDrawParams {
@@ -628,12 +628,12 @@ pub fn load_font(bytes: &[u8]) -> Result<FontRef, FontError> {
     SgeFont::load_from_bytes(bytes).map(|f| f.create())
 }
 
-pub fn measure_text(text: impl AsRef<str>) -> TextDimensions {
+pub fn measure_text(text: impl ToString) -> TextDimensions {
     measure_text_ex(text, TextDrawParams::default())
 }
 
 /// Does not take translatation, rotation or colour into account. Feel free to exclude them.
-pub fn measure_text_ex(text: impl AsRef<str>, params: TextDrawParams) -> TextDimensions {
+pub fn measure_text_ex(text: impl ToString, params: TextDrawParams) -> TextDimensions {
     let TextDrawParams {
         font,
         font_size,
@@ -646,12 +646,12 @@ pub fn measure_text_ex(text: impl AsRef<str>, params: TextDrawParams) -> TextDim
 }
 
 fn draw_multiline_text_to(
-    text: impl AsRef<str>,
+    text: impl ToString,
     params: TextDrawParams,
     line_spacing: f32,
     renderer: Renderer2D,
 ) -> TextDimensions {
-    let text = text.as_ref();
+    let text = text.to_string();
     let lines: Vec<&str> = text.lines().collect();
 
     if lines.is_empty() {
@@ -705,7 +705,7 @@ fn draw_multiline_text_to(
 }
 
 pub fn draw_multiline_text(
-    text: impl AsRef<str>,
+    text: impl ToString,
     position: Vec2,
     line_spacing: f32,
 ) -> TextDimensions {
@@ -721,7 +721,7 @@ pub fn draw_multiline_text(
 }
 
 pub fn draw_multiline_text_size(
-    text: impl AsRef<str>,
+    text: impl ToString,
     position: Vec2,
     size: usize,
     line_spacing: f32,
@@ -739,7 +739,7 @@ pub fn draw_multiline_text_size(
 }
 
 pub fn draw_multiline_text_ex(
-    text: impl AsRef<str>,
+    text: impl ToString,
     params: TextDrawParams,
     line_spacing: f32,
 ) -> TextDimensions {
@@ -747,7 +747,7 @@ pub fn draw_multiline_text_ex(
 }
 
 pub fn draw_multiline_text_world(
-    text: impl AsRef<str>,
+    text: impl ToString,
     position: Vec2,
     line_spacing: f32,
 ) -> TextDimensions {
@@ -763,7 +763,7 @@ pub fn draw_multiline_text_world(
 }
 
 pub fn draw_multiline_text_size_world(
-    text: impl AsRef<str>,
+    text: impl ToString,
     position: Vec2,
     size: usize,
     line_spacing: f32,
@@ -781,23 +781,23 @@ pub fn draw_multiline_text_size_world(
 }
 
 pub fn draw_multiline_text_world_ex(
-    text: impl AsRef<str>,
+    text: impl ToString,
     params: TextDrawParams,
     line_spacing: f32,
 ) -> TextDimensions {
     draw_multiline_text_to(text, params, line_spacing, wdq2d())
 }
 
-pub fn measure_multiline_text(text: impl AsRef<str>, line_spacing: f32) -> TextDimensions {
+pub fn measure_multiline_text(text: impl ToString, line_spacing: f32) -> TextDimensions {
     measure_multiline_text_ex(text, TextDrawParams::default(), line_spacing)
 }
 
 pub fn measure_multiline_text_ex(
-    text: impl AsRef<str>,
+    text: impl ToString,
     params: TextDrawParams,
     line_spacing: f32,
 ) -> TextDimensions {
-    let text = text.as_ref();
+    let text = text.to_string();
     let lines: Vec<&str> = text.lines().collect();
 
     if lines.is_empty() {

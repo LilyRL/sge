@@ -1,11 +1,11 @@
 [package]
 name = "sge_color"
-version = "1.0.2"
-authors = [ "Lily Lopes <joshrl@proton.me>" ]
+version = "1.0.1"
 edition = "2024"
 description = "Color functionality for SGE"
 license = "MIT"
 repository = "https://github.com/LilyRL/sge"
+authors = [ "Lily Lopes <joshrl@proton.me>" ]
 
 [dependencies]
 sge_vectors = { workspace = true }

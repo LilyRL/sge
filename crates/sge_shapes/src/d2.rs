@@ -1,10 +1,11 @@
-use sge_vectors::{Mat3, Vec2, vec2};
 use dyn_clone::DynClone;
 use sge_color::Color;
 use sge_math::collision::{Aabb2d, HasBounds2D};
 use sge_types::Vertex2D;
+use sge_vectors::{Mat3, Vec2, vec2};
 use std::f32::consts::TAU;
 
+dyn_clone::clone_trait_object!(Shape2D);
 pub trait Shape2D: HasBounds2D + DynClone {
     fn gen_mesh(&self, starting_index: u32) -> (Vec<u32>, Vec<Vertex2D>);
     fn is_visible_in_world(&self) -> bool {
@@ -610,6 +611,21 @@ impl HasBounds2D for Poly {
 }
 
 impl Poly {
+    pub fn new(center: Vec2, radius: f32, sides: usize, color: Color) -> Self {
+        Self {
+            center,
+            radius,
+            sides,
+            rotation: 0.0,
+            color,
+        }
+    }
+
+    pub fn with_rotation(mut self, rotation: f32) -> Self {
+        self.rotation = rotation;
+        self
+    }
+
     pub fn gen_points(&self) -> Vec<Vec2> {
         let mut points = Vec::with_capacity(self.sides);
         let angle_step = TAU / self.sides as f32;

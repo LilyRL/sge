@@ -12,7 +12,7 @@ struct Player {
 fn main() -> anyhow::Result<()> {
     init("2D Platformer")?;
 
-    let mut world = World::new();
+    let mut world = PhysicsWorld::new();
 
     let mut player = Player {
         color: Color::RED_500,
@@ -52,7 +52,7 @@ fn main() -> anyhow::Result<()> {
 
     let mut ps = ParticleSystem::new();
 
-    let jump_particles = ParticleBatch::builder()
+    let jump_particles = ParticleOneshot::builder()
         .shape(Rect::new_square(
             Vec2::ZERO,
             10.0,
@@ -69,7 +69,7 @@ fn main() -> anyhow::Result<()> {
         .lifetime(1.0)
         .build();
 
-    let land_particles = ParticleBatch::builder()
+    let land_particles = ParticleOneshot::builder()
         .shape(Rect::new_square(
             Vec2::ZERO,
             10.0,
@@ -138,14 +138,14 @@ fn main() -> anyhow::Result<()> {
         }
 
         if player.controller.just_double_jumped() {
-            ps.spawn_batch(
+            ps.spawn_oneshot(
                 &jump_particles,
                 player.controller.position() + vec2(0.0, PLAYER_RADIUS),
             );
         }
 
         if player.controller.just_landed() {
-            ps.spawn_batch(
+            ps.spawn_oneshot(
                 &land_particles,
                 player.controller.position() + vec2(0.0, PLAYER_RADIUS),
             );

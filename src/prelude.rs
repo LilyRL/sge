@@ -137,8 +137,8 @@ pub use sge_math::usize_rect::USizeRect;
 pub use sge_particles::*;
 pub use sge_persistence::{Error as PersistenceError, persistent, rkyv};
 pub use sge_physics::{
-    Bounds, ColliderConfig, CollisionPoints, ObjectRef, World, WorldRef, player::PlayerBindBuilder,
-    player::PlayerController,
+    Bounds, ColliderConfig, CollisionPoints, ObjectRef, PhysicsWorld, WorldRef,
+    player::PlayerBindBuilder, player::PlayerController,
 };
 pub use sge_programs::include_program;
 pub use sge_programs::load_program;
@@ -170,12 +170,15 @@ pub use sge_texture_atlas::{
     LoadImageError, Sprite, SpriteKey, TextureAtlas, TextureAtlasRef, create_spritesheet,
     load_image,
 };
-pub use sge_textures::{LoadTextureError, SgeTexture, TextureRef, load_texture};
+pub use sge_textures::{
+    LoadTextureError, SgeTexture, TextureRef, load_texture, num_registered_textures,
+};
 pub use sge_time::{
     delta_time, frame_count, frames_since_input, is_first_frame, is_physics_time_paused,
     is_physics_time_paused_mut, once_per_n_seconds, once_per_second, pause_physics_timer,
     physics_delta_time, physics_speed, physics_speed_mut, physics_time, play_physics_timer,
-    set_physics_speed, time, time_seconds, toggle_every_n_seconds, toggle_physics_timer,
+    set_physics_speed, time, time_seconds, time_since, toggle_every_n_seconds,
+    toggle_physics_timer,
 };
 pub use sge_types::{
     Area, BufferError, MaterialVertex3D, SpriteVertex, TexturedVertex2D, Verbosity, Vertex2D,
@@ -251,8 +254,8 @@ pub mod input {
         held_alt, held_control, held_shift, input_text, key_held, key_held_logical, key_pressed,
         key_pressed_logical, key_pressed_os, key_pressed_os_logical, key_released,
         key_released_logical, keys::KeyToString, last_cursor_pos, mouse_diff, mouse_held,
-        mouse_pressed, mouse_released, resolution, scale_factor, scale_factor_changed, scroll_diff,
-        should_quit, window_resized,
+        mouse_pressed, mouse_released, pressed_movement_vector, resolution, scale_factor,
+        scale_factor_changed, scroll_diff, should_quit, window_resized,
     };
 }
 
@@ -309,4 +312,33 @@ pub use debug_visualisations::*;
 mod debug_visualisations {
     pub use sge_debug_visualisations::grid::{create_infinite_grid, draw_2d_grid_world};
     pub use sge_debug_visualisations::*;
+}
+
+#[cfg(feature = "ecs")]
+pub use sge_ecs::bevy_ecs;
+#[cfg(feature = "ecs")]
+pub mod ecs {
+    pub use sge_ecs::bevy_ecs::prelude::{
+        Add, Added, Allow, AnyOf, AppTypeRegistry, ApplyDeferred, BevyError, Bundle, Changed,
+        ChildOf, ChildSpawner, ChildSpawnerCommands, Children, Command, Commands, Component,
+        ContainsEntity, Deferred, Despawn, DetectChanges, DetectChangesMut, Entity, EntityCommand,
+        EntityCommands, EntityEvent, EntityMapper, EntityMut, EntityRef, EntityWorldMut, Event,
+        FilteredResources, FilteredResourcesMut, FromWorld, Has, If, In, InMut, InRef, Insert,
+        IntoScheduleConfigs, IntoSystem, IntoSystemSet, Local, Message, MessageMutator,
+        MessageReader, MessageWriter, Messages, Mut, Name, NameOrEntity, NonSend, NonSendMut,
+        Observer, On, Or, ParallelCommands, ParamSet, Populated, Query, QueryBuilder, QueryState,
+        ReadOnlySystem, Ref, ReflectComponent, ReflectEvent, ReflectFromWorld, ReflectResource,
+        RelationshipTarget, Remove, RemovedComponents, Replace, Res, ResMut, Resource, Result,
+        Schedule, Schedules, Single, Spawn, SpawnIter, SpawnRelated, SpawnWith, System,
+        SystemCondition, SystemIn, SystemInput, SystemParamBuilder, SystemParamFunction, SystemSet,
+        With, WithOneRelated, WithRelated, Without, any_component_removed, any_match_filter,
+        any_with_component, children, condition_changed, condition_changed_to, not, on_message,
+        related, resource_added, resource_changed, resource_changed_or_removed, resource_equals,
+        resource_exists, resource_exists_and_changed, resource_exists_and_equals, resource_removed,
+        run_once,
+    };
+    pub use sge_ecs::{
+        Acceleration2D, AngularVelocity2D, DrawScreen, DrawWorld, Ecs, MovementBundle, Position2D,
+        Rotation2D, ShapeComponent, Velocity2D,
+    };
 }

@@ -1,0 +1,13 @@
+[package]
+name = "sge_ecs"
+version = "1.0.1"
+edition = "2024"
+
+[dependencies]
+bevy_ecs = "0.18.1"
+sge_api.workspace = true
+sge_error_union.workspace = true
+sge_macros.workspace = true
+sge_shapes.workspace = true
+sge_time.workspace = true
+sge_vectors.workspace = true

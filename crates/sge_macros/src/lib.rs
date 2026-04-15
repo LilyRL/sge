@@ -199,11 +199,6 @@ pub fn gen_ref_type(input: TokenStream) -> TokenStream {
                 &mut #get_name()[self.0]
             }
 
-            pub fn new() -> Self {
-                let id = #get_name().len();
-                Self(id)
-            }
-
             pub fn replace(&self, new: #ty) {
                 #get_name()[self.0] = new;
             }
