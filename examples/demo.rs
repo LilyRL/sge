@@ -146,7 +146,7 @@ fn main() -> anyhow::Result<()> {
 
         run_egui(|ctx| {
             if show_debug_info {
-                draw_debug_info(ctx);
+                draw_debug_info();
             }
 
             egui::Window::new("Hello, world").show(ctx, |ui| {

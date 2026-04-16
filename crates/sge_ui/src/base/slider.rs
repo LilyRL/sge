@@ -1,27 +1,14 @@
 use super::*;
+use crate::NumberValue;
 use core::f32;
 use sge_input::{cursor, mouse_pressed, mouse_released};
 use sge_utils::{FromF32, PartialClamp, ToF32};
 use sge_vectors::vec2;
 use sge_window::{use_grab_cursor_icon, use_grabbing_cursor_icon};
-use std::ops::{Add, Div, Mul, Sub};
-
-pub trait SliderValue = Add<Self, Output = Self>
-    + Sub<Self, Output = Self>
-    + Div<Self, Output = Self>
-    + Mul<Self, Output = Self>
-    + 'static
-    + Sized
-    + Debug
-    + PartialOrd
-    + Copy
-    + ToF32
-    + FromF32
-    + PartialClamp;
 
 #[derive(Debug)]
 /// If you're confused on how to use the slider element, check the source for the flat Slider component
-pub struct Slider<T: SliderValue> {
+pub struct Slider<T: NumberValue> {
     min: T,
     max: T,
     value: *mut T,
@@ -35,7 +22,7 @@ pub struct SliderState {
     captured: bool,
 }
 
-impl<T: SliderValue> Slider<T> {
+impl<T: NumberValue> Slider<T> {
     pub fn new(value: &mut T, min: T, max: T, handle: Child, bar: Child, id: usize) -> UiRef {
         Self {
             min,
@@ -49,7 +36,7 @@ impl<T: SliderValue> Slider<T> {
     }
 }
 
-impl<T: SliderValue> UiNode for Slider<T> {
+impl<T: NumberValue> UiNode for Slider<T> {
     fn preferred_dimensions(&self) -> Vec2 {
         let height = self.bar.preferred_dimensions().y;
         vec2(f32::INFINITY, height)

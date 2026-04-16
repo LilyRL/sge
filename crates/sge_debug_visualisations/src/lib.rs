@@ -1,5 +1,3 @@
-use egui_glium::egui_winit::egui::Window;
-use egui_plot::{Line, Plot, PlotPoints};
 use sge_api::shapes_2d::draw_rect;
 use sge_color::Color;
 use sge_debugging::{FRAME_BACKLOG, avg_fps, get_debug_info};
@@ -12,116 +10,73 @@ use sge_rendering::{
 };
 use sge_text::{draw_colored_text, draw_text};
 use sge_textures::get_texture_state;
+use sge_ui::prelude::*;
 use sge_vectors::{Vec2, vec2};
 
 pub mod grid;
 
-pub fn draw_debug_info(ui: &egui_glium::egui_winit::egui::Context) {
+pub fn draw_debug_info() {
     let debug = get_debug_info();
     let current_frame = debug.previous_frame();
 
-    let vertex_points: PlotPoints = (0..FRAME_BACKLOG)
+    let vertex_points: Vec<_> = (1..FRAME_BACKLOG - 1)
         .map(|i| {
             let frame = &debug.frames[(i + debug.frame_offset) % FRAME_BACKLOG];
-            [i as f64, frame.vertex_count as f64]
+            frame.vertex_count
         })
         .collect();
-    let index_points: PlotPoints = (0..FRAME_BACKLOG)
+    let index_points: Vec<_> = (1..FRAME_BACKLOG - 1)
         .map(|i| {
             let frame = &debug.frames[(i + debug.frame_offset) % FRAME_BACKLOG];
-            [i as f64, frame.index_count as f64]
+            frame.index_count
         })
         .collect();
-    let draw_call_points: PlotPoints = (0..FRAME_BACKLOG)
+    let draw_call_points: Vec<_> = (1..FRAME_BACKLOG - 1)
         .map(|i| {
             let frame = &debug.frames[(i + debug.frame_offset) % FRAME_BACKLOG];
-            [i as f64, frame.draw_calls as f64]
+            frame.draw_calls
         })
         .collect();
-    let drawn_object_points: PlotPoints = (0..FRAME_BACKLOG)
+    let engine_time_points: Vec<_> = (1..FRAME_BACKLOG - 1)
         .map(|i| {
             let frame = &debug.frames[(i + debug.frame_offset) % FRAME_BACKLOG];
-            [i as f64, frame.drawn_objects as f64]
-        })
-        .collect();
-    let engine_time_points: PlotPoints = (0..FRAME_BACKLOG)
-        .map(|i| {
-            let frame = &debug.frames[(i + debug.frame_offset) % FRAME_BACKLOG];
-            [i as f64, frame.engine_time]
+            frame.engine_time
         })
         .collect();
 
-    let vertex_line = Line::new(vertex_points);
-    let index_line = Line::new(index_points);
-    let draw_call_line = Line::new(draw_call_points);
-    let drawn_object_line = Line::new(drawn_object_points);
-    let engine_time_line = Line::new(engine_time_points);
+    let window = flat::FloatingWindow::new(
+        "Debug Info",
+        0xDEEB,
+        Col::new([
+            // vertices
+            Text::new(format!("Vertex count: {}", current_frame.vertex_count)),
+            flat::LineChart::new(&vertex_points, 200.0, 200.0),
+            // indices
+            Text::new(format!("Index count: {}", current_frame.index_count)),
+            flat::LineChart::new(&index_points, 200.0, 200.0),
+            // draw calls
+            Text::new(format!("Draw call count: {}", current_frame.draw_calls)),
+            flat::LineChart::new(&draw_call_points, 200.0, 200.0),
+            // engine_time
+            Text::new(format!(
+                "Engine time (ms): {:.3}",
+                current_frame.engine_time
+            )),
+            flat::LineChart::new(&engine_time_points, 200.0, 200.0),
+            // text
+            Text::new(format!("Textures: {}", get_texture_state().len())),
+            Text::new(format!(
+                "Render textures: {}",
+                get_render_textures_state().len()
+            )),
+            Text::new(format!("Programs: {}", get_programs_state().len())),
+            Text::new(format!("Materials: {}", get_materials_state().len())),
+            Text::new(format!("Objects: {}", get_objects_state().len())),
+            Text::new(format!("FPS: {:.1}", debug.fps.avg())),
+        ]),
+    );
 
-    Window::new("Debug info").show(ui, |ui| {
-        for (id, max, label, line, current) in [
-            (
-                "vertex_plot",
-                debug.max.vertex_count,
-                "Vertex count",
-                vertex_line,
-                current_frame.vertex_count as f32,
-            ),
-            (
-                "index_plot",
-                debug.max.index_count,
-                "Indice count",
-                index_line,
-                current_frame.index_count as f32,
-            ),
-            (
-                "draw_plot",
-                debug.max.draw_calls,
-                "Draw call count",
-                draw_call_line,
-                current_frame.draw_calls as f32,
-            ),
-            (
-                "object_plot",
-                debug.max.drawn_objects,
-                "Drawn object count",
-                drawn_object_line,
-                current_frame.drawn_objects as f32,
-            ),
-            (
-                "engine_time_plot",
-                debug.max.engine_time.ceil() as usize,
-                "Engine time (ms)",
-                engine_time_line,
-                current_frame.engine_time as f32,
-            ),
-        ] {
-            ui.label(format!("{}: {}", label, current));
-            Plot::new(id)
-                .height(100.0)
-                .include_y(max as f64 * 1.5)
-                .include_y(0.0)
-                .allow_scroll(false)
-                .allow_drag(false)
-                .allow_zoom(false)
-                .y_axis_label(label)
-                .show(ui, |ui| ui.line(line));
-        }
-
-        ui.label(format!("Textures: {}", get_texture_state().len()));
-        ui.label(format!(
-            "Render textures: {}",
-            get_render_textures_state().len()
-        ));
-        ui.label(format!("Programs: {}", get_programs_state().len()));
-        ui.label(format!("Materials: {}", get_materials_state().len()));
-        ui.label(format!("Objects: {}", get_objects_state().len()));
-
-        ui.label(format!("FPS: {:.1}", debug.fps.avg()));
-        ui.label(format!(
-            "Engine time: {:.3}ms",
-            debug.current_frame().engine_time
-        ));
-    });
+    draw_ui_window(window);
 }
 
 pub fn debug_render_steps() {

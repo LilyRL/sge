@@ -38,3 +38,6 @@ pub use window::*;
 
 pub mod slider;
 pub use slider::*;
+
+pub mod line_chart;
+pub use line_chart::*;

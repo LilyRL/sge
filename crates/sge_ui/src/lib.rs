@@ -4,7 +4,7 @@
 use std::{
     collections::HashMap,
     fmt::Debug,
-    ops::{Deref, DerefMut},
+    ops::{Add, Deref, DerefMut, Div, Mul, Sub},
 };
 
 use base::{Empty, FloatingWindow};
@@ -15,6 +15,7 @@ use sge_macros::{gen_ref_type, include_texture};
 use sge_textures::{ImageFormat, TextureRef, load_texture};
 use sge_time::{delta_time, frame_count, time};
 use sge_types::Area;
+use sge_utils::{FromF32, PartialClamp, ToF32};
 use sge_vectors::Vec2;
 use sge_window::window_size;
 
@@ -285,3 +286,16 @@ pub struct SomeState {
 pub fn all_elements_interacted_this_frame() -> &'static [usize] {
     &get_ui_storage().elements_interacted_this_frame
 }
+
+pub trait NumberValue = Add<Self, Output = Self>
+    + Sub<Self, Output = Self>
+    + Div<Self, Output = Self>
+    + Mul<Self, Output = Self>
+    + 'static
+    + Sized
+    + Debug
+    + PartialOrd
+    + Copy
+    + ToF32
+    + FromF32
+    + PartialClamp;

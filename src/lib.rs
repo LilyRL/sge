@@ -102,7 +102,6 @@ pub fn init_custom(mut opts: Opts) -> Result<(), InitError> {
 pub fn next_frame() {
     #[cfg(feature = "ecs")]
     sge_ecs::update();
-    dbg!(get_render_state().render_pipeline.steps.is_empty());
 
     let engine_start_time = Instant::now();
 

@@ -213,3 +213,9 @@ impl UiNode for Border {
         dimensions + self.extra_size()
     }
 }
+
+impl UiRef {
+    pub fn border(self, color: Color, thickness: f32) -> Self {
+        Border::all(thickness, color, self)
+    }
+}
