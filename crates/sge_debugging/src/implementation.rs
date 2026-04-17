@@ -1,6 +1,6 @@
 use fps_ticker::Fps;
 
-pub const FRAME_BACKLOG: usize = 1000;
+pub const FRAME_BACKLOG: usize = 500;
 
 sge_global::global!(DebugInfo, debug_info);
 

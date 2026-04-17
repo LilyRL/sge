@@ -18,9 +18,7 @@ fn main() -> anyhow::Result<()> {
 
         sharpen_screen(100.0);
 
-        run_egui(|ui| {
-            draw_debug_info(ui);
-        });
+        draw_debug_info();
 
         if should_quit() {
             break;

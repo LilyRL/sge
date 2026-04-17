@@ -361,7 +361,9 @@ impl PhysicsWorld {
             }
         }
 
-        let desired_translation: Vector2<f32> = (p.velocity * dt).into();
+        let desired_translation = p.velocity * dt;
+        let desired_translation: Vector2<f32> =
+            vector![desired_translation.x, desired_translation.y];
 
         let rb_handle = self.objects[p.object].rigid_body;
         let current_pos = *self.rigid_body_set[rb_handle].position();

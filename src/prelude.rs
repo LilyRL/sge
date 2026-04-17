@@ -162,8 +162,9 @@ pub use sge_rendering::scissor::{
 };
 pub use sge_rendering::shapes_3d::*;
 pub use sge_rng::{
-    const_random, get_next_counter, get_random, id, rand, rand_bool, rand_color, rand_f32,
-    rand_range, rand_ratio, rand_usize, rand_vec2, rand_vec3, rand_vec4,
+    const_random, get_next_counter, get_random, id, maybe_rand_choice, rand, rand_bool,
+    rand_choice, rand_color, rand_f32, rand_range, rand_ratio, rand_usize, rand_vec2, rand_vec3,
+    rand_vec4,
 };
 pub use sge_shapes::d2::*;
 pub use sge_texture_atlas::{

@@ -11,24 +11,46 @@ use super::Data;
 pub struct LineChart<T: NumberValue> {
     line_color: Color,
     line_thickness: f32,
+    include_y: T,
     data: Data<T>,
 }
 
 impl<T: NumberValue> LineChart<T> {
-    pub fn new(data: &[T], line_color: Color) -> UiRef {
+    pub fn new(data: impl Into<Data<T>>, line_color: Color) -> UiRef {
         Self {
             line_color,
             line_thickness: 2.0,
-            data: Data::new(data),
+            data: data.into(),
+            include_y: T::zero(),
         }
         .to_ref()
     }
 
-    pub fn new_with_line_thickness(data: &[T], line_color: Color, line_thickness: f32) -> UiRef {
+    pub fn new_with_line_thickness(
+        data: impl Into<Data<T>>,
+        line_color: Color,
+        line_thickness: f32,
+    ) -> UiRef {
         Self {
             line_color,
             line_thickness,
-            data: Data::new(data),
+            data: data.into(),
+            include_y: T::zero(),
+        }
+        .to_ref()
+    }
+
+    pub fn custom(
+        data: impl Into<Data<T>>,
+        line_color: Color,
+        line_thickness: f32,
+        include_y: T,
+    ) -> UiRef {
+        Self {
+            line_color,
+            line_thickness,
+            data: data.into(),
+            include_y,
         }
         .to_ref()
     }
@@ -57,6 +79,7 @@ impl<T: NumberValue> UiNode for LineChart<T> {
         if max_value == 0.0 {
             return Vec2::ZERO;
         }
+        let max_value = max_value.max(self.include_y.to_f32());
 
         let height_of_one = area.height() / max_value;
         let width_of_one = area.width() / (n - 1) as f32;

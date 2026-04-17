@@ -28,9 +28,7 @@ fn main() -> anyhow::Result<()> {
             break;
         }
 
-        run_egui(|ui| {
-            draw_debug_info(ui);
-        });
+        draw_debug_info();
 
         next_frame();
     }

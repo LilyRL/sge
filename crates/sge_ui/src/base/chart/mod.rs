@@ -1,22 +1,33 @@
 use super::*;
 use crate::NumberValue;
+use sge_error_union::Union;
 
 pub use line::LineChart;
 mod line;
 
-#[derive(Debug)]
-struct Data<T: NumberValue> {
-    data: *const [T],
+#[derive(Union, Debug)]
+pub enum Data<T> {
+    Owned(Vec<T>),
+    Borrowed(*const [T]),
+}
+
+impl<T> From<&[T]> for Data<T> {
+    fn from(slice: &[T]) -> Self {
+        Self::Borrowed(slice as *const [T])
+    }
+}
+
+impl<T> From<&Vec<T>> for Data<T> {
+    fn from(vec: &Vec<T>) -> Self {
+        Self::Borrowed(vec.as_slice() as *const [T])
+    }
 }
 
 impl<T: NumberValue> Data<T> {
-    fn new(ref_: &[T]) -> Self {
-        Self {
-            data: ref_ as *const [T],
+    fn as_ref(&self) -> &[T] {
+        match self {
+            Self::Borrowed(p) => unsafe { &**p },
+            Self::Owned(v) => &v,
         }
-    }
-
-    fn as_ref(&self) -> &'static [T] {
-        unsafe { &*self.data }
     }
 }

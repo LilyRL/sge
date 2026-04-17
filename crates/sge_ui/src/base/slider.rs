@@ -2,7 +2,6 @@ use super::*;
 use crate::NumberValue;
 use core::f32;
 use sge_input::{cursor, mouse_pressed, mouse_released};
-use sge_utils::{FromF32, PartialClamp, ToF32};
 use sge_vectors::vec2;
 use sge_window::{use_grab_cursor_icon, use_grabbing_cursor_icon};
 

@@ -44,7 +44,7 @@ impl State {
         draw_ui(ui, vec2(0.0, 0.0));
 
         if self.show_debug_info {
-            run_egui(|ui| draw_debug_info(ui));
+            draw_debug_info();
         }
     }
 

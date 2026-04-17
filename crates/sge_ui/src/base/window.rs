@@ -291,6 +291,12 @@ impl FloatingWindow {
         if self.resizable {
             self.do_resizing(state, cursor);
         }
+
+        // check if the cursor is anywhere over the window or titlebar
+        let window_area = Area::new(state.position, cursor - state.position);
+        if ui.is_hovered(window_area) {
+            ui.consume_input();
+        }
     }
 }
 

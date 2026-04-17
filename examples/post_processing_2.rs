@@ -18,9 +18,7 @@ fn main() -> anyhow::Result<()> {
 
         bloom_screen(0.5, 1.0, 0.6, 20.0, 5);
 
-        run_egui(|ui| {
-            draw_debug_info(ui);
-        });
+        draw_debug_info();
 
         if should_quit() {
             break;

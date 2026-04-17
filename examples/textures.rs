@@ -42,11 +42,9 @@ fn main() -> anyhow::Result<()> {
             }
         }
 
-        run_egui(|ui| {
-            if show_debug_info {
-                draw_debug_info(ui);
-            }
-        });
+        if show_debug_info {
+            draw_debug_info();
+        }
 
         if should_quit() {
             break;

@@ -6,7 +6,7 @@ fn random_rect() -> Rect {
     let sf = window_height().min(window_width());
     let center: Vec2 = rand::<Vec2>() * sf;
     let size: Vec2 = rand::<Vec2>() * sf;
-    let color: Color = rand_color();
+    let color = rand_choice(&Palette::PALETTES).v500;
 
     Rect::from_center(center, size, color).with_rotation(rand::<f32>() * TAU)
 }
@@ -18,6 +18,8 @@ fn main() -> anyhow::Result<()> {
         AnimationController::new(random_rect(), random_rect(), 1.0, EaseOutElastic);
 
     loop {
+        clear_screen(Color::hex(0x101013));
+
         draw(&animation_controller.value());
 
         if animation_controller.is_complete() {

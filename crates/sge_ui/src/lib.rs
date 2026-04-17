@@ -9,6 +9,7 @@ use std::{
 
 use base::{Empty, FloatingWindow};
 use glium::winit::event::MouseButton;
+use num_traits::Zero;
 use sge_color::Color;
 use sge_input::{Input, get_input};
 use sge_macros::{gen_ref_type, include_texture};
@@ -58,12 +59,18 @@ pub fn init_ui() {
     });
     log::info!("Initialized sge_ui");
     update();
+
+    set_ui_state(UiState::new());
 }
+
+sge_global::global!(UiState, ui_state);
 
 pub struct UiState {
     frame: usize,
     delta_time: f32,
     time: f32,
+    consume_input: bool,
+    consumed_input_last_frame: bool,
 }
 
 impl UiState {
@@ -72,7 +79,15 @@ impl UiState {
             frame: frame_count(),
             delta_time: delta_time(),
             time: time(),
+            consume_input: false,
+            consumed_input_last_frame: maybe_get_ui_state()
+                .map(|s| s.consume_input)
+                .unwrap_or(false),
         }
+    }
+
+    pub fn consume_input(&self) {
+        get_ui_state().consume_input = true;
     }
 
     pub fn input(&self) -> &'static Input {
@@ -166,6 +181,12 @@ pub fn update() {
     get_ui_nodes_state().clear();
     get_ui_nodes_state().push(Empty.to_generic());
     get_ui_storage().elements_interacted_this_frame.clear();
+
+    set_ui_state(UiState::new());
+}
+
+pub fn ui_consumed_input() -> bool {
+    get_ui_state().consume_input || get_ui_state().consumed_input_last_frame
 }
 
 /// does not limit ui elements to the edge of the screen.
@@ -199,9 +220,7 @@ pub fn draw_ui_window(node: UiRef) -> Vec2 {
 }
 
 pub fn draw_ui_in_area(node: UiRef, area: Area) -> Vec2 {
-    let state = UiState::new();
-
-    node.node.draw(area, &state)
+    node.node.draw(area, &get_ui_state())
 }
 
 #[derive(Clone, Copy)]
@@ -298,4 +317,5 @@ pub trait NumberValue = Add<Self, Output = Self>
     + Copy
     + ToF32
     + FromF32
+    + Zero
     + PartialClamp;

@@ -28,3 +28,5 @@ sge_types.workspace = true
 sge_utils.workspace = true
 sge_window.workspace = true
 sge_config.workspace = true
+sge_error_union.workspace = true
+num-traits = "0.2.19"

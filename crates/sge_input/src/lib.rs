@@ -19,11 +19,11 @@ pub use winit::keyboard::{Key, KeyCode};
 
 #[cfg(feature = "gamepad")]
 pub mod gamepad;
-mod helper;
+pub mod helper;
 pub mod keys;
 
 pub struct Input {
-    helper: WinitInputHelper,
+    pub helper: WinitInputHelper,
     action_map: HashMap<Action, Vec<Button>>,
     #[cfg(feature = "gamepad")]
     pub gamepad: Gilrs,

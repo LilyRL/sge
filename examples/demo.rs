@@ -1,6 +1,7 @@
 use std::f32::consts::FRAC_PI_3;
 
 use sge::prelude::*;
+use ui::*;
 
 fn main() -> anyhow::Result<()> {
     let opts = EngineCreationOptions::builder()
@@ -16,7 +17,9 @@ fn main() -> anyhow::Result<()> {
     let mut show_debug_info = false;
 
     loop {
-        camera_controller.update();
+        if !ui_consumed_input() {
+            camera_controller.update();
+        }
         screenshake.update();
 
         if key_pressed(KeyCode::Space) {
@@ -144,23 +147,9 @@ fn main() -> anyhow::Result<()> {
             draw_custom_shape(points, Color::YELLOW_500);
         }
 
-        run_egui(|ctx| {
-            if show_debug_info {
-                draw_debug_info();
-            }
-
-            egui::Window::new("Hello, world").show(ctx, |ui| {
-                ui.label("This is a perfect engine");
-
-                if ui.button("Click me!").clicked() {
-                    is_dark_mode = !is_dark_mode;
-                }
-
-                if ui.button("Shake screen").clicked() {
-                    screenshake.add_trauma(1.0);
-                }
-            });
-        });
+        if show_debug_info {
+            draw_debug_info();
+        }
 
         if should_quit() {
             break;

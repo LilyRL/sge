@@ -18,6 +18,7 @@ pub mod grid;
 pub fn draw_debug_info() {
     let debug = get_debug_info();
     let current_frame = debug.previous_frame();
+    let max = debug.max;
 
     let vertex_points: Vec<_> = (1..FRAME_BACKLOG - 1)
         .map(|i| {
@@ -44,36 +45,90 @@ pub fn draw_debug_info() {
         })
         .collect();
 
-    let window = flat::FloatingWindow::new(
+    let window = flat::FloatingWindow::with_size(
         "Debug Info",
+        Vec2::new(439.0, 600.0),
         0xDEEB,
-        Col::new([
-            // vertices
-            Text::new(format!("Vertex count: {}", current_frame.vertex_count)),
-            flat::LineChart::new(&vertex_points, 200.0, 200.0),
-            // indices
-            Text::new(format!("Index count: {}", current_frame.index_count)),
-            flat::LineChart::new(&index_points, 200.0, 200.0),
-            // draw calls
-            Text::new(format!("Draw call count: {}", current_frame.draw_calls)),
-            flat::LineChart::new(&draw_call_points, 200.0, 200.0),
-            // engine_time
-            Text::new(format!(
-                "Engine time (ms): {:.3}",
-                current_frame.engine_time
-            )),
-            flat::LineChart::new(&engine_time_points, 200.0, 200.0),
-            // text
-            Text::new(format!("Textures: {}", get_texture_state().len())),
-            Text::new(format!(
-                "Render textures: {}",
-                get_render_textures_state().len()
-            )),
-            Text::new(format!("Programs: {}", get_programs_state().len())),
-            Text::new(format!("Materials: {}", get_materials_state().len())),
-            Text::new(format!("Objects: {}", get_objects_state().len())),
-            Text::new(format!("FPS: {:.1}", debug.fps.avg())),
-        ]),
+        Col::with_gap(
+            5.0,
+            [
+                Row::with_gap(
+                    20.0,
+                    [
+                        Col::with_gap(
+                            5.0,
+                            [
+                                // vertices
+                                Text::new(format!("Vertex count: {}", current_frame.vertex_count)),
+                                flat::LineChart::with_y(
+                                    vertex_points,
+                                    200.0,
+                                    200.0,
+                                    max.vertex_count,
+                                ),
+                            ],
+                        ),
+                        Col::with_gap(
+                            5.0,
+                            [
+                                // indices
+                                Text::new(format!("Index count: {}", current_frame.index_count)),
+                                flat::LineChart::with_y(
+                                    index_points,
+                                    200.0,
+                                    200.0,
+                                    max.index_count,
+                                ),
+                            ],
+                        ),
+                    ],
+                ),
+                Row::with_gap(
+                    20.0,
+                    [
+                        Col::with_gap(
+                            5.0,
+                            [
+                                // draw calls
+                                Text::new(format!("Draw call count: {}", current_frame.draw_calls)),
+                                flat::LineChart::with_y(
+                                    draw_call_points,
+                                    200.0,
+                                    200.0,
+                                    max.draw_calls,
+                                ),
+                            ],
+                        ),
+                        Col::with_gap(
+                            5.0,
+                            [
+                                // engine_time
+                                Text::new(format!(
+                                    "Engine time (ms): {:.3}",
+                                    current_frame.engine_time
+                                )),
+                                flat::LineChart::with_y(
+                                    engine_time_points,
+                                    200.0,
+                                    200.0,
+                                    max.engine_time,
+                                ),
+                            ],
+                        ),
+                    ],
+                ),
+                // text
+                Text::new(format!("Textures: {}", get_texture_state().len())),
+                Text::new(format!(
+                    "Render textures: {}",
+                    get_render_textures_state().len()
+                )),
+                Text::new(format!("Programs: {}", get_programs_state().len())),
+                Text::new(format!("Materials: {}", get_materials_state().len())),
+                Text::new(format!("Objects: {}", get_objects_state().len())),
+                Text::new(format!("FPS: {:.1}", debug.fps.avg())),
+            ],
+        ),
     );
 
     draw_ui_window(window);

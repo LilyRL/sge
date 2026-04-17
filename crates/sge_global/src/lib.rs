@@ -27,6 +27,9 @@ pub fn global(input: TokenStream) -> TokenStream {
     let get = format!("get_{}", name);
     let get = Ident::new(&get, name.span());
 
+    let maybe_get = format!("maybe_get_{}", name);
+    let maybe_get = Ident::new(&maybe_get, name.span());
+
     let set = format!("set_{}", name);
     let set = Ident::new(&set, name.span());
 
@@ -37,6 +40,11 @@ pub fn global(input: TokenStream) -> TokenStream {
         #[allow(static_mut_refs)]
         pub fn #get() -> &'static mut #ty {
             unsafe { #state.as_mut().unwrap_or_else(|| panic!()) }
+        }
+
+        #[allow(static_mut_refs)]
+        pub fn #maybe_get() -> Option<&'static mut #ty> {
+            unsafe { #state.as_mut() }
         }
 
         #[allow(static_mut_refs)]

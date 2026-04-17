@@ -164,7 +164,6 @@ default = [
     "debug_visualisations",
     "ui",
     "debugging",
-    "egui",
     "ecs"
 ]
 precise_cursor_movement = ["sge_input/precise_cursor_movement"]

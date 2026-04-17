@@ -8,21 +8,11 @@ use syn::{
     punctuated::Punctuated,
 };
 
-/// Derives automatic `From<T>` implementations for each variant of a tuple enum.
-///
-/// # Example
-/// ```
-/// #[derive(Union)]
-/// enum MyUnion {
-///     String(String),
-///     Number(i32),
-///     Custom(MyCustomType),
-/// }
-/// ```
 #[proc_macro_derive(Union)]
 pub fn derive_union(tokens: TokenStream) -> TokenStream {
     let input = parse_macro_input!(tokens as DeriveInput);
     let enum_name = &input.ident;
+    let (impl_generics, ty_generics, where_clause) = input.generics.split_for_impl();
 
     let variants = match &input.data {
         Data::Enum(data_enum) => &data_enum.variants,
@@ -41,7 +31,7 @@ pub fn derive_union(tokens: TokenStream) -> TokenStream {
 
             from_impls = quote! {
                 #from_impls
-                impl From<#ty> for #enum_name {
+                impl #impl_generics From<#ty> for #enum_name #ty_generics #where_clause {
                     fn from(value: #ty) -> Self {
                         Self::#variant_name(value)
                     }
@@ -53,21 +43,11 @@ pub fn derive_union(tokens: TokenStream) -> TokenStream {
     from_impls.into()
 }
 
-/// Derives `From<T>`, `Display`, and `Error` trait implementations for an error enum.
-///
-/// # Example
-/// ```
-/// #[derive(ErrorUnion)]
-/// enum MyError {
-///     Io(std::io::Error),
-///     Parse(ParseError),
-///     Custom(MyCustomError),
-/// }
-/// ```
 #[proc_macro_derive(ErrorUnion)]
 pub fn derive_sge_error_union(tokens: TokenStream) -> TokenStream {
     let input = parse_macro_input!(tokens as DeriveInput);
     let enum_name = &input.ident;
+    let (impl_generics, ty_generics, where_clause) = input.generics.split_for_impl();
 
     let variants = match &input.data {
         Data::Enum(data_enum) => &data_enum.variants,
@@ -87,7 +67,7 @@ pub fn derive_sge_error_union(tokens: TokenStream) -> TokenStream {
 
             from_impls = quote! {
                 #from_impls
-                impl From<#ty> for #enum_name {
+                impl #impl_generics From<#ty> for #enum_name #ty_generics #where_clause {
                     fn from(value: #ty) -> Self {
                         Self::#variant_name(value)
                     }
@@ -101,10 +81,31 @@ pub fn derive_sge_error_union(tokens: TokenStream) -> TokenStream {
         }
     }
 
+    let display_where = {
+        let mut predicates: Vec<Ts2> = where_clause
+            .map(|wc| wc.predicates.iter().map(|p| quote! { #p }).collect())
+            .unwrap_or_default();
+
+        for variant in variants {
+            if let Fields::Unnamed(fields) = &variant.fields
+                && fields.unnamed.len() == 1
+            {
+                let ty = &fields.unnamed[0].ty;
+                predicates.push(quote! { #ty: ::std::fmt::Display });
+            }
+        }
+
+        if predicates.is_empty() {
+            quote! {}
+        } else {
+            quote! { where #(#predicates),* }
+        }
+    };
+
     quote! {
         #from_impls
 
-        impl ::std::fmt::Display for #enum_name {
+        impl #impl_generics ::std::fmt::Display for #enum_name #ty_generics #display_where {
             fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> ::std::result::Result<(), ::std::fmt::Error> {
                 match self {
                     #(#match_entries),*
@@ -112,7 +113,7 @@ pub fn derive_sge_error_union(tokens: TokenStream) -> TokenStream {
             }
         }
 
-        impl ::std::error::Error for #enum_name {}
+        impl #impl_generics ::std::error::Error for #enum_name #ty_generics #display_where {}
     }
     .into()
 }

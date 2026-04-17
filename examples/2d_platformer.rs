@@ -104,9 +104,7 @@ fn main() -> anyhow::Result<()> {
             clear_screen(Color::NEUTRAL_900);
             vignette_screen(Color::NEUTRAL_950, 0.5);
 
-            run_egui(|ui| {
-                draw_debug_info(ui);
-            });
+            draw_debug_info();
         }
 
         draw_multiline_text(

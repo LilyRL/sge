@@ -1,6 +1,5 @@
 use std::f32::consts::PI;
 
-use sge_vectors::{FloatExt, Quat, Vec2, Vec3, Vec4};
 use sge_color::Color;
 use sge_math::{
     collision::{self, Aabb2d},
@@ -9,6 +8,7 @@ use sge_math::{
 use sge_rendering::shapes_3d::AABB3D;
 use sge_shapes::d2::{Circle, Rect};
 use sge_time::time;
+use sge_vectors::{FloatExt, Quat, Vec2, Vec3, Vec4};
 
 pub trait Animatable {
     fn interpolate(a: Self, b: Self, progress: f32) -> Self;
@@ -19,11 +19,11 @@ pub trait EasingFunction {
 }
 
 pub struct AnimationController<T: Animatable, E: EasingFunction> {
-    start: T,
-    end: T,
+    pub start: T,
+    pub end: T,
     easing_function: E,
     start_time: f32,
-    length: f32,
+    pub length: f32,
 }
 
 impl<T: Animatable + Copy, E: EasingFunction> AnimationController<T, E> {

@@ -74,6 +74,18 @@ pub fn rand_color() -> Color {
     Color::new(rand(), rand(), rand())
 }
 
+pub fn maybe_rand_choice<T>(choices: &[T]) -> Option<&T> {
+    if choices.is_empty() {
+        None
+    } else {
+        Some(&choices[rand_range(0..choices.len())])
+    }
+}
+
+pub fn rand_choice<T>(choices: &[T]) -> &T {
+    maybe_rand_choice(choices).expect("Cannot choose from an empty slice")
+}
+
 pub fn rand_vec2() -> Vec2 {
     Vec2::new(rand_range(-1.0..1.0), rand_range(-1.0..1.0))
 }
