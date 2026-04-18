@@ -8,6 +8,8 @@ description = "Simple game engine"
 license = "MIT"
 repository = "https://github.com/LilyRL/sge"
 authors = [ "Lily Lopes <joshrl@proton.me>" ]
+keywords = ["gamedev", "graphics", "gui"]
+categories = ["graphics", "gui"]
 
 [workspace.dependencies]
 anyhow = "1"
