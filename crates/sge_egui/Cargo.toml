@@ -1,6 +1,6 @@
 [package]
 name = "sge_egui"
-version = "1.0.2"
+version = "1.0.3"
 authors = [ "Lily Lopes <joshrl@proton.me>" ]
 edition = "2024"
 description = "Egui related functionality for SGE"
