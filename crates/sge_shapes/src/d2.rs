@@ -160,7 +160,7 @@ impl HasBounds2D for RoundedRectangle {
 
 impl Shape2D for RoundedRectangle {
     fn gen_mesh(&self, _: u32) -> (Vec<u32>, Vec<Vertex2D>) {
-        unimplemented!();
+        unimplemented!()
     }
 
     fn set_rotation(&mut self, _: f32) {}

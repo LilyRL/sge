@@ -1,8 +1,9 @@
 use sge_vectors::vec2;
+use strum::Display;
 
 use super::*;
 
-#[derive(Debug)]
+#[derive(Debug, Display, Clone, Copy)]
 pub enum AlignType {
     Start,
     Center,

@@ -1,6 +1,6 @@
-use sge_vectors::Vec2;
 use log::warn;
 use sge_color::Color;
+use sge_vectors::Vec2;
 
 use super::*;
 use sge_text::{
@@ -69,7 +69,7 @@ impl Text {
         .to_ref()
     }
 
-    pub fn no_wrap(text: impl ToString) -> UiRef {
+    pub fn nowrap(text: impl ToString) -> UiRef {
         Self {
             text: text.to_string(),
             wrap: false,
@@ -78,7 +78,7 @@ impl Text {
         .to_ref()
     }
 
-    pub fn no_wrap_with_color(text: impl ToString, color: Color) -> UiRef {
+    pub fn nowrap_with_color(text: impl ToString, color: Color) -> UiRef {
         Self {
             text: text.to_string(),
             color,

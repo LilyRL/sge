@@ -12,7 +12,7 @@ impl Button {
     }
 
     pub fn primary(id: usize, child: Child) -> UiRef {
-        Self::new(Color::NEUTRAL_600, Color::NEUTRAL_500, id, child)
+        Self::new(super::BG1, super::BG2, id, child)
     }
 
     pub fn text(bg: Color, hover: Color, id: usize, text: impl ToString) -> UiRef {
@@ -21,11 +21,11 @@ impl Button {
             hover,
             bg,
             0.0,
-            base::Button::new(id, Padding::xy(40.0, 10.0, Text::no_wrap(text))),
+            base::Button::new(id, Padding::xy(40.0, 10.0, Text::nowrap(text))),
         ))
     }
 
     pub fn primary_text(id: usize, text: impl ToString) -> UiRef {
-        Self::text(Color::NEUTRAL_800, Color::NEUTRAL_700, id, text)
+        Self::text(super::BG1, super::BG2, id, text)
     }
 }

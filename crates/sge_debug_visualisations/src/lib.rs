@@ -45,9 +45,10 @@ pub fn draw_debug_info() {
         })
         .collect();
 
-    let window = flat::FloatingWindow::with_size(
+    let window = flat::FloatingWindow::custom(
         "Debug Info",
         Vec2::new(439.0, 600.0),
+        Vec2::splat(10.0),
         0xDEEB,
         Col::with_gap(
             5.0,

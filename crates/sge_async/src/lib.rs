@@ -1,4 +1,4 @@
-use std::{any::Any, pin::Pin};
+use std::pin::Pin;
 
 use slotmap::SlotMap;
 
@@ -6,12 +6,12 @@ slotmap::new_key_type! {
     pub struct FutureKey;
 }
 
+pub type Task = dyn Future<Output = ()>;
+
 pub struct AsyncRuntime {
-    futures: SlotMap<FutureKey, Pin<Box<dyn Future<Output = Box<dyn Any>>>>>,
+    tasks: SlotMap<FutureKey, Pin<Box<Task>>>,
 }
 
 impl AsyncRuntime {
-    pub fn update(&mut self) {
-
-    }
+    pub fn update(&mut self) {}
 }

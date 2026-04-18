@@ -70,8 +70,13 @@ impl UiNode for Drawer {
 
         if state.open {
             let contents_origin = area.top_left + Vec2::new(0.0, title_size.y);
-            let contents_area =
-                Area::new(contents_origin, area.size - Vec2::new(0.0, title_size.y));
+            let remaining = area.size - Vec2::new(0.0, title_size.y);
+            let remaining_area = Area::new(contents_origin, remaining);
+            let contents_size_hint = self.contents.node.size(remaining_area);
+            let contents_area = Area::new(
+                contents_origin,
+                Vec2::new(area.size.x, contents_size_hint.y),
+            );
             let contents_size = self.contents.draw(contents_area, ui);
             title_size + Vec2::new(0.0, contents_size.y)
         } else {

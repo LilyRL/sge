@@ -19,6 +19,10 @@ impl UiNode for BoxFill {
         self.child.node.preferred_dimensions()
     }
 
+    fn size(&self, area: Area) -> Vec2 {
+        self.child.node.size(area)
+    }
+
     fn draw(&self, area: Area, state: &UiState) -> Vec2 {
         area.fill(self.color);
         self.child.node.draw(area, state)
@@ -52,6 +56,10 @@ impl HoverBoxFill {
 impl UiNode for HoverBoxFill {
     fn preferred_dimensions(&self) -> Vec2 {
         self.child.node.preferred_dimensions()
+    }
+
+    fn size(&self, area: Area) -> Vec2 {
+        self.child.node.size(area)
     }
 
     fn draw(&self, area: Area, state: &UiState) -> Vec2 {

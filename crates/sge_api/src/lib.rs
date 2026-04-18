@@ -11,8 +11,8 @@ pub trait Drawable {
 }
 
 impl<T: Shape2DExt> Drawable for T {
-    fn draw_to(&self, mut renderer: Renderer2D) {
-        renderer.add_shape(self);
+    fn draw_to(&self, renderer: Renderer2D) {
+        <Self as Shape2DExt>::draw_to(&self, renderer);
     }
 
     fn draw(&self) {

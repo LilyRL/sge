@@ -35,11 +35,28 @@ impl Grid {
 
 impl UiNode for Grid {
     fn preferred_dimensions(&self) -> Vec2 {
-        Vec2::INFINITY
+        let mut col_widths = vec![0.0f32; self.cols];
+        let mut row_heights = vec![0.0f32; self.rows];
+
+        for (i, child) in self.children.iter().enumerate() {
+            let col = i % self.cols;
+            let row = i / self.cols;
+            if row >= self.rows {
+                break;
+            }
+            let dims = child.node.preferred_dimensions();
+            col_widths[col] = col_widths[col].max(dims.x);
+            row_heights[row] = row_heights[row].max(dims.y);
+        }
+
+        let total_w = col_widths.iter().sum::<f32>() + self.gap * (self.cols - 1) as f32;
+        let total_h = row_heights.iter().sum::<f32>() + self.gap * (self.rows - 1) as f32;
+
+        vec2(total_w, total_h)
     }
 
     fn size(&self, area: Area) -> Vec2 {
-        area.size
+        self.preferred_dimensions().min(area.size)
     }
 
     fn draw(&self, area: Area, ui: &UiState) -> Vec2 {

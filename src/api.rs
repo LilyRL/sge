@@ -8,6 +8,14 @@ pub fn storage_store_state<T: Any>(state: T) {
     get_user_storage().store(state);
 }
 
+pub fn storage_init_state<T: Any>(state: T) {
+    get_user_storage().initialize(state);
+}
+
+pub fn storage_exists<T: Any>() -> bool {
+    get_user_storage().exists::<T>()
+}
+
 pub fn storage_get_state<T: Any>() -> &'static T {
     get_user_storage().get()
 }

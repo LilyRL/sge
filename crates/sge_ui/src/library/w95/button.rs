@@ -19,6 +19,6 @@ impl Button {
     }
 
     pub fn text(id: usize, text: impl ToString) -> UiRef {
-        Self::new(id, Text::no_wrap_with_color(text, BLACK))
+        Self::new(id, Text::nowrap_with_color(text, BLACK))
     }
 }

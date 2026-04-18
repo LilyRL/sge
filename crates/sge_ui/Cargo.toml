@@ -30,3 +30,5 @@ sge_window.workspace = true
 sge_config.workspace = true
 sge_error_union.workspace = true
 num-traits = "0.2.19"
+strum = { version = "0.28.0", features = ["derive"] }
+strum_macros = "0.28.0"

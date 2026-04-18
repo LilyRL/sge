@@ -1,7 +1,5 @@
 use core::f32;
 
-use sge_vectors::vec2;
-
 use super::*;
 
 /// be careful with what order you place sized boxes and other nodes
@@ -66,6 +64,10 @@ impl UiRef {
         SizedBox::wh(width, height, self)
     }
 
+    pub fn square(self, size: f32) -> UiRef {
+        SizedBox::wh(size, size, self)
+    }
+
     pub fn sized(self, dimensions: Vec2) -> UiRef {
         SizedBox::new(dimensions, self)
     }
@@ -79,19 +81,13 @@ impl UiRef {
     }
 }
 
-fn inf_to_zero(n: f32) -> f32 {
-    match n {
-        f32::INFINITY => 0.0,
-        _ => n,
-    }
-}
-
 impl UiNode for SizedBox {
     fn preferred_dimensions(&self) -> Vec2 {
-        vec2(
-            inf_to_zero(self.dimensions.x),
-            inf_to_zero(self.dimensions.y),
-        )
+        self.dimensions
+        // vec2(
+        //     inf_to_zero(self.dimensions.x),
+        //     inf_to_zero(self.dimensions.y),
+        // )
     }
 
     fn size(&self, area: Area) -> Vec2 {

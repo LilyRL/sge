@@ -66,6 +66,10 @@ impl UiNode for FlexRow {
         Vec2::new(x, y)
     }
 
+    fn size(&self, area: Area) -> Vec2 {
+        Vec2::new(area.size.x, area.size.y)
+    }
+
     fn draw(&self, area: Area, ui: &UiState) -> Vec2 {
         let total_flex = self
             .children
@@ -166,6 +170,10 @@ impl UiNode for FlexCol {
         let y = dimensions.map(|d| d.y).sum::<f32>() + self.gap * (self.children.len() - 1) as f32;
 
         Vec2::new(x, y)
+    }
+
+    fn size(&self, area: Area) -> Vec2 {
+        Vec2::new(area.size.x, area.size.y)
     }
 
     fn draw(&self, area: Area, ui: &UiState) -> Vec2 {

@@ -21,6 +21,16 @@ impl UserStorage {
         self.0.insert(data.type_id(), Box::new(data));
     }
 
+    pub fn exists<T: Any>(&self) -> bool {
+        self.0.contains_key(&TypeId::of::<T>())
+    }
+
+    pub fn initialize<T: Any>(&mut self, data: T) {
+        self.0
+            .entry(data.type_id())
+            .or_insert_with(|| Box::new(data));
+    }
+
     pub fn try_get<T: Any>(&mut self) -> Option<&T> {
         self.0
             .get(&TypeId::of::<T>())

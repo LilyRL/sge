@@ -5,28 +5,28 @@ use crate::prelude::*;
 pub struct Drawer;
 
 impl Drawer {
-    pub fn new(title: impl Display, contents: Child, bg: Color, id: usize) -> UiRef {
+    pub fn new(title: impl Display, bg: Color, id: usize, contents: Child) -> UiRef {
         Self::new_arrows(title, contents, bg, id, false)
     }
 
-    pub fn new_alt(title: impl Display, contents: Child, bg: Color, id: usize) -> UiRef {
+    pub fn new_alt(title: impl Display, bg: Color, id: usize, contents: Child) -> UiRef {
         Self::new_plus_minus(title, contents, bg, id, false)
     }
 
     pub fn new_with_default_open(
         title: impl Display,
-        contents: Child,
         bg: Color,
         id: usize,
+        contents: Child,
     ) -> UiRef {
         Self::new_arrows(title, contents, bg, id, true)
     }
 
     pub fn new_alt_with_default_open(
         title: impl Display,
-        contents: Child,
         bg: Color,
         id: usize,
+        contents: Child,
     ) -> UiRef {
         Self::new_plus_minus(title, contents, bg, id, true)
     }

@@ -231,9 +231,9 @@ impl State {
                     [
                         Drawer::new(
                             "Click me!",
-                            Col::with_gap(10.0, bars).scroll(id!()),
                             BG1,
                             id!(),
+                            Col::with_gap(10.0, bars).scroll(id!()),
                         )
                         .max_height(400.0),
                         Text::new(self.slider_a_value),

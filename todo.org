@@ -22,9 +22,9 @@
 - [X] load_sound
 - [X] load_sound_from_bytes
 - [ ] play_sound_looped
-- [ ] port debug vis to sge_ui, and make egui non default feature, reduce number
+- [X] port debug vis to sge_ui, and make egui non default feature, reduce number
   of crates pulled in greatly
-- [ ] ecs
+- [X] ecs
 - [X] play_sound_once
 - [X] set_sound_volume
 - [ ] stop_sound
@@ -37,7 +37,7 @@
 - [X] slider
 - [ ] safe multithreading
 - [ ] 3d scene for point lights
-- [ ] 2d scene for optimising static geometry
+- [X] 2d scene for optimising static geometry
 - [ ] render geometry to scene or texture
 - [ ] render to scene yeah, so like more macro shit to add to_scene functions and maybe just have a 2d renderer trait and have draw queue 2d and scene implement it and then have draw_to take a 2d renderer reference
 - [ ] dirty struct macro, which automatically keeps track of what is dirty, and you can define computations as impls with a function that takes some fields and returns a value and adds that as a field on the struct with methods for getting and getting mut and setting fields which deals with making things dirty

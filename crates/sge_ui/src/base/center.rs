@@ -38,7 +38,17 @@ impl Center {
 
 impl UiNode for Center {
     fn preferred_dimensions(&self) -> Vec2 {
-        self.child.node.preferred_dimensions()
+        let mut size = self.child.node.preferred_dimensions();
+
+        if self.horizontal {
+            size.x = f32::INFINITY;
+        }
+
+        if self.vertical {
+            size.y = f32::INFINITY;
+        }
+
+        size
     }
 
     fn size(&self, area: Area) -> Vec2 {
@@ -67,7 +77,17 @@ impl UiNode for Center {
             area.top_left.x += diff.x / 2.0;
         }
 
-        self.child.node.draw(area, ui)
+        let mut size = self.child.node.draw(area, ui);
+
+        if self.horizontal {
+            size.x = area.size.x;
+        }
+
+        if self.vertical {
+            size.y = area.size.y;
+        }
+
+        size
     }
 }
 
