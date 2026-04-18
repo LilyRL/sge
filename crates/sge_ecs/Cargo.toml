@@ -1,7 +1,11 @@
 [package]
 name = "sge_ecs"
 version = "1.0.3"
+authors = [ "Lily Lopes <joshrl@proton.me>" ]
 edition = "2024"
+description = "ECS for SGE"
+license = "MIT"
+repository = "https://github.com/LilyRL/sge"
 
 [dependencies]
 bevy_ecs = "0.18.1"
