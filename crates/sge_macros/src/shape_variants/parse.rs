@@ -25,7 +25,7 @@ impl Parse for Flag {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct Param {
     pub name: Ident,
     pub ty: Type,
@@ -40,7 +40,6 @@ impl Parse for Param {
     }
 }
 
-#[derive(Debug)]
 pub struct ShapeEntry {
     pub name: Ident,
     pub flags: Vec<Flag>,
