@@ -23,13 +23,13 @@ const NODES: &[(&str, fn() -> UiRef)] = &[
     ("Layout/row", row),
     ("Loading Bar", loading_bar),
     ("Progress Bar", progress_bar),
-    ("Text Input", input),
     ("Scissor Box", scissor_box),
     ("Scroll", scroll),
     ("Selectbox", selectbox),
     ("Sized Box", sized_box),
     ("Slider", slider),
     ("Stack", stack),
+    ("Text Input", input),
     ("Window", window),
 ];
 const SCHEME: ColorScheme = ColorScheme::LACKLUSTER;
@@ -43,36 +43,36 @@ fn main() -> anyhow::Result<()> {
 
         let selected = select_box_value(select).unwrap_or(0);
 
-        let options = NODES
-            .iter()
-            .enumerate()
-            .map(|(i, (name, _))| {
-                let color = if i == selected {
-                    SCHEME.bg2
-                } else {
-                    SCHEME.bg1
-                };
-                BoxFill::new(
-                    color,
-                    Padding::tblr(10.0, 15.0, 0.0, 0.0, Center::horizontal(text(name))),
-                )
-            })
-            .collect::<Vec<_>>();
-
         let ui = SizedBox::new(
             window_size(),
             FlexRow::new([
                 FlexBox::Fixed(
-                    SizedBox::wh(200.0, window_height(), SelectBox::new(select, options))
-                        .fill(SCHEME.bg1)
+                    SizedBox::wh(
+                        200.0,
+                        window_height(),
+                        flat::SelectBox::new_text(
+                            SCHEME.bg1,
+                            SCHEME.bg2,
+                            select,
+                            NODES.iter().map(|n| n.0),
+                        )
                         .scroll(id!()),
+                    )
+                    .fill(SCHEME.bg1)
+                    .scroll(id!()),
                 ),
                 FlexBox::Flex(BoxFill::new(
                     SCHEME.bg0,
                     Padding::all(
                         20.0,
                         FlexCol::new([
-                            FlexBox::Flex((NODES[selected].1)()),
+                            FlexBox::Flex(Col::with_gap(
+                                40.0,
+                                [
+                                    Text::h1_no_padding(NODES[selected].0),
+                                    (NODES[selected].1)(),
+                                ],
+                            )),
                             FlexBox::Fixed(Text::mono(avg_fps() as usize)),
                         ]),
                     ),
@@ -251,11 +251,29 @@ fn drawer() -> UiRef {
 }
 
 fn fill() -> UiRef {
-    Fill::rounded(SCHEME.fg0, ((time() * 3.0).sin() + 1.0) * 40.0, EMPTY).square(200.0)
+    let value: &'static mut f32 = State::from_id(id!()).get_or_default();
+
+    Col::with_gap(
+        20.0,
+        [
+            RoundedFill::new(SCHEME.fg0, *value, EMPTY).square(200.0),
+            flat::Slider::alternate(value, 0.0, 100.0, id!()).max_width(200.0),
+        ],
+    )
 }
 
 fn gradient_fill() -> UiRef {
-    GradientFill::top_left_to_bottom_right(SCHEME.aqua, SCHEME.blue, EMPTY).square(200.0)
+    Grid::new(
+        2,
+        2,
+        [
+            GradientFill::top_to_bottom(SCHEME.bg3, SCHEME.bg0, EMPTY),
+            GradientFill::bottom_to_top(SCHEME.bg3, SCHEME.bg0, EMPTY),
+            GradientFill::left_to_right(SCHEME.bg3, SCHEME.bg0, EMPTY),
+            GradientFill::right_to_left(SCHEME.bg3, SCHEME.bg0, EMPTY),
+        ],
+    )
+    .square(400.0)
 }
 
 fn row() -> UiRef {
@@ -345,14 +363,14 @@ fn progress_bar() -> UiRef {
         state.progress += 1;
     }
 
-    if state.progress > 10 {
+    if state.progress > 5 {
         state.progress = 0;
     }
 
     Col::with_gap(
         20.0,
         [
-            ProgressBar::new(state.progress as f32, 10.0, SCHEME.fg1, id!())
+            ProgressBar::new(state.progress as f32, 5.0, SCHEME.fg1, id!())
                 .fill(SCHEME.bg1)
                 .sized_wh(300.0, 50.0),
             flat::Button::primary_text(button, "Increment"),
@@ -361,7 +379,15 @@ fn progress_bar() -> UiRef {
 }
 
 fn rounded_fill() -> UiRef {
-    RoundedFill::new(SCHEME.fg0, ((time() * 3.0).sin() + 1.0) * 40.0, EMPTY).square(200.0)
+    let value: &'static mut f32 = State::from_id(id!()).get_or_default();
+
+    Col::with_gap(
+        20.0,
+        [
+            RoundedFill::new(SCHEME.fg0, *value, EMPTY).square(200.0),
+            flat::Slider::alternate(value, 0.0, 100.0, id!()).max_width(200.0),
+        ],
+    )
 }
 
 fn scissor_box() -> UiRef {

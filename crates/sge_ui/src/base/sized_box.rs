@@ -7,36 +7,38 @@ use super::*;
 /// for example, always place a border node inside a sized box and not the other way around
 #[derive(Debug)]
 pub struct SizedBox {
-    pub dimensions: Vec2,
+    pub x: Option<f32>,
+    pub y: Option<f32>,
     pub child: Child,
 }
 
 impl SizedBox {
     pub fn new(dimensions: Vec2, child: Child) -> UiRef {
-        Self { dimensions, child }.to_ref()
+        Self {
+            x: Some(dimensions.x),
+            y: Some(dimensions.y),
+            child,
+        }
+        .to_ref()
     }
 
     pub fn zero(child: Child) -> UiRef {
+        Self::new(Vec2::ZERO, child)
+    }
+
+    pub fn width_infinite_height(width: f32, child: Child) -> UiRef {
         Self {
-            dimensions: Vec2::ZERO,
+            x: Some(width),
+            y: Some(f32::INFINITY),
             child,
         }
         .to_ref()
     }
 
-    /// has infinite height
-    pub fn width(width: f32, child: Child) -> UiRef {
+    pub fn height_infinite_width(height: f32, child: Child) -> UiRef {
         Self {
-            dimensions: Vec2::new(width, f32::INFINITY),
-            child,
-        }
-        .to_ref()
-    }
-
-    /// has infinite width
-    pub fn height(height: f32, child: Child) -> UiRef {
-        Self {
-            dimensions: Vec2::new(f32::INFINITY, height),
+            x: Some(f32::INFINITY),
+            y: Some(height),
             child,
         }
         .to_ref()
@@ -44,7 +46,8 @@ impl SizedBox {
 
     pub fn wh(width: f32, height: f32, child: Child) -> UiRef {
         Self {
-            dimensions: Vec2::new(width, height),
+            x: Some(width),
+            y: Some(height),
             child,
         }
         .to_ref()
@@ -52,7 +55,26 @@ impl SizedBox {
 
     pub fn grow(child: Child) -> UiRef {
         Self {
-            dimensions: Vec2::INFINITY,
+            x: Some(f32::INFINITY),
+            y: Some(f32::INFINITY),
+            child,
+        }
+        .to_ref()
+    }
+
+    pub fn width(width: f32, child: Child) -> UiRef {
+        Self {
+            x: Some(width),
+            y: None,
+            child,
+        }
+        .to_ref()
+    }
+
+    pub fn height(height: f32, child: Child) -> UiRef {
+        Self {
+            x: None,
+            y: Some(height),
             child,
         }
         .to_ref()
@@ -72,32 +94,46 @@ impl UiRef {
         SizedBox::new(dimensions, self)
     }
 
-    pub fn height(self, height: f32) -> UiRef {
-        SizedBox::height(height, self)
+    pub fn height_infinite_width(self, height: f32) -> UiRef {
+        SizedBox::height_infinite_width(height, self)
+    }
+
+    pub fn width_infinite_height(self, width: f32) -> UiRef {
+        SizedBox::width_infinite_height(width, self)
     }
 
     pub fn width(self, width: f32) -> UiRef {
         SizedBox::width(width, self)
     }
+
+    pub fn height(self, height: f32) -> UiRef {
+        SizedBox::height(height, self)
+    }
 }
 
 impl UiNode for SizedBox {
     fn preferred_dimensions(&self) -> Vec2 {
-        self.dimensions
-        // vec2(
-        //     inf_to_zero(self.dimensions.x),
-        //     inf_to_zero(self.dimensions.y),
-        // )
+        let child_dimensions = self.child.node.preferred_dimensions();
+        Vec2::new(
+            self.x.unwrap_or(child_dimensions.x),
+            self.y.unwrap_or(child_dimensions.y),
+        )
     }
 
     fn size(&self, area: Area) -> Vec2 {
-        self.dimensions.min(area.size)
+        Vec2::new(
+            self.x.unwrap_or(area.width()),
+            self.y.unwrap_or(area.height()),
+        )
     }
 
     fn draw(&self, mut area: Area, state: &UiState) -> Vec2 {
-        let dimensions = self.dimensions.min(area.size);
-        area.size = dimensions;
-        self.child.node.draw(area, state).max(dimensions)
+        area.size = self.size(area);
+        let dimensions = self.child.node.draw(area, state);
+        Vec2::new(
+            self.x.unwrap_or(dimensions.x),
+            self.y.unwrap_or(dimensions.y),
+        )
     }
 }
 
@@ -200,9 +236,13 @@ impl UiNode for ConstrainedBox {
         self.transform_size(self.child.node.preferred_dimensions())
     }
 
+    fn size(&self, area: Area) -> Vec2 {
+        self.transform_size(self.child.node.size(area))
+    }
+
     fn draw(&self, mut area: Area, state: &UiState) -> Vec2 {
         area.size = self.transform_size(area.size);
-        self.child.node.draw(area, state)
+        self.transform_size(self.child.node.draw(area, state))
     }
 }
 

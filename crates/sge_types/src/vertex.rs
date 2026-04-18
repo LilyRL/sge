@@ -1,7 +1,7 @@
-use sge_vectors::{Vec2, Vec3};
 use glium::implement_vertex;
 use obj::{FromRawVertex, raw::object::Polygon};
 use sge_color::Color;
+use sge_vectors::{Vec2, Vec3};
 
 // ////////////////////////////////////////////////////////////////////////////
 //                                     2D                                    //
@@ -25,6 +25,13 @@ impl Vertex2D {
     pub fn to_3d(self, z: f32) -> Vertex3D {
         Vertex3D {
             position: [self.position[0], self.position[1], z],
+            color: self.color,
+        }
+    }
+
+    pub fn round(self) -> Self {
+        Self {
+            position: [self.position[0].round(), self.position[1].round()],
             color: self.color,
         }
     }

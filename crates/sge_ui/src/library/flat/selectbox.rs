@@ -2,7 +2,7 @@ use sge_color::Color;
 
 use crate::{
     UiRef,
-    base::{BoxFill, Center, Padding, Text, select_box_value},
+    base::{BoxFill, Padding, Text, select_box_value},
 };
 
 pub struct SelectBox;
@@ -41,9 +41,9 @@ impl SelectBox {
                 Padding::tblr(
                     10.0,
                     15.0,
-                    0.0,
-                    0.0,
-                    Center::horizontal(Text::new(s.to_string())),
+                    20.0,
+                    20.0,
+                    Text::new(s.to_string()).width(300.0),
                 )
             }),
         )

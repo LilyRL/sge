@@ -1,4 +1,3 @@
-use sge_vectors::{Mat4, Rect, Vec2, Vec3};
 use glium::vertex::Vertex as GliumVertex;
 use glium::{Blend, DrawParameters, IndexBuffer, Surface, VertexBuffer, uniform};
 use glium::{Depth, DepthTest, implement_vertex};
@@ -15,6 +14,7 @@ use sge_types::{
     CircleBatch, CircleInstance, RadialGradientBatch, RadialGradientInstance, RoundedBatch,
     RoundedInstance, ShapeBatch, Vertex2D,
 };
+use sge_vectors::{Mat4, Rect, Vec2, Vec3};
 use sge_window::get_display;
 
 use crate::scissor::current_scissor;
@@ -297,7 +297,10 @@ impl Renderer2D {
         for i in 0..4 {
             let v = mat.transform_point3(corners[i]);
             batch.vertices.push(SpriteVertex {
+                #[cfg(not(feature = "round_coords"))]
                 position: [v.x, v.y, 0.0],
+                #[cfg(feature = "round_coords")]
+                position: [v.x.round(), v.y.round(), 0.0],
                 tex_coords: tex_coords[i],
                 color: color_gpu,
             });

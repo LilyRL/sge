@@ -10,17 +10,21 @@ repository = "https://github.com/LilyRL/sge"
 authors = [ "Lily Lopes <joshrl@proton.me>" ]
 
 [workspace.dependencies]
-egui_plot = "0.31"
 anyhow = "1.0.100"
-sge_vectors = { path = "./crates/sge_vectors", version = "1.0.1" }
 bon = "3.8.1"
+const-random = "0.1.18"
+crossbeam-channel = "0.5.15"
+dyn-clone = "1.0.20"
 egui_glium = "0.31.1"
+egui_plot = "0.31"
 env_logger = { version = "0.11.8", default-features = false }
 fontdue = "0.9.3"
 fps_ticker = "1.0.0"
+gilrs = "0.11.1"
 glium = "0.36.0"
+glob = "0.3.3"
 glutin-winit = "0.5.0"
-winit = "0.30"
+heck = "0.5.0"
 image = { version = "0.25.8", default-features = false, features = ["png", "jpeg"] }
 log = "0.4.28"
 lyon = "1.0.16"
@@ -29,112 +33,108 @@ obj-rs = "0.7.4"
 palette = "0.7.6"
 paste = "1.0.15"
 phf = { version = "0.11", features = ["macros"] }
+prettyplease = "0.2"
+proc-macro2 = "1.0.106"
+proc-macro-crate = "3.5.0"
+quote = "1.0.45"
 rand = "0.10"
 rapier2d = { version = "0.30.1", features = ["simd-stable"] }
 rayon = "1.11.0"
-sge_color = { path = "./crates/sge_color", version = "1.0.1" }
-sge_macros = { path = "./crates/sge_macros", version = "1.0.1" }
-sge_math = { path = "./crates/sge_math", version = "1.0.1" }
-sge_shapes = { path = "./crates/sge_shapes", version = "1.0.1" }
-sge_input = { path = "./crates/sge_input", version = "1.0.1" }
-termcolor = "1.4.1"
-thiserror = "2.0.17"
-trig-const = "0.3.0"
-proc-macro2 = "1.0.106"
-quote = "1.0.45"
-syn = { version = "2.0.117", features = ["full"] }
-sge_error_union = { path = "./crates/sge_error_union", version = "1.0.1" }
-sge_window = { version = "1.0.1", path = "crates/sge_window" }
-sge_config = { version = "1.0.1", path = "crates/sge_config" }
-sge_logging = { version = "1.0.1", path = "crates/sge_logging" }
-sge_camera = { version = "1.0.1", path = "crates/sge_camera" }
-sge_egui = { version = "1.0.1", path = "crates/sge_egui" }
-sge_debugging = { version = "1.0.1", path = "crates/sge_debugging" }
-sge_programs = { version = "1.0.1", path = "crates/sge_programs" }
-sge_textures = { version = "1.0.1", path = "crates/sge_textures" }
-sge_rendering = { version = "1.0.1", path = "crates/sge_rendering" }
-sge_rng = { version = "1.0.1", path = "crates/sge_rng" }
-sge_time = { version = "1.0.1", path = "crates/sge_time" }
-sge_audio = { version = "1.0.1", path = "crates/sge_audio" }
-sge_global = { version = "1.0.1", path = "crates/sge_global" }
-sge_ui = { version = "1.0.1", path = "crates/sge_ui" }
-sge_animation = { version = "1.0.1", path = "crates/sge_animation" }
-sge_debug_visualisations = { version = "1.0.1", path = "crates/sge_debug_visualisations" }
-sge_types = { version = "1.0.1", path = "crates/sge_types" }
-sge_api = { version = "1.0.1", path = "crates/sge_api" }
-sge_image = { version = "1.0.1", path = "crates/sge_image" }
-sge_physics = { version = "1.0.1", path = "crates/sge_physics" }
-sge_text = { version = "1.0.1", path = "crates/sge_text" }
-sge_texture_atlas = { version = "1.0.1", path = "crates/sge_texture_atlas" }
-sge_utils = { version = "1.0.1", path = "crates/sge_utils" }
-sge_particles = { version = "1.0.1", path = "crates/sge_particles" }
-sge_include_assets = { version = "1.0.1", path = "crates/sge_include_assets" }
-sge_persistence = { version = "1.0.1", path = "crates/sge_persistence" }
-sge_graph_networks = { version = "1.0.1", path = "crates/sge_graph_networks" }
-sge_camera_controllers = { version = "1.0.1", path = "crates/sge_camera_controllers" }
-sge_ecs = { version = "1.0.1", path = "crates/sge_ecs" }
-heck = "0.5.0"
-proc-macro-crate = "3.5.0"
+rkyv = "0.8.15"
+rodio = { version = "0.22.2", features = ["noise", "playback"] }
 ron = "0.12.0"
 serde = "1.0.228"
 serde_json = "1.0.149"
-toml = "1.0.6"
-walkdir = "2.5.0"
-rkyv = "0.8.15"
+sge_animation = { version = "1.0.1", path = "crates/sge_animation" }
+sge_api = { version = "1.0.1", path = "crates/sge_api" }
+sge_audio = { version = "1.0.1", path = "crates/sge_audio" }
+sge_camera_controllers = { version = "1.0.1", path = "crates/sge_camera_controllers" }
+sge_camera = { version = "1.0.1", path = "crates/sge_camera" }
+sge_color = { path = "./crates/sge_color", version = "1.0.1" }
+sge_config = { version = "1.0.1", path = "crates/sge_config" }
+sge_debugging = { version = "1.0.1", path = "crates/sge_debugging" }
+sge_debug_visualisations = { version = "1.0.1", path = "crates/sge_debug_visualisations" }
+sge_ecs = { version = "1.0.1", path = "crates/sge_ecs" }
+sge_egui = { version = "1.0.1", path = "crates/sge_egui" }
+sge_error_union = { path = "./crates/sge_error_union", version = "1.0.1" }
+sge_global = { version = "1.0.1", path = "crates/sge_global" }
+sge_graph_networks = { version = "1.0.1", path = "crates/sge_graph_networks" }
+sge_image = { version = "1.0.1", path = "crates/sge_image" }
+sge_include_assets = { version = "1.0.1", path = "crates/sge_include_assets" }
+sge_input = { path = "./crates/sge_input", version = "1.0.1" }
+sge_logging = { version = "1.0.1", path = "crates/sge_logging" }
+sge_macros = { path = "./crates/sge_macros", version = "1.0.1" }
+sge_math = { path = "./crates/sge_math", version = "1.0.1" }
+sge_particles = { version = "1.0.1", path = "crates/sge_particles" }
+sge_persistence = { version = "1.0.1", path = "crates/sge_persistence" }
+sge_physics = { version = "1.0.1", path = "crates/sge_physics" }
+sge_programs = { version = "1.0.1", path = "crates/sge_programs" }
+sge_rendering = { version = "1.0.1", path = "crates/sge_rendering" }
+sge_rng = { version = "1.0.1", path = "crates/sge_rng" }
+sge_shapes = { path = "./crates/sge_shapes", version = "1.0.1" }
+sge_texture_atlas = { version = "1.0.1", path = "crates/sge_texture_atlas" }
+sge_textures = { version = "1.0.1", path = "crates/sge_textures" }
+sge_text = { version = "1.0.1", path = "crates/sge_text" }
+sge_time = { version = "1.0.1", path = "crates/sge_time" }
+sge_types = { version = "1.0.1", path = "crates/sge_types" }
+sge_ui = { version = "1.0.1", path = "crates/sge_ui" }
+sge_utils = { version = "1.0.1", path = "crates/sge_utils" }
+sge_vectors = { path = "./crates/sge_vectors", version = "1.0.1" }
+sge_window = { version = "1.0.1", path = "crates/sge_window" }
 slotmap = "1.1.1"
-rodio = { version = "0.22.2", features = ["noise", "playback"] }
-prettyplease = "0.2"
-gilrs = "0.11.1"
-glob = "0.3.3"
-crossbeam-channel = "0.5.15"
-const-random = "0.1.18"
-dyn-clone = "1.0.20"
+syn = { version = "2.0.117", features = ["full"] }
+termcolor = "1.4.1"
+thiserror = "2.0.17"
+toml = "1.0.6"
+trig-const = "0.3.0"
+walkdir = "2.5.0"
+winit = "0.30"
 
 [dependencies]
 anyhow = { workspace = true }
-sge_vectors = { workspace = true }
 env_logger = { workspace = true }
-sge_error_union = { workspace = true }
 glium = { workspace = true }
 glutin-winit = { workspace = true }
-log = { workspace = true }
-sge_color = { workspace = true }
-sge_macros = { workspace = true }
-sge_input = { workspace = true, optional = true }
-trig-const = { workspace = true }
 image.workspace = true
-sge_math = { workspace = true }
-sge_shapes = { workspace = true }
+log = { workspace = true }
 rkyv = { workspace = true }
-sge_window = { workspace = true }
-sge_config = { workspace = true }
-sge_logging = { workspace = true }
+sge_animation = { workspace = true }
+sge_api = { workspace = true }
+sge_audio = {workspace = true ,optional = true}
+sge_camera_controllers.workspace = true
 sge_camera = { workspace = true }
-sge_egui = { workspace = true, optional = true }
+sge_color = { workspace = true }
+sge_config = { workspace = true }
 sge_debugging = { workspace = true, optional = true }
+sge_debug_visualisations = { workspace = true, optional = true }
+sge_ecs = { workspace = true, optional = true }
+sge_egui = { workspace = true, optional = true }
+sge_error_union = { workspace = true }
+sge_global = { workspace = true }
+sge_graph_networks = { workspace = true }
+sge_image = { workspace = true }
+sge_include_assets = { workspace = true }
+sge_input = { workspace = true, optional = true }
+sge_logging = { workspace = true }
+sge_macros = { workspace = true }
+sge_math = { workspace = true }
+sge_particles = { workspace = true }
+sge_persistence = { workspace = true }
+sge_physics = { workspace = true }
 sge_programs = { workspace = true }
-sge_textures = { workspace = true }
 sge_rendering = { workspace = true }
 sge_rng = { workspace = true }
-sge_time = { workspace = true }
-sge_audio = {workspace = true ,optional = true}
-sge_global = { workspace = true }
-sge_ui = { workspace = true, optional = true }
-sge_animation = { workspace = true }
-sge_debug_visualisations = { workspace = true, optional = true }
-sge_types = { workspace = true }
-sge_api = { workspace = true }
-sge_image = { workspace = true }
-sge_physics = { workspace = true }
-sge_text = { workspace = true, optional = true }
+sge_shapes = { workspace = true }
 sge_texture_atlas = { workspace = true }
+sge_textures = { workspace = true }
+sge_text = { workspace = true, optional = true }
+sge_time = { workspace = true }
+sge_types = { workspace = true }
+sge_ui = { workspace = true, optional = true }
 sge_utils = { workspace = true }
-sge_particles = { workspace = true }
-sge_include_assets = { workspace = true }
-sge_persistence = { workspace = true }
-sge_graph_networks = { workspace = true }
-sge_camera_controllers.workspace = true
-sge_ecs = { workspace = true, optional = true }
+sge_vectors = { workspace = true }
+sge_window = { workspace = true }
+trig-const = { workspace = true }
 
 [profile.release]
 codegen-units = 1
@@ -155,72 +155,75 @@ codegen-backend = true
 
 [features]
 default = [
-    "precise_cursor_movement",
     "audio",
-    "input",
-    "gamepad",
-    "text",
-    "extra_fonts",
-    "debug_visualisations",
-    "ui",
     "debugging",
-    "ecs"
+    "debug_visualisations",
+    "ecs",
+    "extra_fonts",
+    "gamepad",
+    "input",
+    "precise_cursor_movement",
+    "round_coords",
+    "text",
+    "ui",
 ]
-precise_cursor_movement = ["sge_input/precise_cursor_movement"]
 audio = ["dep:sge_audio"]
-input = ["dep:sge_input"]
-gamepad = ["input", "sge_input/gamepad"]
-text = ["dep:sge_text"]
-extra_fonts = ["text", "sge_text/extra_fonts"]
-ui = ["extra_fonts", "dep:sge_ui"]
-egui = ["dep:sge_egui"]
 debugging = ["dep:sge_debugging"]
 debug_visualisations = ["debugging", "egui", "dep:sge_debug_visualisations"]
 ecs = ["dep:sge_ecs"]
+egui = ["dep:sge_egui"]
+extra_fonts = ["text", "sge_text/extra_fonts"]
+gamepad = ["input", "sge_input/gamepad"]
+input = ["dep:sge_input"]
+precise_cursor_movement = ["sge_input/precise_cursor_movement"]
+round_coords = ["sge_shapes/round_coords", "sge_rendering/round_coords"]
+text = ["dep:sge_text"]
+ui = ["extra_fonts", "dep:sge_ui"]
 
 [workspace]
 members = [
     ".",
-    "crates/sge_error_union",
-    "crates/sge_color",
-    "crates/sge_macros",
-    "crates/sge_si",
-    "crates/sge_si/sge_si_macros",
-    "crates/sge_math",
-    "crates/sge_types",
-    "crates/sge_shapes",
-    "crates/sge_logging",
-    "crates/sge_shapes",
-    "crates/sge_camera",
-    "crates/sge_global",
-    "crates/sge_input",
-    "crates/sge_window",
-    "crates/sge_textures",
-    "crates/sge_rendering",
-    "crates/sge_programs",
-    "crates/sge_utils",
-    "crates/sge_image",
-    "crates/sge_config",
+    "crates/sge_animation",
     "crates/sge_api",
-    "crates/sge_text",
+    "crates/sge_async",
+    "crates/sge_audio",
+    "crates/sge_camera",
+    "crates/sge_camera_controllers",
+    "crates/sge_color",
+    "crates/sge_config",
     "crates/sge_debugging",
     "crates/sge_debug_visualisations",
-    "crates/sge_rng",
-    "crates/sge_time",
-    "crates/sge_texture_atlas",
-    "crates/sge_animation",
-    "crates/sge_audio",
-    "crates/sge_ui",
+    "crates/sge_ecs"
     "crates/sge_egui",
-    "crates/sge_physics",
-    "crates/sge_particles",
-    "crates/sge_include_assets",
-    "crates/sge_vectors",
-    "crates/sge_persistence",
-    "crates/sge_async",
-    "crates/sge_graph_networks",
-    "crates/sge_routines",
+    "crates/sge_error_union",
     "crates/sge_feature_gated",
-    "crates/sge_camera_controllers"
-, "crates/sge_ecs"]
+    "crates/sge_global",
+    "crates/sge_graph_networks",
+    "crates/sge_image",
+    "crates/sge_include_assets",
+    "crates/sge_input",
+    "crates/sge_logging",
+    "crates/sge_macros",
+    "crates/sge_math",
+    "crates/sge_particles",
+    "crates/sge_persistence",
+    "crates/sge_physics",
+    "crates/sge_programs",
+    "crates/sge_rendering",
+    "crates/sge_rng",
+    "crates/sge_routines",
+    "crates/sge_shapes",
+    "crates/sge_shapes",
+    "crates/sge_si",
+    "crates/sge_si/sge_si_macros",
+    "crates/sge_text",
+    "crates/sge_texture_atlas",
+    "crates/sge_textures",
+    "crates/sge_time",
+    "crates/sge_types",
+    "crates/sge_ui",
+    "crates/sge_utils",
+    "crates/sge_vectors",
+    "crates/sge_window",
+]
 resolver = "3"

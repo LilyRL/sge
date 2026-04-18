@@ -17,7 +17,8 @@
 - [ ] bitmap fonts
 - [ ] add post frame callback
 - [X] add mf draw wireframe and shit
-- [ ] examples for all the ui elements
+- [X] examples for all the ui elements
+- [ ] colour picker
 - [ ] fix scenes
 - [X] load_sound
 - [X] load_sound_from_bytes

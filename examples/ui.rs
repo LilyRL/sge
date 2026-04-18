@@ -213,7 +213,8 @@ impl State {
             .enumerate()
             .skip(5)
             .map(|(i, p)| {
-                flat::LoadingBar::new_with_speed(p.v400, i as f32 * 10.0 + 10.0).height(30.0)
+                flat::LoadingBar::new_with_speed(p.v400, i as f32 * 10.0 + 10.0)
+                    .height_infinite_width(30.0)
             })
             .collect();
 

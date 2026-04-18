@@ -116,7 +116,7 @@ fn main() -> anyhow::Result<()> {
                                     cursor_pos.x, cursor_pos.y
                                 )),
                                 EmptyBox::height(15.0),
-                                SizedBox::height(20.0, Fill::new(color, EMPTY)),
+                                SizedBox::adskl(20.0, Fill::new(color, EMPTY)),
                             ]),
                         ),
                     ));

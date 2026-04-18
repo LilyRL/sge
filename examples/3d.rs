@@ -60,9 +60,9 @@ fn main() -> anyhow::Result<()> {
                     .min_height(len),
                 ),
                 FlexBox::Flex(FlexRow::new([
-                    FlexBox::Fixed(EMPTY.fill(color).width(len)),
+                    FlexBox::Fixed(EMPTY.fill(color).width_infinite_height(len)),
                     FlexBox::Flex(EMPTY.fill(clear_color)),
-                    FlexBox::Fixed(EMPTY.fill(color).width(len)),
+                    FlexBox::Fixed(EMPTY.fill(color).width_infinite_height(len)),
                 ])),
                 FlexBox::Fixed(
                     Col::new([

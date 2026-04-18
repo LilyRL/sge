@@ -10,7 +10,7 @@ pub struct Slider;
 impl Slider {
     pub fn new<T: NumberValue>(value: &mut T, min: T, max: T, id: usize) -> UiRef {
         let bar = BoxFill::new(BG1, EMPTY)
-            .sized_wh(f32::INFINITY, 10.0)
+            .min_height(10.0)
             .padding_vertical(10.0);
         let handle = HoverBoxFill::new(BG3, BG4, EMPTY).sized_wh(20.0, 30.0);
         crate::base::Slider::new(value, min, max, handle, bar, id)
@@ -19,7 +19,7 @@ impl Slider {
     pub fn alternate<T: NumberValue + ToString>(value: &mut T, min: T, max: T, id: usize) -> UiRef {
         let string: String = value.to_string().chars().take(4).collect();
         let bar = BoxFill::new(BG1, EMPTY)
-            .sized_wh(f32::INFINITY, 10.0)
+            .min_height(10.0)
             .padding_vertical(10.0);
         let handle = HoverBoxFill::new(
             BG3,
@@ -35,7 +35,7 @@ impl Slider {
     pub fn rounded<T: NumberValue>(value: &mut T, min: T, max: T, id: usize) -> UiRef {
         let handle = CircleFill::new(BG4).sized_wh(30.0, 30.0);
         let bar = RoundedFill::new(BG1, 5.0, EMPTY)
-            .sized_wh(f32::INFINITY, 10.0)
+            .min_height(10.0)
             .padding_vertical(10.0);
         crate::base::Slider::new(value, min, max, handle, bar, id)
     }

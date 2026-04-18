@@ -328,8 +328,18 @@ impl Rect {
 
     pub fn tri_points(&self) -> [Vec2; 4] {
         if self.rot == 0.0 {
-            let tl = self.top_left;
-            let br = self.top_left + self.size;
+            #[cfg(not(feature = "round_coords"))]
+            let top_left = self.top_left;
+            #[cfg(feature = "round_coords")]
+            let top_left = self.top_left.round();
+
+            #[cfg(not(feature = "round_coords"))]
+            let size = self.size;
+            #[cfg(feature = "round_coords")]
+            let size = self.size.round();
+
+            let tl = top_left;
+            let br = top_left + size;
             let tr = vec2(br.x, tl.y);
             let bl = vec2(tl.x, br.y);
 
@@ -414,7 +424,12 @@ impl Triangle {
         let mat = Mat3::from_translation(center)
             * Mat3::from_angle(self.rot)
             * Mat3::from_translation(-center);
-        self.points.map(|p| mat.transform_point2(p))
+        let points = self.points.map(|p| mat.transform_point2(p));
+
+        #[cfg(not(feature = "round_coords"))]
+        return points;
+        #[cfg(feature = "round_coords")]
+        return points.map(|p| p.round());
     }
 }
 
@@ -432,6 +447,10 @@ impl Shape2D for Triangle {
         let tri = self
             .rotated_points()
             .map(|p| Vertex2D::new(p.x, p.y, self.color));
+
+        #[cfg(feature = "round_coords")]
+        let tri = tri.map(|p| p.round());
+
         let indices = starting_index..starting_index + 3;
         (indices.collect(), tri.to_vec())
     }
@@ -539,6 +558,10 @@ impl HasBounds2D for Line2D {
 impl Line2D {
     fn gen_mesh(&self) -> Option<Vec<Vertex2D>> {
         let (start, end) = self.rotated_endpoints();
+        #[cfg(feature = "round_coords")]
+        let start = start.round();
+        #[cfg(feature = "round_coords")]
+        let end = end.round();
         let direction = end - start;
         let length = direction.length();
 
@@ -627,13 +650,22 @@ impl Poly {
     }
 
     pub fn gen_points(&self) -> Vec<Vec2> {
+        #[cfg(feature = "round_coords")]
+        let center = self.center.round();
+        #[cfg(not(feature = "round_coords"))]
+        let center = self.center;
+        #[cfg(feature = "round_coords")]
+        let radius = self.radius.round();
+        #[cfg(not(feature = "round_coords"))]
+        let radius = self.radius;
+
         let mut points = Vec::with_capacity(self.sides);
         let angle_step = TAU / self.sides as f32;
 
         for i in 0..self.sides {
             let angle = angle_step * i as f32 + self.rotation;
-            let x = self.center.x + self.radius * angle.cos();
-            let y = self.center.y + self.radius * angle.sin();
+            let x = center.x + radius * angle.cos();
+            let y = center.y + radius * angle.sin();
             points.push(Vec2::new(x, y));
         }
 
@@ -787,9 +819,15 @@ fn gen_mesh_from_points(points: &[Vec2], color: Color) -> (Vec<Vertex2D>, Vec<u3
     }
 
     let mut polygon_builder = lyon::tessellation::path::Path::builder();
+    #[cfg(not(feature = "round_coords"))]
     polygon_builder.begin(lyon::math::point(points[0].x, points[0].y));
+    #[cfg(feature = "round_coords")]
+    polygon_builder.begin(lyon::math::point(points[0].x.round(), points[0].y.round()));
     for point in &points[1..] {
+        #[cfg(not(feature = "round_coords"))]
         polygon_builder.line_to(lyon::math::point(point.x, point.y));
+        #[cfg(feature = "round_coords")]
+        polygon_builder.line_to(lyon::math::point(point.x.round(), point.y.round()));
     }
     polygon_builder.end(false);
     let polygon = polygon_builder.build();
