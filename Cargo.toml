@@ -193,7 +193,7 @@ members = [
     "crates/sge_config",
     "crates/sge_debugging",
     "crates/sge_debug_visualisations",
-    "crates/sge_ecs"
+    "crates/sge_ecs",
     "crates/sge_egui",
     "crates/sge_error_union",
     "crates/sge_feature_gated",
