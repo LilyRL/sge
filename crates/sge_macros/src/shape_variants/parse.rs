@@ -25,7 +25,6 @@ impl Parse for Flag {
     }
 }
 
-#[derive(Debug)]
 pub struct Param {
     pub name: Ident,
     pub ty: Type,
