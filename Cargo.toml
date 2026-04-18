@@ -10,7 +10,7 @@ repository = "https://github.com/LilyRL/sge"
 authors = [ "Lily Lopes <joshrl@proton.me>" ]
 
 [workspace.dependencies]
-anyhow = "1.0.100"
+anyhow = "1"
 bon = "3.8.1"
 const-random = "0.1.18"
 crossbeam-channel = "0.5.15"
@@ -27,14 +27,14 @@ glutin-winit = "0.5.0"
 heck = "0.5.0"
 image = { version = "0.25.8", default-features = false, features = ["png", "jpeg"] }
 log = "0.4.28"
-lyon = "1.0.16"
+lyon = "1.0.36"
 nalgebra = { version = "0.34.1", features = ["convert-glam030"] }
 obj-rs = "0.7.4"
 palette = "0.7.6"
-paste = "1.0.15"
+paste = "1.0.35"
 phf = { version = "0.11", features = ["macros"] }
 prettyplease = "0.2"
-proc-macro2 = "1.0.106"
+proc-macro2 = "1.0.306"
 proc-macro-crate = "3.5.0"
 quote = "1.0.45"
 rand = "0.10"
@@ -44,43 +44,43 @@ rkyv = "0.8.15"
 rodio = { version = "0.22.2", features = ["noise", "playback"] }
 ron = "0.12.0"
 serde = "1.0.228"
-serde_json = "1.0.149"
-sge_animation = { version = "1.0.1", path = "crates/sge_animation" }
-sge_api = { version = "1.0.1", path = "crates/sge_api" }
-sge_audio = { version = "1.0.1", path = "crates/sge_audio" }
-sge_camera_controllers = { version = "1.0.1", path = "crates/sge_camera_controllers" }
-sge_camera = { version = "1.0.1", path = "crates/sge_camera" }
-sge_color = { path = "./crates/sge_color", version = "1.0.1" }
-sge_config = { version = "1.0.1", path = "crates/sge_config" }
-sge_debugging = { version = "1.0.1", path = "crates/sge_debugging" }
-sge_debug_visualisations = { version = "1.0.1", path = "crates/sge_debug_visualisations" }
-sge_ecs = { version = "1.0.1", path = "crates/sge_ecs" }
-sge_egui = { version = "1.0.1", path = "crates/sge_egui" }
-sge_error_union = { path = "./crates/sge_error_union", version = "1.0.1" }
-sge_global = { version = "1.0.1", path = "crates/sge_global" }
-sge_graph_networks = { version = "1.0.1", path = "crates/sge_graph_networks" }
-sge_image = { version = "1.0.1", path = "crates/sge_image" }
-sge_include_assets = { version = "1.0.1", path = "crates/sge_include_assets" }
-sge_input = { path = "./crates/sge_input", version = "1.0.1" }
-sge_logging = { version = "1.0.1", path = "crates/sge_logging" }
-sge_macros = { path = "./crates/sge_macros", version = "1.0.1" }
-sge_math = { path = "./crates/sge_math", version = "1.0.1" }
-sge_particles = { version = "1.0.1", path = "crates/sge_particles" }
-sge_persistence = { version = "1.0.1", path = "crates/sge_persistence" }
-sge_physics = { version = "1.0.1", path = "crates/sge_physics" }
-sge_programs = { version = "1.0.1", path = "crates/sge_programs" }
-sge_rendering = { version = "1.0.1", path = "crates/sge_rendering" }
-sge_rng = { version = "1.0.1", path = "crates/sge_rng" }
-sge_shapes = { path = "./crates/sge_shapes", version = "1.0.1" }
-sge_texture_atlas = { version = "1.0.1", path = "crates/sge_texture_atlas" }
-sge_textures = { version = "1.0.1", path = "crates/sge_textures" }
-sge_text = { version = "1.0.1", path = "crates/sge_text" }
-sge_time = { version = "1.0.1", path = "crates/sge_time" }
-sge_types = { version = "1.0.1", path = "crates/sge_types" }
-sge_ui = { version = "1.0.1", path = "crates/sge_ui" }
-sge_utils = { version = "1.0.1", path = "crates/sge_utils" }
-sge_vectors = { path = "./crates/sge_vectors", version = "1.0.1" }
-sge_window = { version = "1.0.1", path = "crates/sge_window" }
+serde_json = "1.0.349"
+sge_animation = { version = "1.0.3", path = "crates/sge_animation" }
+sge_api = { version = "1.0.3", path = "crates/sge_api" }
+sge_audio = { version = "1.0.3", path = "crates/sge_audio" }
+sge_camera_controllers = { version = "1.0.3", path = "crates/sge_camera_controllers" }
+sge_camera = { version = "1.0.3", path = "crates/sge_camera" }
+sge_color = { path = "./crates/sge_color", version = "1.0.3" }
+sge_config = { version = "1.0.3", path = "crates/sge_config" }
+sge_debugging = { version = "1.0.3", path = "crates/sge_debugging" }
+sge_debug_visualisations = { version = "1.0.3", path = "crates/sge_debug_visualisations" }
+sge_ecs = { version = "1.0.3", path = "crates/sge_ecs" }
+sge_egui = { version = "1.0.3", path = "crates/sge_egui" }
+sge_error_union = { path = "./crates/sge_error_union", version = "1.0.3" }
+sge_global = { version = "1.0.3", path = "crates/sge_global" }
+sge_graph_networks = { version = "1.0.3", path = "crates/sge_graph_networks" }
+sge_image = { version = "1.0.3", path = "crates/sge_image" }
+sge_include_assets = { version = "1.0.3", path = "crates/sge_include_assets" }
+sge_input = { path = "./crates/sge_input", version = "1.0.3" }
+sge_logging = { version = "1.0.3", path = "crates/sge_logging" }
+sge_macros = { path = "./crates/sge_macros", version = "1.0.3" }
+sge_math = { path = "./crates/sge_math", version = "1.0.3" }
+sge_particles = { version = "1.0.3", path = "crates/sge_particles" }
+sge_persistence = { version = "1.0.3", path = "crates/sge_persistence" }
+sge_physics = { version = "1.0.3", path = "crates/sge_physics" }
+sge_programs = { version = "1.0.3", path = "crates/sge_programs" }
+sge_rendering = { version = "1.0.3", path = "crates/sge_rendering" }
+sge_rng = { version = "1.0.3", path = "crates/sge_rng" }
+sge_shapes = { path = "./crates/sge_shapes", version = "1.0.3" }
+sge_texture_atlas = { version = "1.0.3", path = "crates/sge_texture_atlas" }
+sge_textures = { version = "1.0.3", path = "crates/sge_textures" }
+sge_text = { version = "1.0.3", path = "crates/sge_text" }
+sge_time = { version = "1.0.3", path = "crates/sge_time" }
+sge_types = { version = "1.0.3", path = "crates/sge_types" }
+sge_ui = { version = "1.0.3", path = "crates/sge_ui" }
+sge_utils = { version = "1.0.3", path = "crates/sge_utils" }
+sge_vectors = { path = "./crates/sge_vectors", version = "1.0.3" }
+sge_window = { version = "1.0.3", path = "crates/sge_window" }
 slotmap = "1.1.1"
 syn = { version = "2.0.117", features = ["full"] }
 termcolor = "1.4.1"
