@@ -82,6 +82,7 @@ impl UiNode for Row {
             let new_area = {
                 let mut a = area;
                 a.top_left.x += x_offset;
+                a.size.x -= x_offset;
                 a
             };
 

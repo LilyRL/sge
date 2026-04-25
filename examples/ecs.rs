@@ -4,8 +4,8 @@ use sge::prelude::*;
 #[derive(Component)]
 struct Player;
 
-fn main() -> anyhow::Result<()> {
-    init("ECS example")?;
+#[main("ECS example")]
+async fn main() -> anyhow::Result<()> {
     let mut world = Ecs::new();
 
     spawn_player(&mut world);
@@ -18,7 +18,7 @@ fn main() -> anyhow::Result<()> {
             break;
         }
 
-        next_frame();
+        next_frame().await;
     }
 
     Ok(())

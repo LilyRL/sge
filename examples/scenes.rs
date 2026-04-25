@@ -1,9 +1,8 @@
 use sge::prelude::*;
 use sge_rendering::d2::Scene2D;
 
+#[main("Scenes")]
 fn main() -> anyhow::Result<()> {
-    init("Scenes")?;
-
     let scene = arrows();
     let mut controller = PanningCameraController::new();
 
@@ -17,7 +16,7 @@ fn main() -> anyhow::Result<()> {
             break;
         }
 
-        next_frame();
+        next_frame().await;
     }
 
     Ok(())

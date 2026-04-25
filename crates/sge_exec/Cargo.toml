@@ -1,0 +1,26 @@
+[package]
+name = "sge_exec"
+version = "1.0.0"
+edition = "2024"
+
+[features]
+default = ["network"]
+network = ["dep:ureq"]
+
+[dependencies]
+futures = "0.3.32"
+glium.workspace = true
+image.workspace = true
+paste.workspace = true
+rayon.workspace = true
+sge_audio.workspace = true
+sge_global.workspace = true
+sge_image.workspace = true
+sge_macros.workspace = true
+sge_programs.workspace = true
+sge_rendering.workspace = true
+sge_text.workspace = true
+sge_textures.workspace = true
+sge_time.workspace = true
+slotmap.workspace = true
+ureq = { version = "3.3.0", optional = true }

@@ -1,8 +1,7 @@
 use sge::prelude::*;
 
+#[main("Post processing")]
 fn main() -> anyhow::Result<()> {
-    init("Post processing")?;
-
     let mut orbit_controller = OrbitCameraController::new(Vec3::ZERO);
     let material = create_gouraud_material(Color::SLATE_100, Color::SLATE_500, Vec3::Y);
     let obj = Object3D::from_obj_bytes_with_material(
@@ -35,7 +34,7 @@ fn main() -> anyhow::Result<()> {
             break;
         }
 
-        next_frame();
+        next_frame().await;
     }
 
     Ok(())

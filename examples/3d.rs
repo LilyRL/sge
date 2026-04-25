@@ -2,8 +2,8 @@ use sge::prelude::*;
 
 const GRID_SIZE: usize = 50;
 
-fn main() -> anyhow::Result<()> {
-    init("3D?")?;
+#[main("3D")]
+async fn main() -> anyhow::Result<()> {
     wait_for_events();
 
     let mut clear_color = Color::PURPLE_300;
@@ -201,7 +201,7 @@ fn main() -> anyhow::Result<()> {
             break;
         }
 
-        next_frame();
+        next_frame().await;
     }
 
     Ok(())

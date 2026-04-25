@@ -15,6 +15,33 @@ use sge_vectors::{Vec2, vec2};
 
 pub mod grid;
 
+pub fn draw_simple_debug_info() {
+    let debug = get_debug_info();
+    let current_frame = debug.previous_frame();
+
+    let window = flat::FloatingWindow::custom(
+        "Debug info",
+        Vec2::new(220.0, 182.0),
+        Vec2::splat(10.0),
+        0xDEEB2,
+        Text::nowrap(format!(
+            "Vertices: {}\nIndices: {}\nDraw calls: {}\nEngine time: {}\nTextures: {}\nRender textures: {}\nPrograms: {}\nMaterials: {}\nObjects: {}\nFPS: {:.1}",
+            current_frame.vertex_count,
+            current_frame.index_count,
+            current_frame.draw_calls,
+            current_frame.engine_time,
+            get_texture_state().len(),
+            get_render_textures_state().len(),
+            get_programs_state().len(),
+            get_materials_state().len(),
+            get_objects_state().len(),
+            debug.fps.avg(),
+        )),
+    );
+
+    draw_ui_window(window);
+}
+
 pub fn draw_debug_info() {
     let debug = get_debug_info();
     let current_frame = debug.previous_frame();
@@ -60,7 +87,10 @@ pub fn draw_debug_info() {
                             5.0,
                             [
                                 // vertices
-                                Text::new(format!("Vertex count: {}", current_frame.vertex_count)),
+                                Text::nowrap(format!(
+                                    "Vertex count: {}",
+                                    current_frame.vertex_count
+                                )),
                                 flat::LineChart::with_y(
                                     vertex_points,
                                     200.0,
@@ -73,7 +103,7 @@ pub fn draw_debug_info() {
                             5.0,
                             [
                                 // indices
-                                Text::new(format!("Index count: {}", current_frame.index_count)),
+                                Text::nowrap(format!("Index count: {}", current_frame.index_count)),
                                 flat::LineChart::with_y(
                                     index_points,
                                     200.0,
@@ -91,7 +121,10 @@ pub fn draw_debug_info() {
                             5.0,
                             [
                                 // draw calls
-                                Text::new(format!("Draw call count: {}", current_frame.draw_calls)),
+                                Text::nowrap(format!(
+                                    "Draw call count: {}",
+                                    current_frame.draw_calls
+                                )),
                                 flat::LineChart::with_y(
                                     draw_call_points,
                                     200.0,
@@ -104,7 +137,7 @@ pub fn draw_debug_info() {
                             5.0,
                             [
                                 // engine_time
-                                Text::new(format!(
+                                Text::nowrap(format!(
                                     "Engine time (ms): {:.3}",
                                     current_frame.engine_time
                                 )),

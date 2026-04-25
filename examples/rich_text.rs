@@ -1,8 +1,7 @@
 use sge::prelude::*;
 
+#[main("Rich text")]
 fn main() -> anyhow::Result<()> {
-    init("Title")?;
-
     let mut controller = PanningCameraController::new();
 
     let rich_text = rich_text(
@@ -14,7 +13,7 @@ Lorem ipsum dolor sit amet consectetur adipiscing elit.
 Quisque faucibus ex sapien vitae pellentesque sem placerat.
 In id cursus mi pretium tellus duis convallis.
 Tempus leo eu aenean sed diam urna tempor.
-Pulvinar vivamus fringilla lacus nec metus bibendum egestas.
+Pulvinar {ul}vivamus fringilla{noul} lacus nec metus bibendum egestas.
 Iaculis massa nisl malesuada lacinia integer nunc posuere.
 "#,
     )?;
@@ -35,7 +34,7 @@ Iaculis massa nisl malesuada lacinia integer nunc posuere.
             break;
         }
 
-        next_frame();
+        next_frame().await;
     }
 
     Ok(())

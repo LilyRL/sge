@@ -3,13 +3,8 @@ use std::f32::consts::FRAC_PI_3;
 use sge::prelude::*;
 use ui::*;
 
-fn main() -> anyhow::Result<()> {
-    let opts = EngineCreationOptions::builder()
-        .title("Demo".to_string())
-        .swap_interval(SwapInterval::DontWait)
-        .build();
-    init_custom(opts)?;
-
+#[main("Demo")]
+async fn main() -> anyhow::Result<()> {
     let mut is_dark_mode = false;
     let mut camera_controller = PanningCameraController::new();
     let mut screenshake = CameraShakeController::new(50.0, 16.0, 2.0);
@@ -109,14 +104,14 @@ fn main() -> anyhow::Result<()> {
                             20.0,
                             Col::new([
                                 Text::h2_no_padding("Circle"),
-                                Text::mono(format!("Id: {}", y as usize + x as usize / 100)),
-                                Text::mono(format!("Position: ({}, {})", x, y)),
-                                Text::mono(format!(
+                                Text::mono_nowrap(format!("Id: {}", y as usize + x as usize / 100)),
+                                Text::mono_nowrap(format!("Position: ({}, {})", x, y)),
+                                Text::mono_nowrap(format!(
                                     "Cursor: ({:.0}, {:.0})",
                                     cursor_pos.x, cursor_pos.y
                                 )),
                                 EmptyBox::height(15.0),
-                                SizedBox::adskl(20.0, Fill::new(color, EMPTY)),
+                                SizedBox::height(20.0, Fill::new(color, EMPTY)),
                             ]),
                         ),
                     ));
@@ -155,7 +150,7 @@ fn main() -> anyhow::Result<()> {
             break;
         }
 
-        next_frame();
+        next_frame().await;
     }
 
     Ok(())

@@ -18,8 +18,8 @@ impl MovingCircle {
     }
 }
 
-fn main() -> anyhow::Result<()> {
-    init("3D render textures")?;
+#[main("3D render textures")]
+async fn main() -> anyhow::Result<()> {
     set_magnify_filter(MagnifySamplerFilter::Linear);
 
     let mut camera_controller = OrbitCameraController::new(Vec3::ZERO);
@@ -55,7 +55,7 @@ fn main() -> anyhow::Result<()> {
             break;
         }
 
-        next_frame();
+        next_frame().await;
     }
 
     Ok(())

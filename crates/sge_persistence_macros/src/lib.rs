@@ -45,15 +45,24 @@ pub fn persistent(_args: TokenStream, item: TokenStream) -> TokenStream {
 
         impl #name #generics {
             pub fn save(&self, path: impl AsRef<std::path::Path>) -> ::sge_persistence::Result<()> {
-                use ::sge_persistence::rkyv::ser::Serializer as _;
-                let bytes = ::sge_persistence::rkyv::to_bytes::<::sge_persistence::rkyv::rancor::Error>(self)?;
+                let bytes = self.to_bytes()?;
                 std::fs::write(path, bytes)?;
                 Ok(())
             }
 
             pub fn load(path: impl AsRef<std::path::Path>) -> ::sge_persistence::Result<Self> {
                 let bytes = std::fs::read(path)?;
-                let archived = ::sge_persistence::rkyv::access::<<Self as ::sge_persistence::rkyv::Archive>::Archived, ::sge_persistence::rkyv::rancor::Error>(&bytes[..])?;
+                Self::from_bytes(bytes)
+            }
+
+            pub fn to_bytes(&self) -> ::sge_persistence::Result<Vec<u8>> {
+                use ::sge_persistence::rkyv::ser::Serializer as _;
+                let bytes = ::sge_persistence::rkyv::to_bytes::<::sge_persistence::rkyv::rancor::Error>(self)?;
+                Ok(bytes.into_vec())
+            }
+
+            pub fn from_bytes(bytes: impl AsRef<[u8]>) -> ::sge_persistence::Result<Self> {
+                let archived = ::sge_persistence::rkyv::access::<<Self as ::sge_persistence::rkyv::Archive>::Archived, ::sge_persistence::rkyv::rancor::Error>(bytes.as_ref())?;
                 Ok(::sge_persistence::rkyv::deserialize::<Self, ::sge_persistence::rkyv::rancor::Error>(archived).unwrap())
             }
         }

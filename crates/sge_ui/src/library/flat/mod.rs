@@ -14,6 +14,7 @@ pub const BG1: Color = COLOR_SCHEME.bg1;
 pub const BG2: Color = COLOR_SCHEME.bg2;
 pub const BG3: Color = COLOR_SCHEME.bg3;
 pub const BG4: Color = COLOR_SCHEME.bg4;
+pub const ERROR: Color = COLOR_SCHEME.red;
 
 pub mod progress_bar;
 pub use progress_bar::*;
@@ -44,3 +45,9 @@ pub use line_chart::*;
 
 pub mod selectbox;
 pub use selectbox::*;
+
+pub mod color_selector;
+pub use color_selector::*;
+
+pub mod async_image;
+pub use async_image::*;

@@ -1,17 +1,14 @@
 #![allow(static_mut_refs)]
 #![allow(unused)]
 #![feature(duration_millis_float)]
-use std::collections::HashMap;
 use std::time::Instant;
+use std::{collections::HashMap, pin::Pin};
 
 use glium::winit::{
-    dpi::PhysicalSize,
     event::{Event, WindowEvent},
     event_loop::ActiveEventLoop,
     platform::pump_events::EventLoopExtPumpEvents,
 };
-use log::{error, info};
-use sge_config::{EngineCreationOptions, Opts, get_config};
 #[cfg(feature = "debugging")]
 use sge_debugging::get_debug_info;
 #[cfg(feature = "egui")]
@@ -22,11 +19,10 @@ use sge_input::get_input;
 pub use sge_math::collision;
 use sge_rendering::{get_render_state, pipeline::RenderPipeline};
 pub use sge_shapes::d2 as shapes_2d;
-use sge_time::frames_since_input;
-use sge_vectors::Vec2;
-use sge_window::{get_display, get_window_state, window_size, window_size_u32};
 
 const WAIT_FOR_EVENTS_EXTRA_FRAME_DRAWS: usize = 60 * 5; // stops rendering after 300 frames of no input, when config.wait_for_events is true
+
+pub use prelude::*;
 
 pub mod api;
 pub mod prelude;
@@ -83,6 +79,8 @@ pub fn init_custom(mut opts: Opts) -> Result<(), InitError> {
     sge_rendering::init();
     #[cfg(feature = "audio")]
     sge_audio::init()?;
+    sge_image::init();
+    sge_texture_atlas::init();
     sge_textures::init();
     #[cfg(feature = "text")]
     sge_text::init();
@@ -92,14 +90,28 @@ pub fn init_custom(mut opts: Opts) -> Result<(), InitError> {
     sge_physics::init();
     #[cfg(feature = "ecs")]
     sge_ecs::init();
-    // sge_routines::init();
+    sge_exec::init();
 
     info!("Finished initializing engine.");
 
     Ok(())
 }
 
-pub fn next_frame() {
+pub fn run_async(future: impl Future<Output = ()> + 'static) {
+    let mut future: Pin<Box<dyn Future<Output = ()>>> = Box::pin(future);
+    loop {
+        if sge_exec::poll_once(&mut future).is_some() {
+            break;
+        }
+        next_frame_sync();
+    }
+}
+
+pub async fn next_frame() {
+    FrameFuture::default().await;
+}
+
+fn next_frame_sync() {
     #[cfg(feature = "ecs")]
     sge_ecs::update();
 
@@ -118,6 +130,7 @@ pub fn next_frame() {
     sge_time::update(has_input_event);
     record_frame_time(engine_start_time);
     request_redraw_if_needed();
+    sge_exec::get_executor().tick();
 }
 
 fn process_events() -> bool {

@@ -2,9 +2,8 @@ use sge::prelude::*;
 
 const PLAYER_RADIUS: f32 = 30.0;
 
+#[main("2D Platformer")]
 fn main() -> anyhow::Result<()> {
-    init("2D Platformer")?;
-
     let mut world = PhysicsWorld::new();
 
     let mut player = world
@@ -58,7 +57,7 @@ fn main() -> anyhow::Result<()> {
             break;
         }
 
-        next_frame();
+        next_frame().await;
     }
 
     Ok(())

@@ -1,9 +1,8 @@
 use sge::prelude::*;
 
+#[main("Sound")]
 fn main() -> anyhow::Result<()> {
-    init("Sound")?;
-
-    let sound = load_sound_from_bytes(include_bytes!("../assets/sounds/vine-boom.mp3"))?;
+    let sound = load_sound_from_bytes_sync(include_bytes!("../assets/sounds/vine-boom.mp3"))?;
 
     loop {
         if key_pressed(KeyCode::Space) {
@@ -19,7 +18,7 @@ fn main() -> anyhow::Result<()> {
             break;
         }
 
-        next_frame();
+        next_frame().await;
     }
 
     Ok(())

@@ -1,8 +1,7 @@
 use sge::prelude::*;
 
-pub fn main() -> anyhow::Result<()> {
-    init("Default material")?;
-
+#[main("Default material")]
+async fn main() -> anyhow::Result<()> {
     let mut orbit_controller = OrbitCameraController::new(Vec3::ZERO);
 
     let object = Object3D::from_obj(include_str!("../assets/models/suzanne.obj"))?;
@@ -18,7 +17,7 @@ pub fn main() -> anyhow::Result<()> {
             break;
         }
 
-        next_frame();
+        next_frame().await;
     }
 
     Ok(())

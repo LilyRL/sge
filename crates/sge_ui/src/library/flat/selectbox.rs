@@ -48,4 +48,26 @@ impl SelectBox {
             }),
         )
     }
+
+    pub fn mono_text<T: ToString>(
+        base_color: Color,
+        selected_color: Color,
+        id: usize,
+        choices: impl IntoIterator<Item = T>,
+    ) -> UiRef {
+        Self::new(
+            base_color,
+            selected_color,
+            id,
+            choices.into_iter().map(|s| {
+                Padding::tblr(
+                    10.0,
+                    15.0,
+                    20.0,
+                    20.0,
+                    Text::mono(s.to_string()).width(300.0),
+                )
+            }),
+        )
+    }
 }

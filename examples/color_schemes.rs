@@ -2,9 +2,8 @@ use sge::prelude::*;
 
 const COLORS: ColorScheme = ColorScheme::LACKLUSTER;
 
-fn main() -> anyhow::Result<()> {
-    init("Color schemes")?;
-
+#[main("Color schemes")]
+async fn main() -> anyhow::Result<()> {
     let text = "Hello color schemes!";
     let mut text_params = TextDrawParams {
         color: COLORS.fg0,
@@ -25,7 +24,7 @@ fn main() -> anyhow::Result<()> {
             break;
         }
 
-        next_frame();
+        next_frame().await;
     }
 
     Ok(())

@@ -1,9 +1,9 @@
 use std::io::Cursor;
 
-use sge_error_union::ErrorUnion;
 use glium::{IndexBuffer, VertexBuffer};
 use obj::load_obj;
 use sge_color::Color;
+use sge_error_union::ErrorUnion;
 use sge_macros::gen_ref_type;
 use sge_math::transform::Transform3D;
 use sge_types::{BufferError, MaterialVertex3D};

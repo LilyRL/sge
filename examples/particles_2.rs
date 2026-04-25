@@ -1,8 +1,7 @@
 use sge::prelude::*;
 
-fn main() -> anyhow::Result<()> {
-    init("Particles")?;
-
+#[main("Particles 2")]
+fn main() {
     let mut ps = ParticleSystem::new();
     let batch = ParticleOneshot::builder()
         .shape(Rect::new_square(Vec2::ZERO, 20.0, Color::PURPLE_500))
@@ -40,8 +39,6 @@ fn main() -> anyhow::Result<()> {
             break;
         }
 
-        next_frame();
+        next_frame().await;
     }
-
-    Ok(())
 }

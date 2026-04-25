@@ -1,4 +1,4 @@
-use std::f32::consts::FRAC_PI_2;
+use std::f32::consts::{FRAC_PI_2, PI};
 
 use sge::prelude::*;
 
@@ -9,9 +9,8 @@ struct Player {
     controller: PlayerController,
 }
 
-fn main() -> anyhow::Result<()> {
-    init("2D Platformer")?;
-
+#[main("2D Platformer")]
+async fn main() -> anyhow::Result<()> {
     let mut world = PhysicsWorld::new();
 
     let mut player = Player {
@@ -61,7 +60,7 @@ fn main() -> anyhow::Result<()> {
         .color_randomness(Color::BLACK.with_alpha(0.1))
         .end_color(Color::WHITE.with_alpha(0.0))
         .speed(5.0)
-        .direction(FRAC_PI_2)
+        .direction(-PI)
         .direction_randomness(FRAC_PI_2)
         .speed_randomness(3.0)
         .lifetime_randomness(0.5)
@@ -78,7 +77,6 @@ fn main() -> anyhow::Result<()> {
         .color_randomness(Color::BLACK.with_alpha(0.1))
         .end_color(Color::WHITE.with_alpha(0.0))
         .speed(5.0)
-        .direction(-FRAC_PI_2)
         .direction_randomness(FRAC_PI_2)
         .acceleration(vec2(0.0, 0.2))
         .speed_randomness(3.0)
@@ -103,9 +101,9 @@ fn main() -> anyhow::Result<()> {
         if !debug_mode {
             clear_screen(Color::NEUTRAL_900);
             vignette_screen(Color::NEUTRAL_950, 0.5);
-
-            draw_debug_info();
         }
+
+        draw_simple_debug_info();
 
         draw_multiline_text(
             "Press D to toggle debug mode\nSpace to jump\nA to move right\nF to move left",
@@ -194,7 +192,7 @@ fn main() -> anyhow::Result<()> {
             break;
         }
 
-        next_frame();
+        next_frame().await;
     }
 
     Ok(())

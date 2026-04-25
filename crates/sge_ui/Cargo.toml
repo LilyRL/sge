@@ -32,3 +32,4 @@ sge_error_union.workspace = true
 num-traits = "0.2.19"
 strum = { version = "0.28.0", features = ["derive"] }
 strum_macros = "0.28.0"
+sge_exec = { version = "1.0.0", path = "../sge_exec" }

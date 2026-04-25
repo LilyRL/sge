@@ -32,31 +32,33 @@ fn main() -> anyhow::Result<()> {
     warn!("Hello!!!");
     error!("Hello!!!!");
 
-    loop {
-        controller.update();
-        draw_logs();
+    run_async(async move {
+        loop {
+            controller.update();
+            draw_logs();
 
-        if once_per_n_seconds(4.0) {
-            info!("im so alone");
-        } else if once_per_n_seconds(2.0) {
-            warn!("haha");
-        } else if once_per_second() {
-            error!("BAHAHAHA");
-        } else if once_per_n_seconds(0.5) {
-            debug!("BAHAHAHAHAHA");
+            if once_per_n_seconds(4.0) {
+                info!("im so alone");
+            } else if once_per_n_seconds(2.0) {
+                warn!("haha");
+            } else if once_per_second() {
+                error!("BAHAHAHA");
+            } else if once_per_n_seconds(0.5) {
+                debug!("BAHAHAHAHAHA");
+            }
+
+            let mut font = default_font();
+            let texture = font.texture();
+            draw_texture_world(texture, Vec2::ZERO, 1000.0);
+            draw_square_outline_world(Vec2::ZERO, 1000.0, 2.0, Color::NEUTRAL_500);
+
+            if should_quit() {
+                break;
+            }
+
+            next_frame().await;
         }
-
-        let mut font = default_font();
-        let texture = font.texture();
-        draw_texture_world(texture, Vec2::ZERO, 1000.0);
-        draw_square_outline_world(Vec2::ZERO, 1000.0, 2.0, Color::NEUTRAL_500);
-
-        if should_quit() {
-            break;
-        }
-
-        next_frame();
-    }
+    });
 
     Ok(())
 }

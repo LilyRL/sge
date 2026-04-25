@@ -52,15 +52,8 @@ impl UiNode for FlexRow {
 
         let y = dimensions
             .map(|d| d.y)
-            .max_by(|a, b| {
-                if a > b {
-                    Ordering::Greater
-                } else if a < b {
-                    Ordering::Less
-                } else {
-                    Ordering::Equal
-                }
-            })
+            .filter(|y| y.is_finite())
+            .max_by(|a, b| a.partial_cmp(b).unwrap_or(Ordering::Equal))
             .unwrap_or(0.0);
 
         Vec2::new(x, y)
@@ -82,7 +75,7 @@ impl UiNode for FlexRow {
             .iter()
             .filter_map(|child| {
                 if let FlexBox::Fixed(c) = child {
-                    Some(c.node.preferred_dimensions().x)
+                    Some(c.node.preferred_dimensions().x.min(area.width()))
                 } else {
                     None
                 }
@@ -102,7 +95,7 @@ impl UiNode for FlexRow {
 
         for child in self.children.iter() {
             let child_width = match child {
-                FlexBox::Fixed(c) => c.node.preferred_dimensions().x,
+                FlexBox::Fixed(c) => c.node.preferred_dimensions().x.min(area.width()),
                 FlexBox::Flex(_) => flex_unit_width,
             };
 
@@ -118,7 +111,7 @@ impl UiNode for FlexRow {
             x_offset += child_width + self.gap;
         }
 
-        Vec2::new(area.width(), max_height)
+        Vec2::new(area.width(), max_height.min(area.height()))
     }
 }
 
@@ -156,15 +149,8 @@ impl UiNode for FlexCol {
         let x = dimensions
             .clone()
             .map(|d| d.x)
-            .max_by(|a, b| {
-                if a > b {
-                    Ordering::Greater
-                } else if a < b {
-                    Ordering::Less
-                } else {
-                    Ordering::Equal
-                }
-            })
+            .filter(|x| x.is_finite())
+            .max_by(|a, b| a.partial_cmp(b).unwrap_or(Ordering::Equal))
             .unwrap_or(0.0);
 
         let y = dimensions.map(|d| d.y).sum::<f32>() + self.gap * (self.children.len() - 1) as f32;
@@ -188,7 +174,7 @@ impl UiNode for FlexCol {
             .iter()
             .filter_map(|child| {
                 if let FlexBox::Fixed(c) = child {
-                    Some(c.node.preferred_dimensions().y)
+                    Some(c.node.preferred_dimensions().y.min(area.height()))
                 } else {
                     None
                 }
@@ -208,13 +194,14 @@ impl UiNode for FlexCol {
 
         for child in self.children.iter() {
             let child_height = match child {
-                FlexBox::Fixed(c) => c.node.preferred_dimensions().y,
+                FlexBox::Fixed(c) => c.node.preferred_dimensions().y.min(area.height()),
                 FlexBox::Flex(_) => flex_unit_height,
             };
 
             let new_area = {
                 let mut a = area;
                 a.top_left.y += y_offset;
+                a.size.x = area.size.x;
                 a.size.y = child_height;
                 a
             };
@@ -224,6 +211,6 @@ impl UiNode for FlexCol {
             y_offset += child_height + self.gap;
         }
 
-        Vec2::new(max_width, area.height())
+        Vec2::new(max_width.min(area.width()), area.height())
     }
 }

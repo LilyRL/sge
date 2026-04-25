@@ -6,13 +6,15 @@ use sge_config::{get_dithering, get_polygon_mode};
 use sge_debugging::*;
 use sge_math::transform::Transform2D;
 use sge_programs::{
-    CIRCLE_PROGRAM, FLAT_PROGRAM, RADIAL_PROGRAM, ROUNDED_PROGRAM, TEXTURED_PROGRAM,
+    CIRCLE_PROGRAM, FLAT_PROGRAM, QBEZIER_PROGRAM, RADIAL_PROGRAM, ROUNDED_PROGRAM,
+    TEXTURED_PROGRAM,
 };
 use sge_shapes::d2::{QUAD_INDICES, Shape2D, UNIT_QUAD};
 use sge_textures::TextureRef;
 use sge_types::{
-    CircleBatch, CircleInstance, RadialGradientBatch, RadialGradientInstance, RoundedBatch,
-    RoundedInstance, ShapeBatch, Vertex2D,
+    CircleBatch, CircleInstance, ColorVertex2D, CubicBezier, CubicBezierBatch, MetaballBatch,
+    Pattern, QuadraticBezier, QuadraticBezierBatch, RadialGradientBatch, RadialGradientInstance,
+    RoundedBatch, RoundedInstance, ShapeBatch,
 };
 use sge_vectors::{Mat4, Rect, Vec2, Vec3};
 use sge_window::get_display;
@@ -32,6 +34,9 @@ pub enum DrawCommand {
     Rounded(RoundedBatch),
     Radial(RadialGradientBatch),
     Sprites(SpriteBatch),
+    QuadraticBezier(QuadraticBezierBatch),
+    CubicBezier(CubicBezierBatch),
+    Metaballs(*const MetaballBatch),
 }
 
 #[derive(Clone)]
@@ -168,7 +173,7 @@ impl Renderer2D {
         let batch = self.current_shape_batch();
         let (mut indices, vertices) = shape.gen_mesh(batch.max_index);
         for vertex in &vertices {
-            batch.vertices.push(vertex.to_3d(0.0));
+            batch.vertices.push(vertex.solid_pattern());
         }
         batch.max_index += vertices.len() as u32;
         batch.indices.append(&mut indices);
@@ -251,6 +256,75 @@ impl Renderer2D {
             ));
     }
 
+    pub fn current_quadratic_bezier_batch(&mut self) -> &mut QuadraticBezierBatch {
+        let scissor = current_scissor();
+        let needs_new = match self.draws().last() {
+            Some(DrawCommand::QuadraticBezier(b)) => b.scissor != scissor,
+            _ => true,
+        };
+        if needs_new {
+            self.draws_mut()
+                .push(DrawCommand::QuadraticBezier(QuadraticBezierBatch::new(
+                    scissor,
+                )));
+        }
+        match self.draws_mut().last_mut().unwrap() {
+            DrawCommand::QuadraticBezier(b) => b,
+            _ => unreachable!(),
+        }
+    }
+
+    pub fn add_quadratic_bezier(
+        &mut self,
+        a: Vec2,
+        b: Vec2,
+        c: Vec2,
+        color: Color,
+        thickness: f32,
+    ) {
+        debugger_add_drawn_objects(1);
+        self.current_quadratic_bezier_batch()
+            .instances
+            .push(QuadraticBezier::new(a, b, c, color, thickness));
+    }
+
+    pub fn current_cubic_bezier_batch(&mut self) -> &mut CubicBezierBatch {
+        let scissor = current_scissor();
+        let needs_new = match self.draws().last() {
+            Some(DrawCommand::CubicBezier(b)) => b.scissor != scissor,
+            _ => true,
+        };
+        if needs_new {
+            self.draws_mut()
+                .push(DrawCommand::CubicBezier(CubicBezierBatch::new(scissor)));
+        }
+        match self.draws_mut().last_mut().unwrap() {
+            DrawCommand::CubicBezier(b) => b,
+            _ => unreachable!(),
+        }
+    }
+
+    pub fn add_cubic_bezier(
+        &mut self,
+        a: Vec2,
+        b: Vec2,
+        c: Vec2,
+        d: Vec2,
+        color: Color,
+        thickness: f32,
+    ) {
+        debugger_add_drawn_objects(1);
+        self.current_cubic_bezier_batch()
+            .instances
+            .push(CubicBezier::new(a, b, c, d, color, thickness));
+    }
+
+    pub fn add_metaball_batch(&mut self, batch: &MetaballBatch) {
+        debugger_add_drawn_objects(batch.len());
+        self.draws_mut()
+            .push(DrawCommand::Metaballs(batch as *const MetaballBatch));
+    }
+
     pub fn add_sprite(
         &mut self,
         texture: TextureRef,
@@ -316,14 +390,50 @@ impl Renderer2D {
         ]);
     }
 
-    pub fn add_mesh(&mut self, vertices: &[Vertex2D], indices: &[u32]) {
+    pub fn add_mesh(&mut self, vertices: &[ColorVertex2D], indices: &[u32]) {
         let batch = self.current_shape_batch();
         let base_index = batch.max_index;
         for v in vertices {
-            batch.vertices.push(v.to_3d(0.0));
+            batch.vertices.push(v.solid_pattern());
         }
         batch.indices.extend(indices.iter().map(|i| i + base_index));
         batch.max_index += vertices.len() as u32;
+    }
+
+    pub fn add_mesh_with_pattern(
+        &mut self,
+        vertices: &[ColorVertex2D],
+        indices: &[u32],
+        alt_color: Color,
+        pattern: Pattern,
+        scale: f32,
+    ) {
+        let batch = self.current_shape_batch();
+        let base_index = batch.max_index;
+        for v in vertices {
+            batch.vertices.push(v.to_pattern(alt_color, pattern, scale));
+        }
+        batch.indices.extend(indices.iter().map(|i| i + base_index));
+        batch.max_index += vertices.len() as u32;
+    }
+
+    pub fn add_shape_with_pattern(
+        &mut self,
+        shape: &impl Shape2D,
+        alt_color: Color,
+        pattern: Pattern,
+        scale: f32,
+    ) {
+        debugger_add_drawn_objects(1);
+        let batch = self.current_shape_batch();
+        let (mut indices, vertices) = shape.gen_mesh(batch.max_index);
+        for vertex in &vertices {
+            batch
+                .vertices
+                .push(vertex.to_pattern(alt_color, pattern, scale));
+        }
+        batch.max_index += vertices.len() as u32;
+        batch.indices.append(&mut indices);
     }
 
     pub fn add_scene(&mut self, scene: &Scene2D) {

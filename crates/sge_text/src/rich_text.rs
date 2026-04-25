@@ -1,6 +1,7 @@
-use sge_vectors::Vec2;
+use sge_api::shapes_2d::draw_line_to;
 use sge_color::{Color, str_to_color};
 use sge_rendering::{d2::Renderer2D, dq2d, wdq2d};
+use sge_vectors::Vec2;
 use thiserror::Error;
 
 use crate::draw_text_to;
@@ -15,7 +16,7 @@ pub struct RichText {
 #[derive(Error, Debug)]
 pub enum RichTextParseError {
     #[error("Could not parse color: {0}")]
-    UnknownColor(String),
+    UnknownFormat(String),
     #[error("Expected token: `{0}` at character: {1}.")]
     ExpectedToken(char, usize),
     #[error("Unexpected token: `{0}`, expected: `{1}` at character: {2}.")]
@@ -27,6 +28,8 @@ struct RichTextParser {
     i: usize,
     blocks: Vec<RichTextBlock>,
     color: Color,
+    underline: bool,
+    strikethrough: bool,
 }
 
 impl RichTextParser {
@@ -36,6 +39,8 @@ impl RichTextParser {
             i: 0,
             blocks: vec![],
             color: Color::NEUTRAL_100,
+            underline: false,
+            strikethrough: false,
         }
     }
 
@@ -43,15 +48,36 @@ impl RichTextParser {
         while let Some(c) = self.next() {
             if c == '{' {
                 self.next();
-                let color_string = self.consume_until('}')?;
+                let format_string = self.consume_until('}')?;
                 self.consume('}')?;
-                self.color = str_to_color(&color_string)
-                    .ok_or(RichTextParseError::UnknownColor(color_string))?;
-                // self.consume_or_not(' ');
+                match str_to_color(&format_string) {
+                    Some(c) => self.color = c,
+                    None => {
+                        match format_string
+                            .replace("_", "")
+                            .replace("-", "")
+                            .to_lowercase()
+                            .trim()
+                        {
+                            "underline" | "ul" => self.underline = true,
+                            "nounderline" | "noul" => self.underline = false,
+                            "strikethrough" | "st" => self.strikethrough = true,
+                            "nostrikethrough" | "nost" => self.strikethrough = false,
+                            "r" | "reset" => {
+                                self.underline = false;
+                                self.strikethrough = false;
+                                self.color = Color::NEUTRAL_100;
+                            }
+                            _ => return Err(RichTextParseError::UnknownFormat(format_string)),
+                        }
+                    }
+                }
             } else {
                 let text = self.consume_until('{')?;
                 self.blocks.push(RichTextBlock {
                     color: self.color,
+                    underline: self.underline,
+                    strikethrough: self.strikethrough,
                     text,
                 });
             }
@@ -111,8 +137,8 @@ impl RichTextParser {
     }
 }
 
-/// parses from a format of colors between curly braces, which give their color to all text
-/// that comes after it, overridden with another color block.
+/// parses from a format of colors/styles between curly braces, which give their color/style to all text
+/// that comes after it, overridden with another format block.
 /// format example:
 ///
 /// ```text
@@ -131,6 +157,9 @@ impl RichTextParser {
 /// {rgb 0.5 230 0.9} you can mix and match
 /// {rgb 1 1 1} this will get parsed as almost black, because it prioritizes the (255, 255, 255)
 /// format, so you should write {rgb 1.0 1.0 1.0} instead
+/// {st}This text will be struck through, you can also use {strikethrough}
+/// {nost}Reset to normal, and {ul} or {underline} will add an underline
+/// {reset} or {r} turns everything back to normal
 /// ```
 pub fn rich_text(input: impl AsRef<str>) -> Result<RichText, RichTextParseError> {
     RichText::parse(input)
@@ -228,8 +257,31 @@ impl RichText {
 
                 let dimensions = draw_text_to(line, text_params, renderer);
 
+                let cursor_x_before = cursor.x;
                 cursor.x += dimensions.size.x;
                 max_width = max_width.max(cursor.x - params.position.x);
+
+                if block.strikethrough {
+                    let strike_y = cursor.y + line_height / 2.0;
+                    draw_line_to(
+                        Vec2::new(cursor_x_before, strike_y),
+                        Vec2::new(cursor.x, strike_y),
+                        2.0,
+                        block.color,
+                        renderer,
+                    );
+                }
+
+                if block.underline {
+                    let underline_y = cursor.y + line_height;
+                    draw_line_to(
+                        Vec2::new(cursor_x_before, underline_y),
+                        Vec2::new(cursor.x, underline_y),
+                        2.0,
+                        block.color,
+                        renderer,
+                    );
+                }
 
                 if i < lines.len() - 1 {
                     cursor.y += line_height;
@@ -280,17 +332,53 @@ impl RichText {
 pub struct RichTextBlock {
     pub color: Color,
     pub text: String,
+    pub underline: bool,
+    pub strikethrough: bool,
 }
 
 impl RichTextBlock {
     pub fn new(text: String, color: Color) -> Self {
-        Self { color, text }
+        Self {
+            color,
+            text,
+            underline: false,
+            strikethrough: false,
+        }
+    }
+
+    pub fn new_underline(text: String, color: Color) -> Self {
+        Self {
+            color,
+            text,
+            underline: true,
+            strikethrough: false,
+        }
+    }
+
+    pub fn new_strikethrough(text: String, color: Color) -> Self {
+        Self {
+            color,
+            text,
+            underline: false,
+            strikethrough: true,
+        }
+    }
+
+    pub fn custom(text: String, color: Color, underline: bool, strikethrough: bool) -> Self {
+        Self {
+            color,
+            text,
+            underline,
+            strikethrough,
+        }
     }
 
     pub fn from_str<S: AsRef<str>>(s: S, color: Color) -> Self {
         Self {
             color,
             text: s.as_ref().to_string(),
+            underline: false,
+            strikethrough: false,
         }
     }
 }

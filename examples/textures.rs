@@ -1,15 +1,15 @@
 use sge::prelude::*;
 
+#[main("Demo")]
 fn main() -> anyhow::Result<()> {
-    init("Demo")?;
     use_linear_filtering();
 
     let mut controller = PanningCameraController::new();
-    let guy_texture = load_texture(
+    let guy_texture = load_texture_from_bytes_sync(
         include_bytes!("../assets/textures/guy.jpg"),
         ImageFormat::Jpeg,
     )?;
-    let pasta_texture = load_texture(
+    let pasta_texture = load_texture_from_bytes_sync(
         include_bytes!("../assets/textures/pasta.jpg"),
         ImageFormat::Jpeg,
     )?;
@@ -50,7 +50,7 @@ fn main() -> anyhow::Result<()> {
             break;
         }
 
-        next_frame();
+        next_frame().await;
     }
 
     Ok(())

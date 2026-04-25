@@ -9,9 +9,7 @@ repository = "https://github.com/LilyRL/sge"
 
 [dependencies]
 sge_vectors.workspace = true
-sge_error_union.workspace = true
 glium.workspace = true
-image.workspace = true
 sge_color.workspace = true
 sge_image.workspace = true
 sge_macros.workspace = true

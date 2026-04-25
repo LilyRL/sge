@@ -4,9 +4,8 @@ use sge_input::gilrs::{Gamepad, GamepadId};
 const PRIMARY: Color = Color::WHITE;
 const SECONDARY: Color = Color::WHITE;
 
-fn main() -> anyhow::Result<()> {
-    init("Gamepad")?;
-
+#[main("Gamepad")]
+async fn main() -> anyhow::Result<()> {
     let mut gamepad = None;
 
     loop {
@@ -20,7 +19,7 @@ fn main() -> anyhow::Result<()> {
             break;
         }
 
-        next_frame();
+        next_frame().await;
     }
 
     Ok(())

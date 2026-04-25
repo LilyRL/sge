@@ -11,6 +11,7 @@
 - [X] space invaders using some new features
 - [X] constant particle emitters
 - [ ] texture/atlas particles
+- [ ] sound rotation
 - [ ] have a look at texture atlasses and see if we can make something good for 2d platformer levels. maybe an add colliders toggle
 - [ ] some kinda mf https://docs.rs/macroquad/latest/macroquad/telemetry/index.html
 - [ ] miniquad backend + web
@@ -18,13 +19,12 @@
 - [ ] add post frame callback
 - [X] add mf draw wireframe and shit
 - [X] examples for all the ui elements
-- [ ] colour picker
-- [ ] fix scenes
+- [X] colour picker
+- [X] fix scenes
 - [X] load_sound
 - [X] load_sound_from_bytes
 - [ ] play_sound_looped
-- [X] port debug vis to sge_ui, and make egui non default feature, reduce number
-  of crates pulled in greatly
+- [X] port debug vis to sge_ui, and make egui non default feature, reduce number of crates pulled in greatly
 - [X] ecs
 - [X] play_sound_once
 - [X] set_sound_volume
@@ -38,6 +38,16 @@
 - [X] slider
 - [ ] safe multithreading
 - [ ] 3d scene for point lights
+- [X] underline and strikethrough text
+- [ ] rich text ui
+- [ ] ui hyperlink
+- [ ] ui span support, so i can have links and stuff inside a paragraph
+- [ ] ui select text
+- [ ] ui tooltips
+- [ ] ui select in text edit
+- [ ] ui text box
+- [ ] ui modal that dims the rest of the screen, like a pop up instead of a
+  floating window
 - [X] 2d scene for optimising static geometry
 - [ ] render geometry to scene or texture
 - [ ] render to scene yeah, so like more macro shit to add to_scene functions and maybe just have a 2d renderer trait and have draw queue 2d and scene implement it and then have draw_to take a 2d renderer reference
@@ -57,7 +67,7 @@
     - [X] implement macro
     - [X] add support for engine types
   - [X] network
-- [ ] fs/network functions sync/async that taps into the async runtime being worked on
+- [X] fs/network functions sync/async that taps into the async runtime being worked on
 - [ ] make the ui more performant
 - [ ] re-add profiling
 - [ ] measure startup and runtime performance
@@ -174,7 +184,7 @@ fn main() {
 - [ ] easy physics like godot where you can say is_on_floor is_in_air is_on_wall etc.
 - [ ] platformer example
 - [X] input
-- [ ] number input
+- [X] number input
 - [X] slider
 - [ ] text box
 - [X] button
@@ -321,7 +331,7 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord) {
 - [X] winit input helper fork add precise mouse movemnt so that i can have all the
   positions of it in the paint program for better curves
 - [ ] image texture pair struct with builtin methods and maybe a `dirty`
-- [ ] make implementing ui like clicking and hovering easier
+- [X] make implementing ui like clicking and hovering easier
 - [ ] software: draw thick line function for circles or something, see if instancing circles is good enough
 - [ ] hardware: rounded line function (with circle end caps). can replace a bunch of boiler plate in api.rs
 - [X] expose egui charts if not already
@@ -352,14 +362,16 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord) {
   - [X] just let the user create a render pipeline which has the various draw queues, and let the draw queues also contain their proj matrices so it can be drawn with just a reference to the engine state.
   - [X] let the engine use a default render pipeline, and have it be a vector of impl RenderPipelinePass which is implemented by draw_queue 2 and 3d and for drawing the UI in case the user wants to put things above that.
   this should make it possible to add post processing effects easily
-- [ ] drawing curves
-  - [ ] lines that connect points
+- [ ] scene ui element
+- [-] drawing curves
+  - [X] lines that connect points
   - [ ] bezier
   - [ ] cubic
   - [ ] quadratic
 - [ ] Documentation
 - [ ] arcs/slices of circles
 - [ ] splines
+- [ ] let people write [a, b] instead of vec2(a, b)
 - [X] 2d grid
 - [X] function to get screen size, width, height
 - [X] Fix backface culling

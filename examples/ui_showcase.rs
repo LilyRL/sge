@@ -1,3 +1,5 @@
+use core::f32;
+
 use sge::prelude::*;
 use ui::*;
 
@@ -9,6 +11,7 @@ const NODES: &[(&str, fn() -> UiRef)] = &[
     ("Center", center),
     ("Chart/line", line_chart),
     ("Circle", circle),
+    ("Color selector", color_selector),
     ("Drawer", drawer),
     ("Fill/active", active_fill),
     ("Fill/box", box_fill),
@@ -16,9 +19,13 @@ const NODES: &[(&str, fn() -> UiRef)] = &[
     ("Fill/gradient", gradient_fill),
     ("Fill/rounded", rounded_fill),
     ("Hoverable", hoverable),
-    ("Image", image),
+    ("Image/sync", image),
+    ("Image/async", async_image),
     ("Inactive Overlay", inactive_overlay),
+    ("Input/data", data_input),
+    ("Input/text", input),
     ("Layout/col", col),
+    ("Layout/flex", flex),
     ("Layout/grid", grid),
     ("Layout/row", row),
     ("Loading Bar", loading_bar),
@@ -29,13 +36,12 @@ const NODES: &[(&str, fn() -> UiRef)] = &[
     ("Sized Box", sized_box),
     ("Slider", slider),
     ("Stack", stack),
-    ("Text Input", input),
     ("Window", window),
 ];
 const SCHEME: ColorScheme = ColorScheme::LACKLUSTER;
 
+#[main("UI Showcase")]
 fn main() -> anyhow::Result<()> {
-    init("Ui Showcase")?;
     let select = id!();
 
     loop {
@@ -50,7 +56,7 @@ fn main() -> anyhow::Result<()> {
                     SizedBox::wh(
                         200.0,
                         window_height(),
-                        flat::SelectBox::new_text(
+                        flat::SelectBox::mono_text(
                             SCHEME.bg1,
                             SCHEME.bg2,
                             select,
@@ -86,7 +92,7 @@ fn main() -> anyhow::Result<()> {
             break;
         }
 
-        next_frame();
+        next_frame().await;
     }
 
     Ok(())
@@ -217,11 +223,19 @@ fn line_chart() -> UiRef {
         .map(|i| sin((i as f32 * 5.0).to_radians()) + 1.0)
         .collect();
 
-    flat::LineChart::new(data, 500.0, 200.0)
+    Col::with_gap(
+        20.0,
+        [
+            flat::LineChart::new(data, 500.0, 200.0),
+            text(
+                "This sin graph looks weird with the round_coords feature enabled, but that feature makes other parts of the UI look more crisp. You can enable and disable it in your Cargo.toml.",
+            ),
+        ],
+    )
 }
 
 fn circle() -> UiRef {
-    CircleFill::new(SCHEME.bg2).sized_wh(200.0, 200.0)
+    CircleFill::new(SCHEME.fg3).sized_wh(200.0, 200.0)
 }
 
 fn col() -> UiRef {
@@ -240,12 +254,8 @@ fn drawer() -> UiRef {
         "Open drawer...",
         SCHEME.bg1,
         id!(),
-        Col::with_gap(20.0,
-            [
-                Text::new("Porro voluptate quis voluptatum voluptatem aspernatur et. Natus quos debitis repellendus voluptas voluptatem sit odit. Tenetur voluptatem quis quibusdam. Iusto et repellat et et eos consequuntur. Et nesciunt distinctio eveniet et et velit nihil."),
-                aspect_ratio()
-            ]
-        ).scroll(id!()).sized_wh(600.0, 400.0),
+        Text::new("Porro voluptate quis voluptatum voluptatem aspernatur et. Natus quos debitis repellendus voluptas voluptatem sit odit. Tenetur voluptatem quis quibusdam. Iusto et repellat et et eos consequuntur. Et nesciunt distinctio eveniet et et velit nihil.")
+            .square(400.0)
     )
     .max_width(400.0)
 }
@@ -258,6 +268,7 @@ fn fill() -> UiRef {
         [
             RoundedFill::new(SCHEME.fg0, *value, EMPTY).square(200.0),
             flat::Slider::alternate(value, 0.0, 100.0, id!()).max_width(200.0),
+            Text::new("Draws a box fill if radius is 0, and a rounded fill otherwise"),
         ],
     )
 }
@@ -274,6 +285,27 @@ fn gradient_fill() -> UiRef {
         ],
     )
     .square(400.0)
+}
+
+fn flex() -> UiRef {
+    SizedBox::wh(
+        400.0,
+        oscillate(200.0, 800.0),
+        FlexCol::new([
+            FlexBox::Fixed(SizedBox::wh(
+                f32::INFINITY,
+                100.0,
+                Fill::new(SCHEME.fg2, EMPTY),
+            )),
+            FlexBox::Flex(Fill::new(SCHEME.bg2, DebugNode::new()).scissored()),
+            FlexBox::Flex(Fill::new(SCHEME.bg3, EMPTY).scissored()),
+            FlexBox::Fixed(SizedBox::wh(
+                f32::INFINITY,
+                100.0,
+                Fill::new(SCHEME.fg2, EMPTY),
+            )),
+        ]),
+    )
 }
 
 fn row() -> UiRef {
@@ -319,19 +351,54 @@ fn hoverable() -> UiRef {
     )
 }
 
+fn color_selector() -> UiRef {
+    flat::ColorSelector::new(id!(), Color::RED_500)
+}
+
 fn image() -> UiRef {
-    struct ImageExampleState {
+    struct State {
         image: TextureRef,
     }
 
-    if !storage_exists::<ImageExampleState>() {
-        let texture = include_texture!("../assets/textures/guy.jpg");
-        storage_store_state(ImageExampleState { image: texture });
+    if !storage_exists::<State>() {
+        let texture = load_texture_sync("assets/textures/guy.jpg").unwrap();
+        storage_store_state(State { image: texture });
     }
 
-    let image = storage_get_state::<ImageExampleState>().image;
+    let image = storage_get_state::<State>().image;
 
     ImageNode::from_texture(image)
+}
+
+fn async_image() -> UiRef {
+    struct State {
+        image: LoadingTexture,
+        other_image: LoadingTexture,
+    }
+
+    if !storage_exists::<State>() {
+        storage_store_state(State {
+            image: None,
+            other_image: None,
+        });
+
+        start_coroutine(async {
+            let state = storage_get_state_mut::<State>();
+
+            state.other_image = Some(load_texture("assets/textures/i-dont-exist.jpg").await);
+            state.image = Some(load_texture("assets/textures/space.jpg").await);
+        });
+    }
+
+    let state = storage_get_state::<State>();
+
+    Col::with_gap(
+        20.0,
+        [
+            flat::AsyncImageNode::new(&state.image, vec2(600.0, 400.0)),
+            flat::AsyncImageNode::new(&state.other_image, vec2(600.0, 400.0)),
+        ],
+    )
 }
 
 fn inactive_overlay() -> UiRef {
@@ -339,7 +406,40 @@ fn inactive_overlay() -> UiRef {
 }
 
 fn input() -> UiRef {
-    flat::TextInput::with_prompt(SCHEME.bg2, "Enter text...", id!()).max_width(300.0)
+    let input = id!();
+    let value = text_input_value(input);
+
+    Col::with_gap(
+        20.0,
+        [
+            flat::TextInput::with_prompt(SCHEME.bg2, "Enter text...", input).max_width(300.0),
+            Text::title(value),
+        ],
+    )
+}
+
+fn data_input() -> UiRef {
+    use std::net::Ipv4Addr;
+
+    let float_input = id!();
+    let float_state = data_input_state::<f32>(float_input);
+
+    let ip_input = id!();
+    let ip_state = data_input_state::<Ipv4Addr>(ip_input);
+
+    Col::with_gap(
+        20.0,
+        [
+            flat::DataInput::<f32>::mono_with_prompt(SCHEME.bg1, "Enter float", float_input),
+            Text::mono_nowrap(format!("{:#?}", float_state)),
+            flat::DataInput::<Ipv4Addr>::mono_with_prompt(SCHEME.bg1, "Enter IPV4", ip_input),
+            Text::mono_nowrap(format!("{:#?}", ip_state)),
+            Text::mono_nowrap(format!(
+                "is_private: {}",
+                ip_state.value.map(|ip| ip.is_private()).unwrap_or(false)
+            )),
+        ],
+    )
 }
 
 fn loading_bar() -> UiRef {

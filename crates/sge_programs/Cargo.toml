@@ -10,5 +10,6 @@ repository = "https://github.com/LilyRL/sge"
 [dependencies]
 glium.workspace = true
 log.workspace = true
+sge_error_union.workspace = true
 sge_macros.workspace = true
 sge_window.workspace = true

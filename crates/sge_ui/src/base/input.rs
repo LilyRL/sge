@@ -1,15 +1,15 @@
-use sge_vectors::vec2;
 use glium::winit::keyboard::{Key, NamedKey};
 use sge_api::shapes_2d::draw_rect;
 use sge_input::input_text;
 use sge_rendering::scissor::{pop_scissor, push_scissor};
 use sge_text::{FontRef, TextDrawParams, draw_text_custom, measure_text};
 use sge_time::toggle_every_n_seconds;
+use sge_vectors::vec2;
 use sge_window::use_text_cursor_icon;
 
 use super::*;
 
-const CURSOR_WIDTH: f32 = 2.0;
+pub(crate) const CURSOR_WIDTH: f32 = 2.0;
 
 #[derive(Debug)]
 pub struct TextInput {
@@ -37,7 +37,7 @@ impl TextInput {
         let state = State::from_id(id);
         TextInput {
             state,
-            prompt: prompt.unwrap_or(" ".to_string()),
+            prompt: prompt.unwrap_or("Enter text".to_string()),
             font: font.unwrap_or_default(),
             font_size,
             color,

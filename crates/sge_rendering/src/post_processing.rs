@@ -1,7 +1,5 @@
 // slop mostly
 
-use sge_vectors::Vec2;
-use sge_error_union::ErrorUnion;
 use glium::{
     IndexBuffer, Program, Surface, VertexBuffer,
     framebuffer::SimpleFrameBuffer,
@@ -10,10 +8,12 @@ use glium::{
 };
 use sge_color::Color;
 use sge_config::get_dithering;
-use sge_programs::{COPY_PROGRAM, ProgramRef, load_program};
+use sge_error_union::ErrorUnion;
+use sge_programs::{COPY_PROGRAM, ProgramRef, load_program_sync};
 use sge_shapes::d2::QUAD_INDICES;
 use sge_textures::TextureRef;
 use sge_types::TexturedVertex2D;
+use sge_vectors::Vec2;
 use sge_window::{SgeDisplay, get_display};
 
 #[derive(Clone, Debug)]
@@ -335,66 +335,73 @@ static FILM_GRAIN_PROGRAM: OnceLock<ProgramRef> = OnceLock::new();
 
 fn get_or_create_gaussian_blur_program() -> &'static ProgramRef {
     GAUSSIAN_BLUR_PROGRAM.get_or_init(|| {
-        load_program(POSTPROCESS_VERTEX_SHADER, GAUSSIAN_BLUR_FRAGMENT_SHADER).unwrap()
+        load_program_sync(POSTPROCESS_VERTEX_SHADER, GAUSSIAN_BLUR_FRAGMENT_SHADER).unwrap()
     })
 }
 
 fn get_or_create_pixelate_program() -> &'static ProgramRef {
-    PIXELATE_PROGRAM
-        .get_or_init(|| load_program(POSTPROCESS_VERTEX_SHADER, PIXELATE_FRAGMENT_SHADER).unwrap())
+    PIXELATE_PROGRAM.get_or_init(|| {
+        load_program_sync(POSTPROCESS_VERTEX_SHADER, PIXELATE_FRAGMENT_SHADER).unwrap()
+    })
 }
 
 fn get_or_create_saturate_program() -> &'static ProgramRef {
-    SATURATE_PROGRAM
-        .get_or_init(|| load_program(POSTPROCESS_VERTEX_SHADER, SATURATE_FRAGMENT_SHADER).unwrap())
+    SATURATE_PROGRAM.get_or_init(|| {
+        load_program_sync(POSTPROCESS_VERTEX_SHADER, SATURATE_FRAGMENT_SHADER).unwrap()
+    })
 }
 
 fn get_or_create_hue_rotate_program() -> &'static ProgramRef {
     HUE_ROTATE_PROGRAM.get_or_init(|| {
-        load_program(POSTPROCESS_VERTEX_SHADER, HUE_ROTATE_FRAGMENT_SHADER).unwrap()
+        load_program_sync(POSTPROCESS_VERTEX_SHADER, HUE_ROTATE_FRAGMENT_SHADER).unwrap()
     })
 }
 
 fn get_or_create_brighten_program() -> &'static ProgramRef {
-    BRIGHTEN_PROGRAM
-        .get_or_init(|| load_program(POSTPROCESS_VERTEX_SHADER, BRIGHTEN_FRAGMENT_SHADER).unwrap())
+    BRIGHTEN_PROGRAM.get_or_init(|| {
+        load_program_sync(POSTPROCESS_VERTEX_SHADER, BRIGHTEN_FRAGMENT_SHADER).unwrap()
+    })
 }
 
 fn get_or_create_vignette_program() -> &'static ProgramRef {
-    VIGNETTE_PROGRAM
-        .get_or_init(|| load_program(POSTPROCESS_VERTEX_SHADER, VIGNETTE_FRAGMENT_SHADER).unwrap())
+    VIGNETTE_PROGRAM.get_or_init(|| {
+        load_program_sync(POSTPROCESS_VERTEX_SHADER, VIGNETTE_FRAGMENT_SHADER).unwrap()
+    })
 }
 
 fn get_or_create_bright_pass_program() -> &'static ProgramRef {
     BRIGHT_PASS_PROGRAM.get_or_init(|| {
-        load_program(POSTPROCESS_VERTEX_SHADER, BRIGHT_PASS_FRAGMENT_SHADER).unwrap()
+        load_program_sync(POSTPROCESS_VERTEX_SHADER, BRIGHT_PASS_FRAGMENT_SHADER).unwrap()
     })
 }
 
 fn get_or_create_bloom_combine_program() -> &'static ProgramRef {
     BLOOM_COMBINE_PROGRAM.get_or_init(|| {
-        load_program(POSTPROCESS_VERTEX_SHADER, BLOOM_COMBINE_FRAGMENT_SHADER).unwrap()
+        load_program_sync(POSTPROCESS_VERTEX_SHADER, BLOOM_COMBINE_FRAGMENT_SHADER).unwrap()
     })
 }
 
 fn get_or_create_contrast_program() -> &'static ProgramRef {
-    CONTRAST_PROGRAM
-        .get_or_init(|| load_program(POSTPROCESS_VERTEX_SHADER, CONTRAST_FRAGMENT_SHADER).unwrap())
+    CONTRAST_PROGRAM.get_or_init(|| {
+        load_program_sync(POSTPROCESS_VERTEX_SHADER, CONTRAST_FRAGMENT_SHADER).unwrap()
+    })
 }
 
 fn get_or_create_grayscale_program() -> &'static ProgramRef {
-    GRAYSCALE_PROGRAM
-        .get_or_init(|| load_program(POSTPROCESS_VERTEX_SHADER, GRAYSCALE_FRAGMENT_SHADER).unwrap())
+    GRAYSCALE_PROGRAM.get_or_init(|| {
+        load_program_sync(POSTPROCESS_VERTEX_SHADER, GRAYSCALE_FRAGMENT_SHADER).unwrap()
+    })
 }
 
 fn get_or_create_invert_program() -> &'static ProgramRef {
-    INVERT_PROGRAM
-        .get_or_init(|| load_program(POSTPROCESS_VERTEX_SHADER, INVERT_FRAGMENT_SHADER).unwrap())
+    INVERT_PROGRAM.get_or_init(|| {
+        load_program_sync(POSTPROCESS_VERTEX_SHADER, INVERT_FRAGMENT_SHADER).unwrap()
+    })
 }
 
 fn get_or_create_chromatic_aberration_program() -> &'static ProgramRef {
     CHROMATIC_ABERRATION_PROGRAM.get_or_init(|| {
-        load_program(
+        load_program_sync(
             POSTPROCESS_VERTEX_SHADER,
             CHROMATIC_ABERRATION_FRAGMENT_SHADER,
         )
@@ -403,13 +410,14 @@ fn get_or_create_chromatic_aberration_program() -> &'static ProgramRef {
 }
 
 fn get_or_create_sharpen_program() -> &'static ProgramRef {
-    SHARPEN_PROGRAM
-        .get_or_init(|| load_program(POSTPROCESS_VERTEX_SHADER, SHARPEN_FRAGMENT_SHADER).unwrap())
+    SHARPEN_PROGRAM.get_or_init(|| {
+        load_program_sync(POSTPROCESS_VERTEX_SHADER, SHARPEN_FRAGMENT_SHADER).unwrap()
+    })
 }
 
 fn get_or_create_film_grain_program() -> &'static ProgramRef {
     FILM_GRAIN_PROGRAM.get_or_init(|| {
-        load_program(POSTPROCESS_VERTEX_SHADER, FILM_GRAIN_FRAGMENT_SHADER).unwrap()
+        load_program_sync(POSTPROCESS_VERTEX_SHADER, FILM_GRAIN_FRAGMENT_SHADER).unwrap()
     })
 }
 

@@ -3,6 +3,7 @@ use d3::DrawQueue3D;
 use glium::Rect;
 use materials::init_materials;
 use pipeline::RenderPipeline;
+use sge_types::MetaballBatch;
 
 pub mod api;
 pub mod d2;
@@ -39,6 +40,7 @@ pub fn init() {
     log::info!("Initialized render state");
     init_materials();
     log::info!("Initialized materials");
+    unsafe { MetaballBatch::init_storage() };
 }
 
 pub fn dq2d() -> Renderer2D {

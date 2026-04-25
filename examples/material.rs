@@ -1,8 +1,7 @@
 use sge::prelude::*;
 
-pub fn main() -> anyhow::Result<()> {
-    init("Custom materials")?;
-
+#[main("Custom materials")]
+async fn main() -> anyhow::Result<()> {
     let mut orbit_controller = OrbitCameraController::new(Vec3::ZERO);
     let mut current_material = 0;
     let mut materials = vec![];
@@ -13,7 +12,7 @@ pub fn main() -> anyhow::Result<()> {
             "./material_shader/vertex.glsl",
             "./material_shader/fragment.glsl"
         )?;
-        let texture = load_texture(
+        let texture = load_texture_from_bytes_sync(
             include_bytes!("../assets/textures/space.jpg"),
             ImageFormat::Jpeg,
         )?;
@@ -87,7 +86,7 @@ pub fn main() -> anyhow::Result<()> {
             break;
         }
 
-        next_frame();
+        next_frame().await;
     }
 
     Ok(())

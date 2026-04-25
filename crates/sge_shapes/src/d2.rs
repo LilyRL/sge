@@ -1,13 +1,13 @@
 use dyn_clone::DynClone;
 use sge_color::Color;
 use sge_math::collision::{Aabb2d, HasBounds2D};
-use sge_types::Vertex2D;
+use sge_types::ColorVertex2D;
 use sge_vectors::{Mat3, Vec2, vec2};
 use std::f32::consts::TAU;
 
 dyn_clone::clone_trait_object!(Shape2D);
 pub trait Shape2D: HasBounds2D + DynClone {
-    fn gen_mesh(&self, starting_index: u32) -> (Vec<u32>, Vec<Vertex2D>);
+    fn gen_mesh(&self, starting_index: u32) -> (Vec<u32>, Vec<ColorVertex2D>);
     fn is_visible_in_world(&self) -> bool {
         self.bounds().is_visible_in_world()
     }
@@ -25,7 +25,7 @@ pub struct Circle {
 }
 
 impl Shape2D for Circle {
-    fn gen_mesh(&self, _starting_index: u32) -> (Vec<u32>, Vec<Vertex2D>) {
+    fn gen_mesh(&self, _starting_index: u32) -> (Vec<u32>, Vec<ColorVertex2D>) {
         unimplemented!();
     }
 
@@ -61,6 +61,46 @@ impl Circle {
             radius,
             color,
         }
+    }
+
+    pub fn from_diameter(a: Vec2, b: Vec2) -> Self {
+        let center = (a + b) / 2.0;
+        let radius = (b - a).abs() / 2.0;
+        Self {
+            center,
+            radius,
+            color: Color::WHITE,
+        }
+    }
+
+    pub fn with_outline(self, outline_thickness: f32, outline_color: Color) -> CircleWithOutline {
+        CircleWithOutline {
+            center: self.center,
+            radius: self.radius,
+            fill_color: self.color,
+            outline_thickness,
+            outline_color,
+        }
+    }
+
+    pub fn with_color(mut self, color: Color) -> Self {
+        self.color = color;
+        self
+    }
+
+    pub fn with_radius(mut self, radius: Vec2) -> Self {
+        self.radius = radius;
+        self
+    }
+
+    pub fn with_radius_uniform(mut self, radius: f32) -> Self {
+        self.radius = Vec2::splat(radius);
+        self
+    }
+
+    pub fn with_center(mut self, center: Vec2) -> Self {
+        self.center = center;
+        self
     }
 
     pub fn new(center: Vec2, radius: Vec2, color: Color) -> Self {
@@ -123,7 +163,7 @@ impl HasBounds2D for CircleWithOutline {
 }
 
 impl Shape2D for CircleWithOutline {
-    fn gen_mesh(&self, _starting_index: u32) -> (Vec<u32>, Vec<Vertex2D>) {
+    fn gen_mesh(&self, _starting_index: u32) -> (Vec<u32>, Vec<ColorVertex2D>) {
         unimplemented!();
     }
 
@@ -159,7 +199,7 @@ impl HasBounds2D for RoundedRectangle {
 }
 
 impl Shape2D for RoundedRectangle {
-    fn gen_mesh(&self, _: u32) -> (Vec<u32>, Vec<Vertex2D>) {
+    fn gen_mesh(&self, _: u32) -> (Vec<u32>, Vec<ColorVertex2D>) {
         unimplemented!()
     }
 
@@ -355,16 +395,16 @@ impl Rect {
         }
     }
 
-    pub fn gen_quad(&self) -> Vec<Vertex2D> {
+    pub fn gen_quad(&self) -> Vec<ColorVertex2D> {
         self.tri_points()
             .iter()
-            .map(|p| Vertex2D::new(p.x, p.y, self.color))
+            .map(|p| ColorVertex2D::new(p.x, p.y, self.color))
             .collect()
     }
 }
 
 impl Shape2D for Rect {
-    fn gen_mesh(&self, starting_index: u32) -> (Vec<u32>, Vec<Vertex2D>) {
+    fn gen_mesh(&self, starting_index: u32) -> (Vec<u32>, Vec<ColorVertex2D>) {
         let quad = self.gen_quad();
         let indices = QUAD_INDICES.map(|n| n + starting_index).to_vec();
         (indices, quad)
@@ -443,10 +483,10 @@ impl HasBounds2D for Triangle {
 }
 
 impl Shape2D for Triangle {
-    fn gen_mesh(&self, starting_index: u32) -> (Vec<u32>, Vec<Vertex2D>) {
+    fn gen_mesh(&self, starting_index: u32) -> (Vec<u32>, Vec<ColorVertex2D>) {
         let tri = self
             .rotated_points()
-            .map(|p| Vertex2D::new(p.x, p.y, self.color));
+            .map(|p| ColorVertex2D::new(p.x, p.y, self.color));
 
         #[cfg(feature = "round_coords")]
         let tri = tri.map(|p| p.round());
@@ -556,7 +596,7 @@ impl HasBounds2D for Line2D {
 }
 
 impl Line2D {
-    fn gen_mesh(&self) -> Option<Vec<Vertex2D>> {
+    fn gen_mesh(&self) -> Option<Vec<ColorVertex2D>> {
         let (start, end) = self.rotated_endpoints();
         #[cfg(feature = "round_coords")]
         let start = start.round();
@@ -573,24 +613,24 @@ impl Line2D {
         let perpendicular = Vec2::new(-normalized.y, normalized.x) * self.thickness / 2.0;
 
         Some(vec![
-            Vertex2D::new(
+            ColorVertex2D::new(
                 start.x - perpendicular.x,
                 start.y - perpendicular.y,
                 self.color,
             ),
-            Vertex2D::new(end.x - perpendicular.x, end.y - perpendicular.y, self.color),
-            Vertex2D::new(
+            ColorVertex2D::new(end.x - perpendicular.x, end.y - perpendicular.y, self.color),
+            ColorVertex2D::new(
                 start.x + perpendicular.x,
                 start.y + perpendicular.y,
                 self.color,
             ),
-            Vertex2D::new(end.x + perpendicular.x, end.y + perpendicular.y, self.color),
+            ColorVertex2D::new(end.x + perpendicular.x, end.y + perpendicular.y, self.color),
         ])
     }
 }
 
 impl Shape2D for Line2D {
-    fn gen_mesh(&self, starting_index: u32) -> (Vec<u32>, Vec<Vertex2D>) {
+    fn gen_mesh(&self, starting_index: u32) -> (Vec<u32>, Vec<ColorVertex2D>) {
         if let Some(mesh) = self.gen_mesh() {
             (QUAD_INDICES.map(|n| n + starting_index).to_vec(), mesh)
         } else {
@@ -672,14 +712,14 @@ impl Poly {
         points
     }
 
-    pub fn gen_mesh(&self) -> (Vec<Vertex2D>, Vec<u32>) {
+    pub fn gen_mesh(&self) -> (Vec<ColorVertex2D>, Vec<u32>) {
         let points = self.gen_points();
         gen_mesh_from_points(&points, self.color)
     }
 }
 
 impl Shape2D for Poly {
-    fn gen_mesh(&self, starting_index: u32) -> (Vec<u32>, Vec<Vertex2D>) {
+    fn gen_mesh(&self, starting_index: u32) -> (Vec<u32>, Vec<ColorVertex2D>) {
         let (vertices, indices) = self.gen_mesh();
         let indices = indices.iter().map(|n| n + starting_index).collect();
         (indices, vertices)
@@ -727,7 +767,7 @@ impl HasBounds2D for CustomShape {
 }
 
 impl Shape2D for CustomShape {
-    fn gen_mesh(&self, starting_index: u32) -> (Vec<u32>, Vec<Vertex2D>) {
+    fn gen_mesh(&self, starting_index: u32) -> (Vec<u32>, Vec<ColorVertex2D>) {
         let (vertices, indices) = gen_mesh_from_points(&self.points, self.color);
         let indices = indices.iter().map(|n| n + starting_index).collect();
         (indices, vertices)
@@ -773,7 +813,7 @@ impl HasBounds2D for RadialGradient {
 }
 
 impl Shape2D for RadialGradient {
-    fn gen_mesh(&self, _starting_index: u32) -> (Vec<u32>, Vec<Vertex2D>) {
+    fn gen_mesh(&self, _starting_index: u32) -> (Vec<u32>, Vec<ColorVertex2D>) {
         unimplemented!()
     }
 
@@ -794,26 +834,26 @@ impl Shape2D for RadialGradient {
 
 pub const QUAD_INDICES: [u32; 6] = [0, 1, 2, 1, 2, 3];
 
-pub const UNIT_QUAD: [Vertex2D; 4] = [
-    Vertex2D {
+pub const UNIT_QUAD: [ColorVertex2D; 4] = [
+    ColorVertex2D {
         position: [-1.0, -1.0],
         color: [1.0, 1.0, 1.0, 1.0],
     },
-    Vertex2D {
+    ColorVertex2D {
         position: [1.0, -1.0],
         color: [1.0, 1.0, 1.0, 1.0],
     },
-    Vertex2D {
+    ColorVertex2D {
         position: [-1.0, 1.0],
         color: [1.0, 1.0, 1.0, 1.0],
     },
-    Vertex2D {
+    ColorVertex2D {
         position: [1.0, 1.0],
         color: [1.0, 1.0, 1.0, 1.0],
     },
 ];
 
-fn gen_mesh_from_points(points: &[Vec2], color: Color) -> (Vec<Vertex2D>, Vec<u32>) {
+fn gen_mesh_from_points(points: &[Vec2], color: Color) -> (Vec<ColorVertex2D>, Vec<u32>) {
     if points.len() < 3 {
         return (vec![], vec![]);
     }
@@ -836,15 +876,15 @@ fn gen_mesh_from_points(points: &[Vec2], color: Color) -> (Vec<Vertex2D>, Vec<u3
         color: Color,
     }
 
-    impl lyon::tessellation::FillVertexConstructor<Vertex2D> for VertexConstructor {
-        fn new_vertex(&mut self, vertex: lyon::tessellation::FillVertex) -> Vertex2D {
+    impl lyon::tessellation::FillVertexConstructor<ColorVertex2D> for VertexConstructor {
+        fn new_vertex(&mut self, vertex: lyon::tessellation::FillVertex) -> ColorVertex2D {
             let pos = vertex.position();
-            Vertex2D::new(pos.x, pos.y, self.color)
+            ColorVertex2D::new(pos.x, pos.y, self.color)
         }
     }
 
     let mut tessellator = lyon::tessellation::FillTessellator::new();
-    let mut buffers = lyon::tessellation::VertexBuffers::<Vertex2D, u32>::new();
+    let mut buffers = lyon::tessellation::VertexBuffers::<ColorVertex2D, u32>::new();
 
     tessellator
         .tessellate_path(

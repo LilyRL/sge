@@ -1,8 +1,7 @@
 use sge::prelude::*;
 
+#[main("3D")]
 fn main() -> anyhow::Result<()> {
-    init("3D?")?;
-
     let mut orbit_controller = OrbitCameraController::new(Vec3::ZERO);
 
     let material = create_blinn_phong_material(
@@ -30,7 +29,7 @@ fn main() -> anyhow::Result<()> {
 
         draw_debug_info();
 
-        next_frame();
+        next_frame().await;
     }
 
     Ok(())

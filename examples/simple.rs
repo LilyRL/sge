@@ -1,8 +1,7 @@
-use sge::prelude::*;
+use sge::*;
 
-fn main() -> anyhow::Result<()> {
-    init("Simple example")?;
-
+#[main("Simple example")]
+async fn main() -> anyhow::Result<()> {
     loop {
         clear_screen(Color::NEUTRAL_200);
 
@@ -19,7 +18,7 @@ fn main() -> anyhow::Result<()> {
             break;
         }
 
-        next_frame();
+        next_frame().await;
     }
 
     Ok(())

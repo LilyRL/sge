@@ -38,15 +38,16 @@ impl Sound {
 pub enum SoundLoadError {
     Io(std::io::Error),
     Decoding(rodio::decoder::DecoderError),
+    Other(&'static str),
 }
 
-pub fn load_sound(path: impl AsRef<Path>) -> Result<SoundRef, SoundLoadError> {
+pub fn load_sound_sync(path: impl AsRef<Path>) -> Result<SoundRef, SoundLoadError> {
     let file = File::open(path)?;
     let decoder = Decoder::try_from(file)?;
     Ok(sound_from_decoder(decoder))
 }
 
-pub fn load_sound_from_bytes(bytes: impl Into<Vec<u8>>) -> Result<SoundRef, SoundLoadError> {
+pub fn load_sound_from_bytes_sync(bytes: impl Into<Vec<u8>>) -> Result<SoundRef, SoundLoadError> {
     let cursor = std::io::Cursor::new(bytes.into());
     let decoder = Decoder::new(BufReader::new(cursor))?;
     Ok(sound_from_decoder(decoder))
@@ -311,6 +312,6 @@ impl<S: Source<Item = f32> + Send + 'static> SoundBuilder<S> {
 #[macro_export]
 macro_rules! include_sound {
     ($path: literal) => {
-        ::sge::prelude::load_sound_from_bytes(include_bytes!($path))
+        ::sge::prelude::load_sound_from_bytes_sync(include_bytes!($path))
     };
 }

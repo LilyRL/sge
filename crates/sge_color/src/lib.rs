@@ -37,6 +37,13 @@ impl Color {
         Self::new(convert(r), convert(g), convert(b))
     }
 
+    pub fn to_u8(&self) -> (u8, u8, u8) {
+        const fn convert(n: f32) -> u8 {
+            (n * 255.0).round() as u8
+        }
+        (convert(self.r), convert(self.g), convert(self.b))
+    }
+
     pub const fn from_rgba_u8(r: u8, g: u8, b: u8, a: u8) -> Self {
         const fn convert(n: u8) -> f32 {
             n as f32 / 255.0

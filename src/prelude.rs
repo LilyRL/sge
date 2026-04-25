@@ -1,5 +1,4 @@
 pub use crate::api::*;
-pub use crate::next_frame;
 pub use crate::{init, init_custom};
 pub use anyhow;
 pub use glium::winit::dpi::{LogicalSize, PhysicalSize};
@@ -24,35 +23,39 @@ pub use log::{self, Level, LevelFilter, debug, error, info, trace, warn};
 pub use sge_animation::*;
 pub use sge_api::area::AreaExt;
 pub use sge_api::shapes_2d::{
-    ToCollider, draw_arrow, draw_arrow_to, draw_arrow_world, draw_capped_line, draw_capped_line_to,
-    draw_capped_line_world, draw_circle, draw_circle_line, draw_circle_line_to,
-    draw_circle_line_world, draw_circle_outline, draw_circle_outline_to, draw_circle_outline_world,
-    draw_circle_path, draw_circle_path_to, draw_circle_path_world, draw_circle_to,
-    draw_circle_with_outline, draw_circle_with_outline_to, draw_circle_with_outline_world,
-    draw_circle_world, draw_connected_path, draw_connected_path_to, draw_connected_path_world,
+    GradientPoint, Orientation, ToCollider, draw_arrow, draw_arrow_to, draw_arrow_world,
+    draw_capped_line, draw_capped_line_to, draw_capped_line_world, draw_circle, draw_circle_line,
+    draw_circle_line_to, draw_circle_line_world, draw_circle_outline, draw_circle_outline_to,
+    draw_circle_outline_world, draw_circle_path, draw_circle_path_to, draw_circle_path_world,
+    draw_circle_to, draw_circle_with_outline, draw_circle_with_outline_to,
+    draw_circle_with_outline_world, draw_circle_world, draw_connected_path, draw_connected_path_to,
+    draw_connected_path_world, draw_cubic_bezier, draw_cubic_bezier_to, draw_cubic_bezier_world,
     draw_custom_shape, draw_custom_shape_outline, draw_custom_shape_outline_to,
     draw_custom_shape_outline_world, draw_custom_shape_to, draw_custom_shape_with_outline,
     draw_custom_shape_with_outline_to, draw_custom_shape_with_outline_world,
-    draw_custom_shape_world, draw_ellipse, draw_ellipse_outline, draw_ellipse_outline_to,
-    draw_ellipse_outline_world, draw_ellipse_to, draw_ellipse_with_outline,
-    draw_ellipse_with_outline_to, draw_ellipse_with_outline_world, draw_ellipse_world,
-    draw_gradient_path, draw_gradient_path_to, draw_gradient_path_world, draw_half_capped_line,
-    draw_half_capped_line_to, draw_half_capped_line_world, draw_hexagon, draw_hexagon_outline,
-    draw_hexagon_outline_to, draw_hexagon_outline_world, draw_hexagon_pointy,
-    draw_hexagon_pointy_outline, draw_hexagon_pointy_outline_to, draw_hexagon_pointy_outline_world,
-    draw_hexagon_pointy_to, draw_hexagon_pointy_with_outline, draw_hexagon_pointy_with_outline_to,
+    draw_custom_shape_world, draw_dashed_line, draw_dashed_line_to, draw_dashed_line_world,
+    draw_ellipse, draw_ellipse_outline, draw_ellipse_outline_to, draw_ellipse_outline_world,
+    draw_ellipse_to, draw_ellipse_with_outline, draw_ellipse_with_outline_to,
+    draw_ellipse_with_outline_world, draw_ellipse_world, draw_gradient_path, draw_gradient_path_to,
+    draw_gradient_path_world, draw_half_capped_line, draw_half_capped_line_to,
+    draw_half_capped_line_world, draw_hexagon, draw_hexagon_outline, draw_hexagon_outline_to,
+    draw_hexagon_outline_world, draw_hexagon_pointy, draw_hexagon_pointy_outline,
+    draw_hexagon_pointy_outline_to, draw_hexagon_pointy_outline_world, draw_hexagon_pointy_to,
+    draw_hexagon_pointy_with_outline, draw_hexagon_pointy_with_outline_to,
     draw_hexagon_pointy_with_outline_world, draw_hexagon_pointy_world, draw_hexagon_to,
     draw_hexagon_with_outline, draw_hexagon_with_outline_to, draw_hexagon_with_outline_world,
     draw_hexagon_world, draw_line, draw_line_gradient, draw_line_gradient_ex,
     draw_line_gradient_ex_to, draw_line_gradient_ex_world, draw_line_gradient_to,
     draw_line_gradient_world, draw_line_rotation, draw_line_rotation_to, draw_line_rotation_world,
-    draw_line_to, draw_line_world, draw_path, draw_path_to, draw_path_world, draw_poly,
+    draw_line_to, draw_line_world, draw_multi_point_gradient, draw_multi_point_gradient_to,
+    draw_multi_point_gradient_world, draw_path, draw_path_to, draw_path_world, draw_poly,
     draw_poly_outline, draw_poly_outline_to, draw_poly_outline_world, draw_poly_to,
     draw_poly_with_outline, draw_poly_with_outline_to, draw_poly_with_outline_world,
-    draw_poly_world, draw_radial_gradient, draw_radial_gradient_circle,
-    draw_radial_gradient_circle_offset, draw_radial_gradient_circle_offset_to,
-    draw_radial_gradient_circle_offset_world, draw_radial_gradient_circle_to,
-    draw_radial_gradient_circle_with_outline, draw_radial_gradient_circle_with_outline_offset,
+    draw_poly_world, draw_quadratic_bezier, draw_quadratic_bezier_to, draw_quadratic_bezier_world,
+    draw_radial_gradient, draw_radial_gradient_circle, draw_radial_gradient_circle_offset,
+    draw_radial_gradient_circle_offset_to, draw_radial_gradient_circle_offset_world,
+    draw_radial_gradient_circle_to, draw_radial_gradient_circle_with_outline,
+    draw_radial_gradient_circle_with_outline_offset,
     draw_radial_gradient_circle_with_outline_offset_to,
     draw_radial_gradient_circle_with_outline_offset_world,
     draw_radial_gradient_circle_with_outline_to, draw_radial_gradient_circle_with_outline_world,
@@ -80,9 +83,10 @@ pub use sge_api::shapes_2d::{
     draw_right_angled_solid_arrow_to, draw_right_angled_solid_arrow_world, draw_rounded_rect,
     draw_rounded_rect_to, draw_rounded_rect_with_outline, draw_rounded_rect_with_outline_to,
     draw_rounded_rect_with_outline_world, draw_rounded_rect_world, draw_rounded_square,
-    draw_rounded_square_to, draw_rounded_square_world, draw_sharp_arrow, draw_sharp_arrow_to,
-    draw_sharp_arrow_world, draw_solid_arrow, draw_solid_arrow_to, draw_solid_arrow_world,
-    draw_square, draw_square_gradient_all, draw_square_gradient_all_to,
+    draw_rounded_square_to, draw_rounded_square_world, draw_shape_with_pattern,
+    draw_shape_with_pattern_to, draw_shape_with_pattern_world, draw_sharp_arrow,
+    draw_sharp_arrow_to, draw_sharp_arrow_world, draw_solid_arrow, draw_solid_arrow_to,
+    draw_solid_arrow_world, draw_square, draw_square_gradient_all, draw_square_gradient_all_to,
     draw_square_gradient_all_world, draw_square_gradient_horizontal,
     draw_square_gradient_horizontal_to, draw_square_gradient_horizontal_world,
     draw_square_gradient_tl_br, draw_square_gradient_tl_br_to, draw_square_gradient_tl_br_world,
@@ -122,13 +126,14 @@ pub use sge_config::{
     toggle_wireframe, use_default_filtering, use_linear_filtering, use_mipmaps,
     use_nearest_filtering, use_positive_y_down, use_positive_y_up, wait_for_events,
 };
-pub use sge_image::{Image, ImageRef};
+pub use sge_image::{Image, ImageRef, LoadImageError, load_image_sync};
 pub use sge_include_assets::sge_include_assets;
 pub use sge_logging::{
     Logger, draw_logs, log_lines, log_to_file, set_logger_verbosity, set_max_drawn_log_lines,
     set_min_log_level,
 };
 pub use sge_macros::include_texture;
+pub use sge_macros::main;
 pub use sge_macros::{actions, bind};
 pub use sge_math::Vec2Ext;
 pub use sge_math::collision::{self, Aabb2d, IntersectsWith};
@@ -141,7 +146,7 @@ pub use sge_physics::{
     player::PlayerBindBuilder, player::PlayerController,
 };
 pub use sge_programs::include_program;
-pub use sge_programs::load_program;
+pub use sge_programs::load_program_sync;
 pub use sge_rendering::api::*;
 pub use sge_rendering::d2::{Renderer2D, Scene2D};
 pub use sge_rendering::materials::{DEFAULT_MATERIAL, Material, MaterialRef, UniformData};
@@ -167,24 +172,23 @@ pub use sge_rng::{
     rand_vec4,
 };
 pub use sge_shapes::d2::*;
-pub use sge_texture_atlas::{
-    LoadImageError, Sprite, SpriteKey, TextureAtlas, TextureAtlasRef, create_spritesheet,
-    load_image,
-};
+pub use sge_texture_atlas::{Sprite, SpriteKey, TextureAtlas, TextureAtlasRef, create_spritesheet};
 pub use sge_textures::{
-    LoadTextureError, SgeTexture, TextureRef, load_texture, num_registered_textures,
+    LoadTextureError, SgeTexture, TextureRef, load_texture_from_bytes_sync, load_texture_sync,
+    num_registered_textures,
 };
 pub use sge_time::{
     delta_time, frame_count, frames_since_input, is_first_frame, is_physics_time_paused,
-    is_physics_time_paused_mut, once_per_n_seconds, once_per_second, pause_physics_timer,
-    physics_delta_time, physics_speed, physics_speed_mut, physics_time, play_physics_timer,
-    set_physics_speed, time, time_seconds, time_since, toggle_every_n_seconds,
+    is_physics_time_paused_mut, once_per_n_seconds, once_per_second, oscillate,
+    pause_physics_timer, physics_delta_time, physics_speed, physics_speed_mut, physics_time,
+    play_physics_timer, set_physics_speed, time, time_seconds, time_since, toggle_every_n_seconds,
     toggle_physics_timer,
 };
 pub use sge_types::{
-    Area, BufferError, MaterialVertex3D, SpriteVertex, TexturedVertex2D, Verbosity, Vertex2D,
-    Vertex3D,
+    Area, BufferError, ColorVertex2D, MaterialVertex3D, Pattern, SpriteVertex, TexturedVertex2D,
+    Verbosity, Vertex3D,
 };
+pub use sge_types::{Metaball, Metaballs};
 pub use sge_utils::RotatingArray;
 pub use sge_vectors::{
     IVec2, IVec3, IVec4, Mat2, Mat3, Mat4, Quat, USizeVec2, USizeVec3, USizeVec4, UVec2, UVec3,
@@ -196,9 +200,9 @@ pub use sge_window::{
     SgeDisplay, WindowCreationError, WindowOptions, WindowState, availible_monitors,
     current_monitor, dpi_scaling, fullscreen, get_display, get_display_mut, get_window_state,
     grab_cursor, has_focus, is_decorated, max_window_dimension, min_window_dimension,
-    release_cursor, set_cursor_grab, set_cursor_visible, set_decorations,
-    set_window_content_protected, set_window_cursor_hittest, set_window_icon, set_window_level,
-    set_window_theme, use_alias_cursor_icon, use_all_resize_cursor_icon,
+    opengl_context, opengl_version, release_cursor, set_cursor_grab, set_cursor_visible,
+    set_decorations, set_window_content_protected, set_window_cursor_hittest, set_window_icon,
+    set_window_level, set_window_theme, use_alias_cursor_icon, use_all_resize_cursor_icon,
     use_all_scroll_cursor_icon, use_cell_cursor_icon, use_col_resize_cursor_icon,
     use_context_menu_cursor_icon, use_copy_cursor_icon, use_crosshair_cursor_icon, use_cursor_icon,
     use_default_cursor_icon, use_dnd_ask_cursor_icon, use_e_resize_cursor_icon,
@@ -223,8 +227,8 @@ pub use audio::*;
 #[cfg(feature = "audio")]
 mod audio {
     pub use sge_audio::{
-        Sound, SoundBuilder, SoundLoadError, SoundRef, include_sound, load_sound,
-        load_sound_from_bytes, play_sound, play_sound_ex, rodio,
+        Sound, SoundBuilder, SoundLoadError, SoundRef, include_sound, load_sound_from_bytes_sync,
+        load_sound_sync, play_sound, play_sound_ex, rodio,
         rodio::BitDepth,
         rodio::source::{
             AutomaticGainControlSettings, LimitSettings, dither::Algorithm as DitherAlgorithm,
@@ -266,13 +270,13 @@ pub use text::*;
 mod text {
     pub use sge_text::rich_text::*;
     pub use sge_text::{
-        FontError, FontRef, Glyph, MONO, SANS_ITALIC, SgeFont, TextDimensions, TextDrawParams,
+        FontRef, Glyph, LoadFontError, MONO, SANS_ITALIC, SgeFont, TextDimensions, TextDrawParams,
         TextMeasureCache, create_ttf_font, default_font, draw_colored_text,
         draw_colored_text_world, draw_multiline_text, draw_multiline_text_ex,
         draw_multiline_text_size, draw_multiline_text_size_world, draw_multiline_text_world,
         draw_multiline_text_world_ex, draw_text, draw_text_custom, draw_text_ex, draw_text_size,
         draw_text_size_world, draw_text_world, draw_text_world_custom, draw_text_world_ex,
-        draw_wrapped_text_in_area, icons, load_font, measure_multiline_text,
+        draw_wrapped_text_in_area, icons, load_font_sync, measure_multiline_text,
         measure_multiline_text_ex, measure_text, measure_text_ex, measure_wrapped_text,
         wrap_text_to_width, wrapped_text,
     };
@@ -343,3 +347,8 @@ pub mod ecs {
         Rotation2D, ShapeComponent, Velocity2D,
     };
 }
+pub use crate::{next_frame, run_async};
+pub use sge_exec::{FrameFuture, fs::*, futures::join, start_coroutine, wait_for, wait_for_frames};
+
+#[cfg(feature = "network")]
+pub use sge_exec::net;

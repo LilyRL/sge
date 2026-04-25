@@ -30,18 +30,17 @@ impl Default for Config {
     }
 }
 
-fn main() -> anyhow::Result<()> {
-    init("Persistence")?;
-
+#[main("Persistence")]
+async fn main() -> anyhow::Result<()> {
     let mut config = Config::load(PATH).unwrap_or_else(|e| {
         println!("Could not load config: {e}");
         let _ = std::fs::remove_file(PATH);
         Default::default()
     });
-    let texture = create_empty_render_texture(2000, 40)?;
 
     loop {
-        draw_big_number(texture, config.color, config.counter);
+        clear_screen(config.color);
+        draw_text_size(config.counter, Vec2::splat(20.0), 300);
         sharpen_screen(1.0);
 
         if key_held(KeyCode::Space) {
@@ -65,35 +64,14 @@ fn main() -> anyhow::Result<()> {
             break;
         }
 
-        next_frame();
+        next_frame().await;
     }
 
     // please note that if the app is force quit (e.g.: Ctrl-C) this code will not run
+    // you might want to do this periodically while the game is running
     config.save(PATH)?;
 
     Ok(())
-}
-
-fn draw_big_number(texture: RenderTextureRef, bg: Color, number: u64) {
-    start_rendering_to_texture(texture);
-    clear_screen(bg);
-    let mut size = draw_text_ex(number.to_string(), Vec2::ZERO, Color::BLACK, 40).size;
-    end_rendering_to_texture();
-
-    let height = size.y;
-    size.y -= height * 0.25;
-    size.x -= 7.0;
-
-    clear_screen(bg);
-    draw_texture_ex(
-        texture.color_texture,
-        Transform2D::from_scale_translation(window_size(), Vec2::ZERO),
-        Color::WHITE,
-        Some(sge_vectors::Rect::from_corners(
-            vec2(4.0, height * 0.25),
-            size,
-        )),
-    );
 }
 
 fn test() {

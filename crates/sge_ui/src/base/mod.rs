@@ -3,74 +3,112 @@
 use super::*;
 
 mod active_fill;
-mod align;
-mod aspect_ratio;
-mod border;
-mod box_fill;
-mod button;
-mod center;
-mod chart;
-mod circle;
-mod col;
-mod drawer;
-mod empty;
-mod fill;
-mod fit;
-mod flex;
-mod gradient_fill;
-mod grid;
-mod hoverable;
-mod image;
-mod inactive_overlay;
-mod input;
-mod loading_bar;
-mod padding;
-mod progress_bar;
-mod rounded_fill;
-mod row;
-mod scissor_box;
-mod scroll;
-mod selectbox;
-mod sized_box;
-mod slider;
-mod stack;
-mod text;
-mod window;
-
 pub use active_fill::*;
+
+mod align;
 pub use align::*;
+
+mod aspect_ratio;
 pub use aspect_ratio::*;
+
+mod border;
 pub use border::*;
+
+mod box_fill;
 pub use box_fill::*;
+
+mod button;
 pub use button::*;
+
+mod center;
 pub use center::*;
+
+mod chart;
 pub use chart::*;
+
+mod circle;
 pub use circle::*;
+
+mod col;
 pub use col::*;
+
+mod drawer;
 pub use drawer::*;
+
+mod empty;
 pub use empty::*;
+
+mod fill;
 pub use fill::*;
+
+mod fit;
 pub use fit::*;
+
+mod flex;
 pub use flex::*;
+
+mod gradient_fill;
 pub use gradient_fill::*;
+
+mod grid;
 pub use grid::*;
+
+mod hoverable;
 pub use hoverable::*;
+
+mod image;
 pub use image::*;
+
+mod inactive_overlay;
 pub use inactive_overlay::*;
-pub use input::{TextInput, text_input_changed, text_input_value};
+
+mod input;
+pub use input::*;
+
+mod loading_bar;
 pub use loading_bar::*;
+
+mod padding;
 pub use padding::*;
+
+mod progress_bar;
 pub use progress_bar::*;
+
+mod rounded_fill;
 pub use rounded_fill::*;
+
+mod row;
 pub use row::*;
+
+mod scissor_box;
 pub use scissor_box::*;
+
+mod scroll;
 pub use scroll::*;
+
+mod selectbox;
 pub use selectbox::*;
+
+mod sized_box;
 pub use sized_box::*;
+
+mod slider;
 pub use slider::*;
+
+mod stack;
 pub use stack::*;
+
+mod text;
 pub use text::*;
+
+mod window;
 pub use window::*;
+
+mod data_input;
+pub use data_input::*;
+
+mod debug;
+pub use debug::*;
 
 use sge_window::window_width;
 

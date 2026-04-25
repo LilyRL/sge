@@ -18,7 +18,7 @@ pub struct Slider<T: NumberValue> {
 
 #[derive(Default, Debug)]
 pub struct SliderState {
-    captured: bool,
+    pub captured: bool,
 }
 
 impl<T: NumberValue> Slider<T> {
@@ -103,4 +103,8 @@ impl<T: NumberValue> UiNode for Slider<T> {
         self.handle.draw(handle_area, ui);
         size
     }
+}
+
+pub fn slider_state<T: NumberValue>(id: usize) -> &'static mut SliderState {
+    State::from_id(id).get_or_default()
 }

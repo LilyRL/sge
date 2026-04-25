@@ -17,6 +17,8 @@ use sge_window::get_window_state;
 pub enum LoadTextureError {
     Image(image::error::ImageError),
     Engine(TextureCreationError),
+    Io(std::io::Error),
+    Other(&'static str),
 }
 
 pub fn init() {
@@ -24,8 +26,19 @@ pub fn init() {
     log::info!("Initialized textures");
 }
 
-pub fn load_texture(bytes: &[u8], format: ImageFormat) -> Result<TextureRef, LoadTextureError> {
+pub fn load_texture_from_bytes_sync(
+    bytes: &[u8],
+    format: ImageFormat,
+) -> Result<TextureRef, LoadTextureError> {
     Ok(SgeTexture::load_from_bytes(bytes, format)?.create())
+}
+
+pub fn load_texture_sync(
+    path: impl AsRef<std::path::Path>,
+) -> Result<TextureRef, LoadTextureError> {
+    let bytes = std::fs::read(&path)?;
+    let format = ImageFormat::from_path(path)?;
+    load_texture_from_bytes_sync(&bytes, format)
 }
 
 gen_ref_type!(SgeTexture, TextureRef, texture);

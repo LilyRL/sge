@@ -42,9 +42,8 @@ fn speed_color(speed: f32) -> Color {
     )
 }
 
-fn main() -> anyhow::Result<()> {
-    init("Physics Showcase")?;
-
+#[main("Physics Showcase")]
+fn main() {
     let mut world = PhysicsWorld::new();
 
     let wall_rects = [
@@ -233,8 +232,7 @@ fn main() -> anyhow::Result<()> {
         if should_quit() {
             break;
         }
-        next_frame();
-    }
 
-    Ok(())
+        next_frame().await;
+    }
 }

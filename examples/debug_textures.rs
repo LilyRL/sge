@@ -1,8 +1,7 @@
 use sge::prelude::*;
 
-fn main() -> anyhow::Result<()> {
-    init("Debug textures")?;
-
+#[main("Debug textures")]
+async fn main() -> anyhow::Result<()> {
     let mut n: usize = 0;
 
     loop {
@@ -30,7 +29,7 @@ fn main() -> anyhow::Result<()> {
             break;
         }
 
-        next_frame();
+        next_frame().await;
     }
 
     Ok(())

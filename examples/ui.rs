@@ -314,15 +314,17 @@ fn main() -> anyhow::Result<()> {
         show_message: false,
     };
 
-    loop {
-        state.update();
+    run_async(async move {
+        loop {
+            state.update();
 
-        if should_quit() {
-            break;
+            if should_quit() {
+                break;
+            }
+
+            next_frame().await;
         }
-
-        next_frame();
-    }
+    });
 
     Ok(())
 }

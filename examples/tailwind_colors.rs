@@ -1,12 +1,12 @@
 use sge::prelude::*;
 use ui::prelude::*;
 
+#[main("Tailwind colors")]
 fn main() -> anyhow::Result<()> {
-    init("Tailwind colors")?;
     wait_for_events();
 
     let mut hovered =
-        AnimationController::new(Color::BLACK, Color::BLACK, 0.1, LinearEasingFunction);
+        AnimationController::new(Color::BLACK, Color::BLACK, 0.05, LinearEasingFunction);
 
     loop {
         clear_screen(hovered.value());
@@ -62,7 +62,7 @@ fn main() -> anyhow::Result<()> {
             break;
         }
 
-        next_frame();
+        next_frame().await;
     }
 
     Ok(())

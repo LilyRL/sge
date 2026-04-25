@@ -1,9 +1,11 @@
-use std::marker::PhantomData;
+use std::{io::Cursor, marker::PhantomData};
 
-use sge_vectors::{USizeVec2, UVec2};
+use image::ImageFormat;
 use sge_color::u8::Pixel;
+use sge_error_union::ErrorUnion;
 use sge_macros::gen_ref_type;
 use sge_math::usize_rect::USizeRect;
+use sge_vectors::{USizeVec2, UVec2};
 use thiserror::Error;
 
 mod rendering;
@@ -302,4 +304,22 @@ impl<'a> Iterator for IterMut<'a> {
 
         Some(item)
     }
+}
+
+#[derive(ErrorUnion, Debug)]
+pub enum LoadImageError {
+    Image(image::error::ImageError),
+    Engine(SgeImageError),
+    Io(std::io::Error),
+    Other(&'static str),
+}
+
+pub fn load_image_sync(bytes: &[u8], format: ImageFormat) -> Result<ImageRef, LoadImageError> {
+    let image = image::load(Cursor::new(bytes), format)?.to_rgba8();
+    let dim = image.dimensions();
+    Ok(Image::from_bytes(dim.0 as usize, dim.1 as usize, image.into_raw())?.create())
+}
+
+pub fn init() {
+    init_images_storage();
 }

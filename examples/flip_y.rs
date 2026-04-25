@@ -1,8 +1,10 @@
 // if you'd prefer to use positive y meaning up, as is more standard in math
+// this isnt fully stable/implemented and things like drawing text dont work
 
 use sge::prelude::*;
 
-fn main() -> anyhow::Result<()> {
+#[main("Flip y")]
+async fn main() -> anyhow::Result<()> {
     init("Flip y")?;
     use_positive_y_up();
 
@@ -28,7 +30,7 @@ fn main() -> anyhow::Result<()> {
             break;
         }
 
-        next_frame();
+        next_frame().await;
     }
 
     Ok(())

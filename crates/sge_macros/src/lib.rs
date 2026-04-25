@@ -315,7 +315,7 @@ pub fn include_texture(input: TokenStream) -> TokenStream {
     };
 
     let expanded = quote! {
-        load_texture(include_bytes!(#path), #format).unwrap()
+        load_texture_from_bytes_sync(include_bytes!(#path), #format).unwrap()
     };
 
     TokenStream::from(expanded)
@@ -449,6 +449,36 @@ pub fn include_spritesheet(input: TokenStream) -> TokenStream {
             };
 
             #var_name
+        }
+    }
+    .into()
+}
+
+#[proc_macro_attribute]
+pub fn main(args: TokenStream, input: TokenStream) -> TokenStream {
+    let title = parse_macro_input!(args as LitStr).value();
+    let func = parse_macro_input!(input as syn::ItemFn);
+    let body = func.block;
+
+    let inner = match &func.sig.output {
+        syn::ReturnType::Default => quote! {
+            async #body .await;
+        },
+        syn::ReturnType::Type(_, ty) => quote! {
+            let result: #ty = async #body .await;
+            if let Err(e) = result {
+                eprintln!("Error: {e:?}");
+                std::process::exit(1);
+            }
+        },
+    };
+
+    quote! {
+        fn main() {
+            sge::init(#title).unwrap();
+            sge::run_async(async {
+                #inner
+            });
         }
     }
     .into()

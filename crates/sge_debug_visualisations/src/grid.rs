@@ -4,7 +4,7 @@ use sge_camera::{get_camera_2d, get_camera_2d_mut};
 use sge_color::Color;
 use sge_error_union::ErrorUnion;
 use sge_math::transform::Transform3D;
-use sge_programs::{ProgramRef, load_program};
+use sge_programs::{ProgramRef, load_program_sync};
 use sge_rendering::{
     materials::Material,
     object_3d::{Mesh, Object3D, Object3DRef},
@@ -103,7 +103,7 @@ fn load_grid_program() -> Result<ProgramRef, ProgramCreationError> {
     let vertex_shader = include_str!("../assets/vertex.glsl");
     let fragment_shader = include_str!("../assets/fragment.glsl");
 
-    load_program(vertex_shader, fragment_shader)
+    load_program_sync(vertex_shader, fragment_shader)
 }
 
 pub fn draw_2d_grid_world(color: Color) {

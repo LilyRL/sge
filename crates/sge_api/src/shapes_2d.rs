@@ -10,7 +10,7 @@ use sge_rendering::{
     wdq2d,
 };
 use sge_shapes::d2::*;
-use sge_types::Vertex2D;
+use sge_types::{ColorVertex2D, Pattern};
 use sge_vectors::{Vec2, vec2};
 
 use crate::draw_to;
@@ -34,6 +34,26 @@ pub trait Shape2DExt: Shape2D {
     fn draw_with_outline_to(&self, renderer: Renderer2D, thickness: f32, color: Color) {
         self.draw_to(renderer);
         self.draw_outline_to(renderer, thickness, color);
+    }
+
+    fn draw_outline(&self, thickness: f32, color: Color) {
+        self.draw_outline_to(draw_queue_2d().renderer(), thickness, color);
+    }
+
+    fn draw_outline_world(&self, thickness: f32, color: Color) {
+        if self.is_visible_in_world() {
+            self.draw_outline_to(world_draw_queue_2d().renderer(), thickness, color);
+        }
+    }
+
+    fn draw_with_outline(&self, thickness: f32, color: Color) {
+        self.draw_with_outline_to(draw_queue_2d().renderer(), thickness, color);
+    }
+
+    fn draw_with_outline_world(&self, thickness: f32, color: Color) {
+        if self.is_visible_in_world() {
+            self.draw_with_outline_to(world_draw_queue_2d().renderer(), thickness, color);
+        }
     }
 }
 
@@ -62,29 +82,29 @@ impl Shape2DExt for CircleWithOutline {
         renderer.add_circle_with_outline(
             self.center,
             self.radius,
-            Color::new(0.0, 0.0, 0.0).with_alpha(0.0),
+            self.fill_color,
             self.outline_thickness,
             self.outline_color,
         );
     }
 
-    fn draw_outline_to(&self, mut renderer: Renderer2D, _thickness: f32, _color: Color) {
+    fn draw_outline_to(&self, mut renderer: Renderer2D, thickness: f32, color: Color) {
         renderer.add_circle_with_outline(
             self.center,
             self.radius,
             Color::TRANSPARENT,
-            self.outline_thickness,
-            self.outline_color,
+            thickness,
+            color,
         );
     }
 
-    fn draw_with_outline_to(&self, mut renderer: Renderer2D, _thickness: f32, _color: Color) {
+    fn draw_with_outline_to(&self, mut renderer: Renderer2D, thickness: f32, color: Color) {
         renderer.add_circle_with_outline(
             self.center,
             self.radius,
             self.fill_color,
-            self.outline_thickness,
-            self.outline_color,
+            thickness,
+            color,
         );
     }
 }
@@ -621,6 +641,44 @@ draw_variants! {
     }
 }
 
+fn dashed_line_internal(
+    start: Vec2,
+    end: Vec2,
+    thickness: f32,
+    color: Color,
+    segment_length: f32,
+    renderer: Renderer2D,
+) {
+    let delta = end - start;
+    let (dir, length) = delta.normalize_and_length();
+
+    if length == 0.0 || segment_length <= 0.0 {
+        return;
+    }
+
+    let mut t = 0.0;
+    let mut draw = true;
+
+    while t < length {
+        let next_t = (t + segment_length).min(length);
+
+        if draw {
+            let a = start + dir * t;
+            let b = start + dir * next_t;
+            draw_line_to(a, b, thickness, color, renderer);
+        }
+
+        t = next_t;
+        draw = !draw;
+    }
+}
+
+draw_variants! {
+    fn dashed_line(start: Vec2, end: Vec2, thickness: f32, color: Color, segment_length: f32) [renderer] {
+        dashed_line_internal(start, end, thickness, color, segment_length, renderer);
+    }
+}
+
 fn rect_gradient_mesh(
     top_left: Vec2,
     size: Vec2,
@@ -628,16 +686,16 @@ fn rect_gradient_mesh(
     c_tr: Color,
     c_bl: Color,
     c_br: Color,
-) -> [Vertex2D; 4] {
+) -> [ColorVertex2D; 4] {
     let tl = top_left;
     let tr = top_left + Vec2::new(size.x, 0.0);
     let bl = top_left + Vec2::new(0.0, size.y);
     let br = top_left + size;
     [
-        Vertex2D::new(tl.x, tl.y, c_tl),
-        Vertex2D::new(tr.x, tr.y, c_tr),
-        Vertex2D::new(bl.x, bl.y, c_bl),
-        Vertex2D::new(br.x, br.y, c_br),
+        ColorVertex2D::new(tl.x, tl.y, c_tl),
+        ColorVertex2D::new(tr.x, tr.y, c_tr),
+        ColorVertex2D::new(bl.x, bl.y, c_bl),
+        ColorVertex2D::new(br.x, br.y, c_br),
     ]
 }
 
@@ -645,7 +703,7 @@ draw_variants! {
     fn triangle_gradient(a: Vec2, b: Vec2, c: Vec2, ca: Color, cb: Color, cc: Color) {
         screen(renderer) {
             renderer.add_mesh(
-                &[Vertex2D::new(a.x, a.y, ca), Vertex2D::new(b.x, b.y, cb), Vertex2D::new(c.x, c.y, cc)],
+                &[ColorVertex2D::new(a.x, a.y, ca), ColorVertex2D::new(b.x, b.y, cb), ColorVertex2D::new(c.x, c.y, cc)],
                 &[0, 1, 2],
             );
         }
@@ -653,7 +711,7 @@ draw_variants! {
             let tri = Triangle { points: [a, b, c], color: Color::TRANSPARENT, rot: 0.0 };
             if !tri.bounds().is_visible_in_world() { return; }
             renderer.add_mesh(
-                &[Vertex2D::new(a.x, a.y, ca), Vertex2D::new(b.x, b.y, cb), Vertex2D::new(c.x, c.y, cc)],
+                &[ColorVertex2D::new(a.x, a.y, ca), ColorVertex2D::new(b.x, b.y, cb), ColorVertex2D::new(c.x, c.y, cc)],
                 &[0, 1, 2],
             );
         }
@@ -693,7 +751,7 @@ fn line_gradient_vertices(
     c_start_right: Color,
     c_end_left: Color,
     c_end_right: Color,
-) -> Vec<Vertex2D> {
+) -> Vec<ColorVertex2D> {
     Line2D {
         start,
         end,
@@ -968,3 +1026,101 @@ draw_variants!(
         draw_line_to(start, end, thickness, color, renderer);
     }
 );
+
+#[derive(Debug, Clone, Copy)]
+pub enum Orientation {
+    Vertical,
+    Horizontal,
+}
+
+#[derive(Debug)]
+pub struct GradientPoint {
+    width: f32,
+    color: Color,
+}
+
+impl GradientPoint {
+    pub fn new(color: Color, width: f32) -> Self {
+        Self { width, color }
+    }
+}
+
+fn draw_multi_point_gradient_internal(
+    pos: Vec2,
+    size: Vec2,
+    orientation: Orientation,
+    points: &[GradientPoint],
+    renderer: Renderer2D,
+) {
+    let total_width: f32 = points.iter().map(|p| p.width).sum();
+    if total_width == 0.0 {
+        return;
+    }
+    let main_axis = match orientation {
+        Orientation::Vertical => size.y,
+        Orientation::Horizontal => size.x,
+    };
+    let cross_axis = match orientation {
+        Orientation::Vertical => size.x,
+        Orientation::Horizontal => size.y,
+    };
+    let width_multiplier = main_axis / total_width;
+    let mut offset = 0.0f32;
+    for i in 0..points.len() {
+        let point = &points[i];
+        let next_color = points.get(i + 1).map(|p| p.color).unwrap_or(point.color);
+        let w = point.width * width_multiplier;
+        let (top_left, seg_size, c_tl, c_tr, c_bl, c_br) = match orientation {
+            Orientation::Vertical => (
+                pos + vec2(0.0, offset),
+                vec2(cross_axis, w),
+                point.color,
+                point.color,
+                next_color,
+                next_color,
+            ),
+            Orientation::Horizontal => (
+                pos + vec2(offset, 0.0),
+                vec2(w, cross_axis),
+                point.color,
+                next_color,
+                point.color,
+                next_color,
+            ),
+        };
+        draw_rect_gradient_to(top_left, seg_size, c_tl, c_tr, c_bl, c_br, renderer);
+        offset += w;
+    }
+}
+
+draw_variants! {
+    fn multi_point_gradient(
+        pos: Vec2,
+        size: Vec2,
+        orientation: Orientation,
+        points: &[GradientPoint],
+    ) [renderer] {
+        draw_multi_point_gradient_internal(pos, size, orientation, points, renderer);
+    }
+}
+
+draw_variants! {
+    fn quadratic_bezier(a: Vec2, b: Vec2, c: Vec2, color: Color, thickness: f32) [renderer] {
+        let mut renderer = renderer;
+        renderer.add_quadratic_bezier(a, b, c, color, thickness);
+    }
+}
+
+draw_variants! {
+    fn cubic_bezier(a: Vec2, b: Vec2, c: Vec2,d: Vec2, color: Color, thickness: f32) [renderer] {
+        let mut renderer = renderer;
+        renderer.add_cubic_bezier(a, b, c, d, color, thickness);
+    }
+}
+
+draw_variants! {
+    fn shape_with_pattern(shape: impl Shape2D, alt_color: Color, pattern: Pattern, scale: f32) [renderer] {
+        let mut renderer = renderer;
+        renderer.add_shape_with_pattern(&shape, alt_color, pattern, scale);
+    }
+}

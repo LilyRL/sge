@@ -15,3 +15,5 @@ sge_color.workspace = true
 sge_macros.workspace = true
 sge_math.workspace = true
 thiserror.workspace = true
+sge_error_union.workspace = true
+image.workspace = true

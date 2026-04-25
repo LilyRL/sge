@@ -1,8 +1,7 @@
 use sge::prelude::*;
 
-fn main() -> anyhow::Result<()> {
-    init("Radial")?;
-
+#[main("Radial")]
+fn main() {
     loop {
         clear_screen(Color::NEUTRAL_100);
 
@@ -25,8 +24,6 @@ fn main() -> anyhow::Result<()> {
             break;
         }
 
-        next_frame();
+        next_frame().await;
     }
-
-    Ok(())
 }

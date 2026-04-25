@@ -3,3 +3,6 @@ cainfo = "/etc/ssl/certs/ca-bundle.crt"
 
 [build]
 target-dir = "target"
+
+[env]
+CC = "gcc"

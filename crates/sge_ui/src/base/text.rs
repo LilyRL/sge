@@ -5,7 +5,7 @@ use sge_vectors::Vec2;
 use super::*;
 use sge_text::{
     FontRef, MONO, SANS, SANS_BOLD, SANS_BOLD_ITALIC, SANS_DISPLAY, SANS_ITALIC, TextDrawParams,
-    draw_text_custom, measure_text_ex, measure_wrapped_text,
+    draw_multiline_text_ex, measure_multiline_text_ex, measure_wrapped_text,
     wrapped_text::draw_wrapped_text_in_area,
 };
 
@@ -314,7 +314,7 @@ impl Text {
 impl UiNode for Text {
     fn preferred_dimensions(&self) -> sge_vectors::Vec2 {
         let params: TextDrawParams = self.into();
-        measure_text_ex(&self.text, params).size
+        measure_multiline_text_ex(&self.text, params, self.line_spacing).size
     }
 
     fn size(&self, area: Area) -> Vec2 {
@@ -354,7 +354,7 @@ impl UiNode for Text {
         } else {
             let mut params: TextDrawParams = self.into();
             params.position = area.top_left;
-            draw_text_custom(&self.text, params).size
+            draw_multiline_text_ex(&self.text, params, self.line_spacing).size
         }
     }
 }

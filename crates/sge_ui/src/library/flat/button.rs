@@ -4,10 +4,12 @@ pub struct Button;
 
 impl Button {
     pub fn new(bg: Color, hover: Color, id: usize, child: Child) -> UiRef {
-        Fit::new(HoverBoxFill::new(
+        Fit::new(ActiveFill::new(
             bg,
             hover,
-            base::Button::new(id, Padding::xy(40.0, 10.0, child)),
+            bg,
+            0.0,
+            base::Button::new(id, Padding::tblr(10.0, 15.0, 40.0, 40.0, child)),
         ))
     }
 
@@ -16,13 +18,7 @@ impl Button {
     }
 
     pub fn text(bg: Color, hover: Color, id: usize, text: impl ToString) -> UiRef {
-        Fit::new(ActiveFill::new(
-            bg,
-            hover,
-            bg,
-            0.0,
-            base::Button::new(id, Padding::xy(40.0, 10.0, Text::nowrap(text))),
-        ))
+        Self::new(bg, hover, id, Text::nowrap(text))
     }
 
     pub fn primary_text(id: usize, text: impl ToString) -> UiRef {

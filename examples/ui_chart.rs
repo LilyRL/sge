@@ -1,9 +1,8 @@
 use sge::prelude::*;
 use ui::*;
 
+#[main("Chart")]
 fn main() -> anyhow::Result<()> {
-    init("Chart")?;
-
     let mut data = vec![1, 3, 5, 8, 2, 3, 1, 4, 5, 7, 7, 9, 0];
 
     loop {
@@ -25,7 +24,7 @@ fn main() -> anyhow::Result<()> {
             break;
         }
 
-        next_frame();
+        next_frame().await;
     }
 
     Ok(())

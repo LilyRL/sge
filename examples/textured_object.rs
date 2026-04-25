@@ -1,11 +1,10 @@
 use sge::prelude::*;
 
+#[main("3D")]
 fn main() -> anyhow::Result<()> {
-    init("3D?")?;
-
     let mut orbit_controller = OrbitCameraController::new(Vec3::ZERO);
 
-    let texture = load_texture(
+    let texture = load_texture_from_bytes_sync(
         include_bytes!("../assets/models/beachball.png"),
         ImageFormat::Png,
     )?;
@@ -24,7 +23,7 @@ fn main() -> anyhow::Result<()> {
             break;
         }
 
-        next_frame();
+        next_frame().await;
     }
 
     Ok(())

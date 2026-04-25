@@ -18,7 +18,6 @@ const-random = "0.1.18"
 crossbeam-channel = "0.5.15"
 dyn-clone = "1.0.20"
 egui_glium = "0.31.1"
-egui_plot = "0.31"
 env_logger = { version = "0.11.8", default-features = false }
 fontdue = "0.9.3"
 fps_ticker = "1.0.0"
@@ -137,6 +136,7 @@ sge_utils = { workspace = true }
 sge_vectors = { workspace = true }
 sge_window = { workspace = true }
 trig-const = { workspace = true }
+sge_exec = { version = "1.0.0", path = "crates/sge_exec" }
 
 [profile.release]
 codegen-units = 1
@@ -168,10 +168,12 @@ default = [
     "round_coords",
     "text",
     "ui",
+    "network",
+    "opengl4"
 ]
 audio = ["dep:sge_audio"]
 debugging = ["dep:sge_debugging"]
-debug_visualisations = ["debugging", "egui", "dep:sge_debug_visualisations"]
+debug_visualisations = ["debugging", "dep:sge_debug_visualisations"]
 ecs = ["dep:sge_ecs"]
 egui = ["dep:sge_egui"]
 extra_fonts = ["text", "sge_text/extra_fonts"]
@@ -181,13 +183,15 @@ precise_cursor_movement = ["sge_input/precise_cursor_movement"]
 round_coords = ["sge_shapes/round_coords", "sge_rendering/round_coords"]
 text = ["dep:sge_text"]
 ui = ["extra_fonts", "dep:sge_ui"]
+network = ["sge_exec/network"]
+opengl4 = []
 
 [workspace]
 members = [
     ".",
     "crates/sge_animation",
     "crates/sge_api",
-    "crates/sge_async",
+    "crates/sge_exec",
     "crates/sge_audio",
     "crates/sge_camera",
     "crates/sge_camera_controllers",
@@ -213,7 +217,6 @@ members = [
     "crates/sge_programs",
     "crates/sge_rendering",
     "crates/sge_rng",
-    "crates/sge_routines",
     "crates/sge_shapes",
     "crates/sge_shapes",
     "crates/sge_si",

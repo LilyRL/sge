@@ -1,8 +1,7 @@
 use sge::prelude::*;
 
-fn main() -> anyhow::Result<()> {
-    init("First person")?;
-
+#[main("First person")]
+async fn main() -> anyhow::Result<()> {
     let camera = get_camera_3d_mut();
     camera.set_fovy(120.0);
     camera.translate_by(vec3(0.0, 0.0, 0.0));
@@ -47,7 +46,7 @@ fn main() -> anyhow::Result<()> {
             break;
         }
 
-        next_frame();
+        next_frame().await;
     }
 
     Ok(())

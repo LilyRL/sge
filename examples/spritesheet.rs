@@ -1,18 +1,17 @@
 use sge::prelude::*;
 
+#[main("Spritesheet")]
 fn main() -> anyhow::Result<()> {
-    init("Title for the window")?;
-
     let mut sheet = create_spritesheet()?;
-    let guy_image = load_image(
+    let guy_image = load_image_sync(
         include_bytes!("../assets/textures/guy.jpg"),
         ImageFormat::Jpeg,
     )?;
-    let space_image = load_image(
+    let space_image = load_image_sync(
         include_bytes!("../assets/textures/space.jpg"),
         ImageFormat::Jpeg,
     )?;
-    let pasta_image = load_image(
+    let pasta_image = load_image_sync(
         include_bytes!("../assets/textures/pasta.jpg"),
         ImageFormat::Jpeg,
     )?;
@@ -40,7 +39,7 @@ fn main() -> anyhow::Result<()> {
             break;
         }
 
-        next_frame();
+        next_frame().await;
     }
 
     Ok(())

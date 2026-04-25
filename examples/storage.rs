@@ -4,9 +4,8 @@ struct MyState {
     score: usize,
 }
 
+#[main("Storage")]
 fn main() -> anyhow::Result<()> {
-    init("Storage")?;
-
     let state = MyState { score: 0 };
 
     storage_store_state(state);
@@ -21,7 +20,7 @@ fn main() -> anyhow::Result<()> {
             break;
         }
 
-        next_frame();
+        next_frame().await;
     }
 
     Ok(())

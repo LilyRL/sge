@@ -67,7 +67,13 @@ impl Drawer {
             HoverBoxFill::new(
                 bg,
                 bg.lighten(0.1),
-                Padding::all(10.0, Text::new(format!("{} {}", icon, title))),
+                Padding::tblr(
+                    10.0,
+                    15.0,
+                    10.0,
+                    10.0,
+                    Text::nowrap(format!("{}  {}", icon, title)),
+                ),
             )
             .fit_vertical(),
             BoxFill::new(bg, Padding::all(10.0, contents)),

@@ -1,8 +1,0 @@
-[package]
-name = "sge_async"
-version = "1.0.0"
-edition = "2024"
-publish = false
-
-[dependencies]
-slotmap.workspace = true

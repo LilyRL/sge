@@ -1,6 +1,14 @@
-use glium::{Program, ProgramCreationError};
+pub use glium::{Program, ProgramCreationError};
+use sge_error_union::ErrorUnion;
 use sge_macros::gen_ref_type;
 use sge_window::get_window_state;
+
+#[derive(ErrorUnion, Debug)]
+pub enum LoadProgramError {
+    Create(ProgramCreationError),
+    Io(std::io::Error),
+    Other(&'static str),
+}
 
 macro_rules! include_program_internal {
     ($display: tt, $vertex: literal, $fragment: literal) => {{
@@ -16,7 +24,7 @@ macro_rules! include_program {
     ($vertex: literal, $fragment: literal) => {{
         let vertex_shader_src = include_str!($vertex);
         let fragment_shader_src = include_str!($fragment);
-        ::sge::prelude::load_program(vertex_shader_src, fragment_shader_src)
+        ::sge::prelude::load_program_sync(vertex_shader_src, fragment_shader_src)
     }};
 }
 
@@ -30,6 +38,9 @@ pub const BLINN_PHONG_3D_PROGRAM: ProgramRef = ProgramRef(6);
 pub const ROUNDED_PROGRAM: ProgramRef = ProgramRef(7);
 pub const COPY_PROGRAM: ProgramRef = ProgramRef(8);
 pub const RADIAL_PROGRAM: ProgramRef = ProgramRef(9);
+pub const QBEZIER_PROGRAM: ProgramRef = ProgramRef(10);
+pub const CBEZIER_PROGRAM: ProgramRef = ProgramRef(11);
+pub const METABALL_PROGRAM: ProgramRef = ProgramRef(12);
 
 pub struct SgeProgram {
     glium: Program,
@@ -139,11 +150,32 @@ pub fn init() -> Result<(), ProgramCreationError> {
     )?;
     storage.push(program);
 
+    let program = include_program_internal!(
+        display,
+        "../shaders/qbezier/vertex.glsl",
+        "../shaders/qbezier/fragment.glsl"
+    )?;
+    storage.push(program);
+
+    let program = include_program_internal!(
+        display,
+        "../shaders/cbezier/vertex.glsl",
+        "../shaders/cbezier/fragment.glsl"
+    )?;
+    storage.push(program);
+
+    let program = include_program_internal!(
+        display,
+        "../shaders/metaball/vertex.glsl",
+        "../shaders/metaball/fragment.glsl"
+    )?;
+    storage.push(program);
+
     log::info!("Initialized shaders (programs)");
     Ok(())
 }
 
-pub fn load_program(vertex: &str, fragment: &str) -> Result<ProgramRef, ProgramCreationError> {
+pub fn load_program_sync(vertex: &str, fragment: &str) -> Result<ProgramRef, ProgramCreationError> {
     let display = &get_window_state().display;
     let sge: SgeProgram = Program::from_source(display, vertex, fragment, None)?.into();
     Ok(sge.create())

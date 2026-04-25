@@ -7,14 +7,32 @@ use sge_vectors::{Vec2, Vec3};
 //                                     2D                                    //
 ///////////////////////////////////////////////////////////////////////////////
 
-implement_vertex!(Vertex2D, position, color);
+implement_vertex!(Vertex2D, position);
 #[derive(Copy, Clone, Debug)]
 pub struct Vertex2D {
+    pub position: [f32; 2],
+}
+
+impl Vertex2D {
+    pub fn new(x: f32, y: f32) -> Self {
+        Self { position: [x, y] }
+    }
+
+    pub fn round(self) -> Self {
+        Self {
+            position: [self.position[0].round(), self.position[1].round()],
+        }
+    }
+}
+
+implement_vertex!(ColorVertex2D, position, color);
+#[derive(Copy, Clone, Debug)]
+pub struct ColorVertex2D {
     pub position: [f32; 2],
     pub color: [f32; 4],
 }
 
-impl Vertex2D {
+impl ColorVertex2D {
     pub fn new(x: f32, y: f32, color: Color) -> Self {
         Self {
             position: [x, y],
@@ -29,12 +47,68 @@ impl Vertex2D {
         }
     }
 
+    pub fn solid_pattern(self) -> PatternVertex2D {
+        PatternVertex2D {
+            pos: self.position,
+            color: self.color,
+            alt_color: self.color,
+            pattern: Pattern::Fill as i32,
+            scale: 1.0,
+        }
+    }
+
+    pub fn to_pattern(self, alt_color: Color, pattern: Pattern, scale: f32) -> PatternVertex2D {
+        PatternVertex2D {
+            pos: self.position,
+            color: self.color,
+            alt_color: alt_color.for_gpu(),
+            pattern: pattern as i32,
+            scale,
+        }
+    }
+
     pub fn round(self) -> Self {
         Self {
             position: [self.position[0].round(), self.position[1].round()],
             color: self.color,
         }
     }
+}
+
+implement_vertex!(PatternVertex2D, pos, color, alt_color, pattern, scale);
+
+#[derive(Clone, Copy, Debug)]
+pub struct PatternVertex2D {
+    pub pos: [f32; 2],
+    pub color: [f32; 4],
+    pub alt_color: [f32; 4],
+    pub pattern: i32,
+    pub scale: f32,
+}
+
+#[derive(Clone, Copy)]
+#[repr(i32)]
+pub enum Pattern {
+    Fill = 0,
+    Checker,
+    HorizontalLines,
+    VerticalLines,
+    NwseLines,
+    NeswLines,
+    Dots,
+    Grid,
+    CrossHatch,
+    SparseDots,
+    Bricks,
+    HerringBone,
+    Triangles,
+    ConcentricSquares,
+    Waves,
+    Textured,
+    ConcentricRings,
+    Truchet,
+    RandomTiles,
+    DiagonalWaves,
 }
 
 // ////////////////////////////////////////////////////////////////////////////

@@ -1,8 +1,7 @@
 use sge::prelude::*;
 
+#[main("3D Shapes")]
 fn main() -> anyhow::Result<()> {
-    init("3D Shapes")?;
-
     // for lines and wireframes you can also use line_3d_flat and cube_wireframe_flat
     let mesh = cube_wireframe(Vec3::ZERO, 3.0, 0.05);
     let material = create_flat_material(Color::RED_300);
@@ -38,7 +37,7 @@ fn main() -> anyhow::Result<()> {
             break;
         }
 
-        next_frame();
+        next_frame().await;
     }
 
     Ok(())

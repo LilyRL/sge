@@ -1,19 +1,16 @@
 use std::collections::HashMap;
-use std::io::Cursor;
 
-use sge_vectors::{USizeVec2, Vec2};
-use sge_error_union::ErrorUnion;
 use glium::{
     texture::{RawImage2d, TextureCreationError},
     uniforms::{MagnifySamplerFilter, MinifySamplerFilter},
 };
-use image::ImageFormat;
 use sge_color::Color;
-use sge_image::{Image, ImageRef, SgeImageError};
+use sge_image::Image;
 use sge_macros::gen_ref_type;
 use sge_math::{transform::Transform2D, usize_rect::USizeRect};
 use sge_rendering::api::{draw_texture_ex, draw_texture_world_ex};
 use sge_textures::{SgeTexture, TextureRef, get_texture_state};
+use sge_vectors::{USizeVec2, Vec2};
 use sge_window::window_size;
 
 #[derive(Clone, Copy)]
@@ -318,14 +315,6 @@ pub fn create_spritesheet() -> Result<TextureAtlasRef, TextureCreationError> {
     TextureAtlas::new().map(|a| a.create())
 }
 
-#[derive(ErrorUnion, Debug)]
-pub enum LoadImageError {
-    Image(image::error::ImageError),
-    Engine(SgeImageError),
-}
-
-pub fn load_image(bytes: &[u8], format: ImageFormat) -> Result<ImageRef, LoadImageError> {
-    let image = image::load(Cursor::new(bytes), format)?.to_rgba8();
-    let dim = image.dimensions();
-    Ok(Image::from_bytes(dim.0 as usize, dim.1 as usize, image.into_raw())?.create())
+pub fn init() {
+    init_texture_atlasses_storage();
 }

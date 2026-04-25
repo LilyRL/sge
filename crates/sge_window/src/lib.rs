@@ -3,7 +3,8 @@
 use std::num::NonZeroU32;
 
 use glium::{
-    backend::glutin::Display,
+    Version,
+    backend::{Facade, glutin::Display},
     glutin::{
         config::ConfigTemplateBuilder,
         context::ContextAttributesBuilder,
@@ -413,4 +414,12 @@ pub fn set_window_content_protected(protected: bool) {
 
 pub fn set_window_cursor_hittest(enabled: bool) -> Result<(), ExternalError> {
     get_window_state().window.set_cursor_hittest(enabled)
+}
+
+pub fn opengl_context() -> &'static std::rc::Rc<glium::backend::Context> {
+    get_window_state().display.get_context()
+}
+
+pub fn opengl_version() -> &'static Version {
+    opengl_context().get_opengl_version()
 }

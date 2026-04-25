@@ -1,4 +1,8 @@
-use std::ops::{Add, Index, IndexMut, Mul, Sub};
+use std::{
+    fmt::{Debug, Display},
+    mem::MaybeUninit,
+    ops::{Add, Index, IndexMut, Mul, Sub},
+};
 
 pub struct RotatingArray<T, const N: usize> {
     n: usize,
@@ -253,3 +257,178 @@ pub trait PartialClamp: PartialOrd + Sized {
 }
 
 impl<T: PartialOrd + Sized> PartialClamp for T {}
+
+pub struct ConstantArray<T, const N: usize> {
+    data: [T; N],
+    len: usize,
+}
+
+impl<T: Debug, const N: usize> Debug for ConstantArray<T, N> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_list().entries(self.iter()).finish()
+    }
+}
+
+#[derive(Debug)]
+pub struct CapacityReached;
+
+impl Display for CapacityReached {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "Capacity reached")
+    }
+}
+
+impl std::error::Error for CapacityReached {}
+
+impl<T, const N: usize> ConstantArray<T, N> {
+    pub fn len(&self) -> usize {
+        self.len
+    }
+
+    pub fn capacity(&self) -> usize {
+        N
+    }
+
+    pub fn push(&mut self, item: T) -> Result<(), CapacityReached> {
+        if self.len >= N {
+            return Err(CapacityReached);
+        }
+        self.data[self.len] = item;
+        self.len += 1;
+
+        Ok(())
+    }
+
+    pub fn pop(&mut self) -> Option<()> {
+        if self.len == 0 {
+            None
+        } else {
+            self.len -= 1;
+            Some(())
+        }
+    }
+
+    pub fn clear(&mut self) {
+        self.len = 0;
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.len == 0
+    }
+
+    pub fn is_full(&self) -> bool {
+        self.len >= N
+    }
+
+    pub fn iter(&self) -> impl Iterator<Item = &T> {
+        self.as_slice().iter()
+    }
+
+    pub fn iter_mut(&mut self) -> impl Iterator<Item = &mut T> {
+        self.as_mut_slice().iter_mut()
+    }
+
+    pub fn new() -> Self {
+        Self {
+            data: unsafe { MaybeUninit::uninit().assume_init() },
+            len: 0,
+        }
+    }
+
+    pub fn from_filled(data: [T; N]) -> Self {
+        Self { data, len: N }
+    }
+
+    pub fn from_slice(slice: &[T]) -> Result<Self, CapacityReached>
+    where
+        T: Copy,
+    {
+        if slice.len() > N {
+            return Err(CapacityReached);
+        }
+        let mut data: [T; N] = unsafe { MaybeUninit::uninit().assume_init() };
+        for (i, item) in slice.iter().enumerate() {
+            data[i] = *item;
+        }
+        Ok(Self {
+            data,
+            len: slice.len(),
+        })
+    }
+
+    pub unsafe fn data(&self) -> &[T; N] {
+        &self.data
+    }
+
+    pub unsafe fn data_mut(&mut self) -> &mut [T; N] {
+        &mut self.data
+    }
+
+    pub fn as_slice(&self) -> &[T] {
+        &self.data[..self.len]
+    }
+
+    pub fn as_mut_slice(&mut self) -> &mut [T] {
+        &mut self.data[..self.len]
+    }
+
+    pub fn drain(&mut self) -> impl Iterator<Item = T> + '_
+    where
+        T: Copy,
+    {
+        let len = self.len;
+        self.len = 0;
+        self.data[..len].iter().copied()
+    }
+
+    pub fn extend_from_slice(&mut self, slice: &[T]) -> Result<(), CapacityReached>
+    where
+        T: Copy,
+    {
+        if self.len + slice.len() > N {
+            return Err(CapacityReached);
+        }
+        for (i, item) in slice.iter().enumerate() {
+            self.data[self.len + i] = *item;
+        }
+        self.len += slice.len();
+        Ok(())
+    }
+}
+
+impl<T, const N: usize> Index<usize> for ConstantArray<T, N> {
+    type Output = T;
+
+    fn index(&self, index: usize) -> &Self::Output {
+        &self.data[index]
+    }
+}
+
+impl<T, const N: usize> IndexMut<usize> for ConstantArray<T, N> {
+    fn index_mut(&mut self, index: usize) -> &mut Self::Output {
+        &mut self.data[index]
+    }
+}
+
+impl<T, const N: usize> IntoIterator for ConstantArray<T, N> {
+    type Item = T;
+    type IntoIter = std::array::IntoIter<T, N>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.data.into_iter()
+    }
+}
+
+impl<T: PartialEq, const N: usize> PartialEq for ConstantArray<T, N> {
+    fn eq(&self, other: &Self) -> bool {
+        self.as_slice() == other.as_slice()
+    }
+}
+
+impl<T: Eq, const N: usize> Eq for ConstantArray<T, N> {}
+
+impl<T: PartialOrd, const N: usize> PartialOrd for ConstantArray<T, N> {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        self.as_slice().partial_cmp(other.as_slice())
+    }
+}

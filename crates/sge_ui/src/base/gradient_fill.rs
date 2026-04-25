@@ -1,4 +1,6 @@
-use sge_api::shapes_2d::draw_rect_gradient;
+use sge_api::shapes_2d::{
+    GradientPoint, Orientation, draw_multi_point_gradient, draw_rect_gradient,
+};
 
 use super::*;
 
@@ -154,5 +156,36 @@ impl UiNode for GradientFill {
         );
 
         self.child.node.draw(area, ui)
+    }
+}
+
+#[derive(Debug)]
+pub struct MultiPointGradientFill {
+    orientation: Orientation,
+    points: Vec<GradientPoint>,
+}
+
+impl MultiPointGradientFill {
+    pub fn new(orientation: Orientation, points: Vec<GradientPoint>) -> UiRef {
+        Self {
+            orientation,
+            points,
+        }
+        .to_ref()
+    }
+}
+
+impl UiNode for MultiPointGradientFill {
+    fn preferred_dimensions(&self) -> Vec2 {
+        Vec2::ZERO
+    }
+
+    fn size(&self, area: Area) -> Vec2 {
+        area.size
+    }
+
+    fn draw(&self, area: Area, _: &UiState) -> Vec2 {
+        draw_multi_point_gradient(area.top_left, area.size, self.orientation, &self.points);
+        area.size
     }
 }

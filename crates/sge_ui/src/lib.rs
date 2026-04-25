@@ -13,7 +13,7 @@ use num_traits::Zero;
 use sge_color::Color;
 use sge_input::{Input, get_input};
 use sge_macros::{gen_ref_type, include_texture};
-use sge_textures::{ImageFormat, TextureRef, load_texture};
+use sge_textures::{ImageFormat, TextureRef, load_texture_from_bytes_sync};
 use sge_time::{delta_time, frame_count, time};
 use sge_types::Area;
 use sge_utils::{FromF32, PartialClamp, ToF32};

@@ -4,9 +4,8 @@ actions! {
     FWD, BACK, RIGHT, LEFT, JUMP, REBIND
 }
 
-fn main() -> anyhow::Result<()> {
-    init("Action mapping")?;
-
+#[main("Action mapping")]
+async fn main() -> anyhow::Result<()> {
     bind! {
         FWD => KeyCode::KeyW;
         BACK => KeyCode::KeyS;
@@ -29,7 +28,7 @@ fn main() -> anyhow::Result<()> {
             break;
         }
 
-        next_frame();
+        next_frame().await;
     }
 
     Ok(())
@@ -46,8 +45,6 @@ fn main() -> anyhow::Result<()> {
 // const JUMP: Action = Action::new(4);
 //
 // fn main() -> anyhow::Result<()> {
-//     init("Action mapping")?;
-//
 //     bind(FWD, KeyCode::KeyW);
 //     bind(BACK, KeyCode::KeyS);
 //     bind(RIGHT, KeyCode::KeyD);
@@ -63,7 +60,7 @@ fn main() -> anyhow::Result<()> {
 //             break;
 //         }
 //
-//         next_frame();
+//         next_frame().await;
 //     }
 //     Ok(())
 // }

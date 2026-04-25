@@ -16,3 +16,4 @@ rkyv.workspace = true
 sge_color.workspace = true
 sge_macros.workspace = true
 sge_window.workspace = true
+sge_utils.workspace = true

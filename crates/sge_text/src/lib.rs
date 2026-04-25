@@ -222,20 +222,21 @@ impl FontRef {
 }
 
 #[derive(ErrorUnion, Debug)]
-pub enum FontError {
-    Fontdue(&'static str),
+pub enum LoadFontError {
+    Other(&'static str),
     Texture(glium::texture::TextureCreationError),
+    Io(std::io::Error),
 }
 
 impl SgeFont {
-    pub(crate) fn load_from_bytes(bytes: &[u8]) -> Result<SgeFont, FontError> {
+    pub(crate) fn load_from_bytes(bytes: &[u8]) -> Result<SgeFont, LoadFontError> {
         Self::load_from_bytes_with_atlas(TextureAtlas::new()?, bytes)
     }
 
     pub(crate) fn load_from_bytes_with_atlas(
         atlas: TextureAtlas,
         bytes: &[u8],
-    ) -> Result<Self, FontError> {
+    ) -> Result<Self, LoadFontError> {
         Ok(Self {
             font: fontdue::Font::from_bytes(bytes, fontdue::FontSettings::default())?,
             characters: HashMap::new(),
@@ -389,7 +390,7 @@ impl SgeFont {
     }
 }
 
-pub fn create_ttf_font(bytes: &[u8]) -> Result<FontRef, FontError> {
+pub fn create_ttf_font(bytes: &[u8]) -> Result<FontRef, LoadFontError> {
     SgeFont::load_from_bytes(bytes).map(|f| f.create())
 }
 
@@ -428,19 +429,19 @@ pub const SANS_BOLD: FontRef = FontRef(4);
 pub const SANS_BOLD_ITALIC: FontRef = FontRef(5);
 
 #[rustfmt::skip]
-pub(crate) fn init_fonts() -> Result<(), FontError> {
-    load_font(include_bytes!("../assets/jetbrains.ttf")).map(|_| ())?;
+pub(crate) fn init_fonts() -> Result<(), LoadFontError> {
+    load_font_sync(include_bytes!("../assets/jetbrains.ttf")).map(|_| ())?;
 
     #[cfg(feature = "extra_fonts")]
-    load_font(include_bytes!("../assets/inter.ttf")).map(|_| ())?;
+    load_font_sync(include_bytes!("../assets/inter.ttf")).map(|_| ())?;
     #[cfg(feature = "extra_fonts")]
-    load_font(include_bytes!("../assets/inter-display-bold.ttf")).map(|_| ())?;
+    load_font_sync(include_bytes!("../assets/inter-display-bold.ttf")).map(|_| ())?;
     #[cfg(feature = "extra_fonts")]
-    load_font(include_bytes!("../assets/inter-italic.ttf")).map(|_| ())?;
+    load_font_sync(include_bytes!("../assets/inter-italic.ttf")).map(|_| ())?;
     #[cfg(feature = "extra_fonts")]
-    load_font(include_bytes!("../assets/inter-bold.ttf")).map(|_| ())?;
+    load_font_sync(include_bytes!("../assets/inter-bold.ttf")).map(|_| ())?;
     #[cfg(feature = "extra_fonts")]
-    load_font(include_bytes!("../assets/inter-bold-italic.ttf")).map(|_| ())?;
+    load_font_sync(include_bytes!("../assets/inter-bold-italic.ttf")).map(|_| ())?;
 
     Ok(())
 }
@@ -466,10 +467,18 @@ fn draw_text_to(
     let dpi_scaling = if do_dpi_scaling { dpi_scaling() } else { 1.0 };
     let font_size = (font_size as f32 * dpi_scaling).ceil();
     let mut font = font.unwrap_or(default_font());
-    let mut layout = fontdue::layout::Layout::new(fontdue::layout::CoordinateSystem::PositiveYDown);
-    layout.append(&[&font.font], &TextStyle::new(&text, font_size, 0));
 
-    let mut width = 0.0f32;
+    let space_metrics = font.font.metrics(' ', font_size);
+    let space_advance = space_metrics.advance_width;
+
+    let leading_spaces = text.chars().take_while(|&c| c == ' ').count();
+    let x_offset = pos.x + leading_spaces as f32 * space_advance;
+    let stripped = text.trim_start_matches(' ');
+
+    let mut layout = fontdue::layout::Layout::new(fontdue::layout::CoordinateSystem::PositiveYDown);
+    layout.append(&[&font.font], &TextStyle::new(stripped, font_size, 0));
+
+    let mut width = leading_spaces as f32 * space_advance;
 
     for glyph_position in layout.glyphs() {
         let glyph = Glyph {
@@ -486,14 +495,13 @@ fn draw_text_to(
         let rect = sprite.rect;
         let rectf: Rect = rect.into();
 
-        // FIXED: Use character advance to handle spaces correctly
-        // This accounts for both visual width AND advance (important for spaces!)
-        let glyph_end = glyph_position.x + char_info.advance;
+        let glyph_end =
+            glyph_position.x + char_info.advance + leading_spaces as f32 * space_advance;
         width = width.max(glyph_end);
 
         let transform = Transform2D::from_scale_translation(
             Vec2::new(glyph_position.width as f32, glyph_position.height as f32),
-            Vec2::new(glyph_position.x + pos.x, glyph_position.y + pos.y),
+            Vec2::new(glyph_position.x + x_offset, glyph_position.y + pos.y),
         );
 
         renderer.add_sprite(font.atlas.texture().unwrap(), transform, color, Some(rectf));
@@ -624,7 +632,7 @@ pub fn draw_text_size_world(text: impl ToString, position: Vec2, size: usize) ->
     )
 }
 
-pub fn load_font(bytes: &[u8]) -> Result<FontRef, FontError> {
+pub fn load_font_sync(bytes: &[u8]) -> Result<FontRef, LoadFontError> {
     SgeFont::load_from_bytes(bytes).map(|f| f.create())
 }
 
@@ -822,7 +830,7 @@ pub fn measure_multiline_text_ex(
     }
 }
 
-pub fn init() -> Result<(), FontError> {
+pub fn init() -> Result<(), LoadFontError> {
     set_text_measure_cache(TextMeasureCache {
         map: HashMap::new(),
     });

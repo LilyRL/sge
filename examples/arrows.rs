@@ -1,8 +1,7 @@
 use sge::prelude::*;
 
-fn main() -> anyhow::Result<()> {
-    init("Scenes")?;
-
+#[main("Scenes")]
+async fn main() -> anyhow::Result<()> {
     let mut controller = PanningCameraController::new();
 
     loop {
@@ -37,7 +36,7 @@ fn main() -> anyhow::Result<()> {
             break;
         }
 
-        next_frame();
+        next_frame().await;
     }
 
     Ok(())

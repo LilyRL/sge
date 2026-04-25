@@ -12,7 +12,7 @@ fn main() -> anyhow::Result<()> {
         .opengl_profile(GlProfile::Core)
         .default_magnify_filter(MagnifySamplerFilter::Nearest)
         .log_verbosity(Verbosity::Medium)
-        .window_blur(false)
+        .window_blur(true)
         // .swap_interval(SwapInterval::DontWait)
         .title("Custom init".to_string())
         .build();
@@ -25,36 +25,38 @@ fn main() -> anyhow::Result<()> {
             radius: Vec2::splat(100.0),
             color: Color::RED_400,
         },
-        velocity: vec2(2000.0, 1500.0),
+        velocity: vec2(100.0, 200.0),
     };
 
-    loop {
-        clear_screen(Color::TRANSPARENT);
+    run_async(async move {
+        loop {
+            clear_screen(Color::TRANSPARENT);
 
-        if obj.circle.center.x >= window_width() - obj.circle.radius.x
-            || obj.circle.center.x <= obj.circle.radius.x
-        {
-            obj.velocity.x = -obj.velocity.x;
+            if obj.circle.center.x >= window_width() - obj.circle.radius.x
+                || obj.circle.center.x <= obj.circle.radius.x
+            {
+                obj.velocity.x = -obj.velocity.x;
+            }
+
+            if obj.circle.center.y >= window_height() - obj.circle.radius.y
+                || obj.circle.center.y <= obj.circle.radius.y
+            {
+                obj.velocity.y = -obj.velocity.y;
+            }
+
+            obj.circle.center += obj.velocity * physics_delta_time();
+            dbg!(obj.circle.center);
+
+            draw(&obj.circle);
+            draw_fps();
+
+            if should_quit() {
+                break;
+            }
+
+            next_frame().await;
         }
-
-        if obj.circle.center.y >= window_height() - obj.circle.radius.y
-            || obj.circle.center.y <= obj.circle.radius.y
-        {
-            obj.velocity.y = -obj.velocity.y;
-        }
-
-        obj.circle.center += obj.velocity * physics_delta_time();
-        dbg!(obj.circle.center);
-
-        draw(&obj.circle);
-        draw_fps();
-
-        if should_quit() {
-            break;
-        }
-
-        next_frame();
-    }
+    });
 
     Ok(())
 }

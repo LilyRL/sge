@@ -26,22 +26,8 @@ impl SizedBox {
         Self::new(Vec2::ZERO, child)
     }
 
-    pub fn width_infinite_height(width: f32, child: Child) -> UiRef {
-        Self {
-            x: Some(width),
-            y: Some(f32::INFINITY),
-            child,
-        }
-        .to_ref()
-    }
-
-    pub fn height_infinite_width(height: f32, child: Child) -> UiRef {
-        Self {
-            x: Some(f32::INFINITY),
-            y: Some(height),
-            child,
-        }
-        .to_ref()
+    pub fn square(size: f32, child: Child) -> UiRef {
+        Self::new(Vec2::splat(size), child)
     }
 
     pub fn wh(width: f32, height: f32, child: Child) -> UiRef {
@@ -95,11 +81,11 @@ impl UiRef {
     }
 
     pub fn height_infinite_width(self, height: f32) -> UiRef {
-        SizedBox::height_infinite_width(height, self)
+        SizedBox::height(height, self)
     }
 
     pub fn width_infinite_height(self, width: f32) -> UiRef {
-        SizedBox::width_infinite_height(width, self)
+        SizedBox::width(width, self)
     }
 
     pub fn width(self, width: f32) -> UiRef {
@@ -122,8 +108,14 @@ impl UiNode for SizedBox {
 
     fn size(&self, area: Area) -> Vec2 {
         Vec2::new(
-            self.x.unwrap_or(area.width()),
-            self.y.unwrap_or(area.height()),
+            match self.x {
+                Some(x) if x.is_finite() => x,
+                Some(_) | None => area.width(),
+            },
+            match self.y {
+                Some(y) if y.is_finite() => y,
+                Some(_) | None => area.height(),
+            },
         )
     }
 
@@ -131,8 +123,14 @@ impl UiNode for SizedBox {
         area.size = self.size(area);
         let dimensions = self.child.node.draw(area, state);
         Vec2::new(
-            self.x.unwrap_or(dimensions.x),
-            self.y.unwrap_or(dimensions.y),
+            match self.x {
+                Some(x) if x.is_finite() => x,
+                Some(_) | None => dimensions.x,
+            },
+            match self.y {
+                Some(y) if y.is_finite() => y,
+                Some(_) | None => dimensions.y,
+            },
         )
     }
 }

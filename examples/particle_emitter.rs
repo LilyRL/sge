@@ -1,8 +1,7 @@
 use sge::prelude::*;
 
-fn main() -> anyhow::Result<()> {
-    init("Particle emitters")?;
-
+#[main("Particle emitters")]
+fn main() {
     let emitter = ParticleEmitter::builder()
         .shape(Poly::new(Vec2::ZERO, 20.0, 3, Color::GRAY_500))
         .duration(10.0)
@@ -38,8 +37,6 @@ fn main() -> anyhow::Result<()> {
             break;
         }
 
-        next_frame();
+        next_frame().await;
     }
-
-    Ok(())
 }

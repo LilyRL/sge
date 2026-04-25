@@ -215,7 +215,7 @@ impl Player {
             ))
             .end_color(RED.with_alpha(0.0))
             .speed(self.speed * 0.8)
-            .direction(-self.rotation - FRAC_PI_2)
+            .direction(-self.rotation)
             .direction_randomness(0.2)
             .speed_randomness(self.speed * 0.5)
             .lifetime(0.8)
@@ -417,9 +417,8 @@ impl Sounds {
     }
 }
 
+#[main("Space game")]
 fn main() -> anyhow::Result<()> {
-    init("Space game")?;
-
     storage_store_state(ParticleSystem::new());
     storage_store_state(Sounds::new()?);
 
@@ -453,7 +452,7 @@ fn main() -> anyhow::Result<()> {
             break;
         }
 
-        next_frame();
+        next_frame().await;
     }
 
     Ok(())
@@ -477,7 +476,7 @@ fn spawn_hit_particles(pos: Vec2, impact_dir: Vec2) {
         ))
         .end_color(FG.with_alpha(0.0))
         .speed(3.0)
-        .direction(impact_dir.to_angle())
+        .direction(impact_dir.to_angle() + FRAC_PI_2)
         .direction_randomness(1.5)
         .speed_randomness(2.0)
         .lifetime(0.4)

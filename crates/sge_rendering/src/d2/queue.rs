@@ -1,3 +1,6 @@
+use sge_programs::{CBEZIER_PROGRAM, METABALL_PROGRAM};
+use sge_types::Vertex2D;
+
 use super::*;
 
 pub struct DrawQueue2D {
@@ -34,6 +37,8 @@ impl DrawQueue2D {
 
 impl DrawQueue2D {
     pub fn draw<T: Surface>(&mut self, frame: &mut T, projection: &Mat4) {
+        unsafe { MetaballBatch::update_all() };
+
         for command in &self.draws {
             match command {
                 DrawCommand::Shapes(batch) => {
@@ -78,6 +83,70 @@ impl DrawQueue2D {
                     if !batch.vertices.is_empty() {
                         self.draw_sprite_batch(frame, projection, batch);
                     }
+                }
+                DrawCommand::QuadraticBezier(batch) => {
+                    if !batch.instances.is_empty() {
+                        self.draw_quad_instanced(
+                            frame,
+                            projection,
+                            &batch.instances,
+                            QBEZIER_PROGRAM.get(),
+                            batch.scissor,
+                        );
+                    }
+                }
+                DrawCommand::CubicBezier(batch) => {
+                    if !batch.instances.is_empty() {
+                        self.draw_quad_instanced(
+                            frame,
+                            projection,
+                            &batch.instances,
+                            CBEZIER_PROGRAM.get(),
+                            batch.scissor,
+                        );
+                    }
+                }
+                DrawCommand::Metaballs(batch_ptr) => {
+                    let batch = unsafe { &**batch_ptr };
+                    let bb = batch.bounding_box();
+                    let min = bb.top_left;
+                    let max = bb.bottom_right();
+                    let quad = [
+                        Vertex2D::new(min.x, min.y),
+                        Vertex2D::new(max.x, min.y),
+                        Vertex2D::new(max.x, max.y),
+                        Vertex2D::new(min.x, max.y),
+                    ];
+
+                    let display = get_display();
+                    let params = Self::common_draw_params(None);
+                    let vertex_buffer = VertexBuffer::new(display, &quad).unwrap();
+                    let index_buffer = IndexBuffer::new(
+                        display,
+                        glium::index::PrimitiveType::TrianglesList,
+                        &[0u32, 1, 2, 0, 2, 3],
+                    )
+                    .unwrap();
+
+                    let uniforms = uniform! {
+                        transform: projection.to_cols_array_2d(),
+                        metaball_data: batch.texture().sampled()
+                            .minify_filter(glium::uniforms::MinifySamplerFilter::Nearest)
+                            .magnify_filter(glium::uniforms::MagnifySamplerFilter::Nearest),
+                        num_metaballs: batch.len() as i32,
+                        color: batch.color().for_gpu(),
+                    };
+
+                    debugger_add_draw_calls(1);
+                    frame
+                        .draw(
+                            &vertex_buffer,
+                            &index_buffer,
+                            METABALL_PROGRAM.get(),
+                            &uniforms,
+                            &params,
+                        )
+                        .unwrap();
                 }
             }
         }

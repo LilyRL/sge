@@ -4,9 +4,8 @@ actions! {
     PAUSE, DEBUG, SHOW_TEXTURE
 }
 
+#[main("Text")]
 fn main() -> anyhow::Result<()> {
-    init("Text")?;
-
     bind! {
         PAUSE => KeyCode::Space;
         DEBUG => KeyCode::KeyD;
@@ -112,7 +111,7 @@ fn main() -> anyhow::Result<()> {
             draw_debug_info();
         }
 
-        next_frame();
+        next_frame().await;
     }
 
     Ok(())

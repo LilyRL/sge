@@ -2,9 +2,8 @@
 
 use sge::prelude::*;
 
-fn main() -> anyhow::Result<()> {
-    init("Gradients")?;
-
+#[main("Gradients")]
+async fn main() -> anyhow::Result<()> {
     let gen_point = |_| rand::<Vec2>() * 1000.0;
     let points = Vec::from_fn(20, gen_point);
 
@@ -29,7 +28,7 @@ fn main() -> anyhow::Result<()> {
             break;
         }
 
-        next_frame();
+        next_frame().await;
     }
 
     Ok(())

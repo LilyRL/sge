@@ -11,9 +11,8 @@ fn random_rect() -> Rect {
     Rect::from_center(center, size, color).with_rotation(rand::<f32>() * TAU)
 }
 
-fn main() -> anyhow::Result<()> {
-    init("Animation")?;
-
+#[main("Animation")]
+async fn main() -> anyhow::Result<()> {
     let mut animation_controller =
         AnimationController::new(random_rect(), random_rect(), 1.0, EaseOutElastic);
 
@@ -30,7 +29,7 @@ fn main() -> anyhow::Result<()> {
             break;
         }
 
-        next_frame();
+        next_frame().await;
     }
 
     Ok(())

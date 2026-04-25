@@ -2,10 +2,9 @@
 
 use sge::prelude::*;
 
+#[main("Texture positioning")]
 fn main() -> anyhow::Result<()> {
-    init("Texture positioning")?;
-
-    let sprite = load_texture(
+    let sprite = load_texture_from_bytes_sync(
         include_bytes!("../assets/textures/guy.jpg"),
         ImageFormat::Jpeg,
     )?;
@@ -17,7 +16,7 @@ fn main() -> anyhow::Result<()> {
             break;
         }
 
-        next_frame();
+        next_frame().await;
     }
 
     Ok(())

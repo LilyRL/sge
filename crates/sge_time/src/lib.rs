@@ -119,6 +119,10 @@ pub fn is_first_frame() -> bool {
     state.frame_count == 0
 }
 
+pub fn oscillate(min: f32, max: f32) -> f32 {
+    (time().sin() + 1.0) * 0.5 * (max - min) + min
+}
+
 pub fn once_per_second() -> bool {
     let state = get_time_state();
 
