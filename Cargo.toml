@@ -169,7 +169,7 @@ default = [
     "text",
     "ui",
     "network",
-    "opengl4"
+    "clipboard"
 ]
 audio = ["dep:sge_audio"]
 debugging = ["dep:sge_debugging"]
@@ -184,7 +184,7 @@ round_coords = ["sge_shapes/round_coords", "sge_rendering/round_coords"]
 text = ["dep:sge_text"]
 ui = ["extra_fonts", "dep:sge_ui"]
 network = ["sge_exec/network"]
-opengl4 = []
+clipboard = ["sge_input/clipboard"]
 
 [workspace]
 members = [

@@ -376,6 +376,10 @@ pub fn fullscreen() -> Option<Fullscreen> {
     get_window_state().window.fullscreen()
 }
 
+pub fn is_fullscreen() -> bool {
+    get_window_state().window.fullscreen().is_some()
+}
+
 pub fn set_decorations(decorations: bool) {
     get_window_state().window.set_decorations(decorations);
 }

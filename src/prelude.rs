@@ -111,7 +111,7 @@ pub use sge_api::{Drawable, draw, draw_world};
 pub use sge_camera::{
     camera2d_zoom_at, cameras_for_resolution, get_camera_2d, get_camera_2d_mut, get_camera_3d,
     get_camera_3d_mut, get_flat_projection, screen_distance_to_world, screen_to_world,
-    world_distance_to_screen, world_to_screen,
+    world_distance_to_screen, world_to_screen, world_to_screen_3d,
 };
 pub use sge_camera_controllers::first_person::FirstPersonCameraController;
 pub use sge_camera_controllers::orbit::OrbitCameraController;
@@ -264,9 +264,16 @@ pub mod input {
     };
 }
 
-#[cfg(feature = "input")]
+#[cfg(feature = "clipboard")]
+pub use clipboard::*;
+#[cfg(feature = "clipboard")]
+pub mod clipboard {
+    pub use sge_input::{get_clipboard_text, set_clipboard_text};
+}
+
+#[cfg(feature = "text")]
 pub use text::*;
-#[cfg(feature = "input")]
+#[cfg(feature = "text")]
 mod text {
     pub use sge_text::rich_text::*;
     pub use sge_text::{

@@ -1,7 +1,7 @@
 use d2::{Camera2D, projection};
 use d3::Camera3D;
 use sge_global::global;
-use sge_vectors::{Mat4, Vec2};
+use sge_vectors::{Mat4, Vec2, Vec3};
 
 pub mod d2;
 pub mod d3;
@@ -98,4 +98,8 @@ pub fn screen_distance_to_world(screen_length: f32) -> f32 {
 
 pub fn world_distance_to_screen(world_length: f32) -> f32 {
     get_camera_2d_mut().world_distance_to_screen(world_length)
+}
+
+pub fn world_to_screen_3d(world_pos: Vec3) -> Option<Vec2> {
+    get_camera_3d_mut().world_to_screen(world_pos)
 }

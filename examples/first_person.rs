@@ -1,4 +1,8 @@
-use sge::prelude::*;
+use sge::{
+    prelude::*,
+    ui::{Center, Text},
+};
+use sge_ui::draw_ui_in_area;
 
 #[main("First person")]
 async fn main() -> anyhow::Result<()> {
@@ -41,6 +45,18 @@ async fn main() -> anyhow::Result<()> {
 
         cuboid.draw_many(transforms.clone());
         suzanne.draw();
+
+        if let Some(screen_pos) = world_to_screen_3d(vec3(0.0, 1.0, -5.0)) {
+            draw_ui_in_area(
+                Center::new(
+                    Text::new_with_color("Suzanne", Color::WHITE)
+                        .padding(10.0)
+                        .fill(Color::BLACK)
+                        .fit(),
+                ),
+                Area::new(screen_pos - Vec2::splat(50.0), Vec2::splat(100.0)),
+            );
+        }
 
         if should_quit() {
             break;

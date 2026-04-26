@@ -128,3 +128,15 @@ pub fn get_index_count() -> usize {
 pub fn get_max_index_count() -> usize {
     get_debug_info().max.index_count
 }
+
+pub fn avg_frame_time() -> f32 {
+    (1.0 / avg_fps()) as f32
+}
+
+pub fn max_frame_time() -> f32 {
+    (1.0 / min_fps()) as f32
+}
+
+pub fn min_frame_time() -> f32 {
+    (1.0 / max_fps()) as f32
+}

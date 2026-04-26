@@ -40,8 +40,7 @@ pub enum InitError {
     Program(glium::ProgramCreationError),
     #[cfg(feature = "audio")]
     Audio(sge_audio::AudioInitError),
-    #[cfg(feature = "gamepad")]
-    Gilrs(sge_input::GilrsError),
+    Input(sge_input::InputError),
 }
 
 #[allow(unused_mut)]

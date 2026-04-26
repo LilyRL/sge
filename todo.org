@@ -3,56 +3,35 @@
 - [-] High priority bugs:
   - [X] tailwind colors are wrong. oklch conversion is probably wrong
   - [ ] transparency
-- [X] OPTIMIZATION: do all the draws at the same time. requires adding back vertex
- colors and a bit of refactoring.
-  - [X] draw queue with consecutive poly and circle draw calls grouped together so
-    that they can be batch drawn together. use instancing for grouped circles
-- [X] toggle using positive y up
-- [X] space invaders using some new features
-- [X] constant particle emitters
+  colors and a bit of refactoring.
+     that they can be batch drawn together. use instancing for grouped circles
 - [ ] texture/atlas particles
 - [ ] sound rotation
+  - i wrote this forever ago. what could this possibly mean?
 - [ ] have a look at texture atlasses and see if we can make something good for 2d platformer levels. maybe an add colliders toggle
 - [ ] some kinda mf https://docs.rs/macroquad/latest/macroquad/telemetry/index.html
 - [ ] miniquad backend + web
 - [ ] bitmap fonts
+- [ ] unload refs
+- [ ] set target fps
+- [ ] get screen to world ray
+- [ ] take screenshot
+- [ ] load image from texture
+- [ ] load image from screen
+- [ ] draw pixel
+- [ ] draw pixel line
 - [ ] add post frame callback
-- [X] add mf draw wireframe and shit
-- [X] examples for all the ui elements
-- [X] colour picker
-- [X] fix scenes
-- [X] load_sound
-- [X] load_sound_from_bytes
 - [ ] play_sound_looped
-- [X] port debug vis to sge_ui, and make egui non default feature, reduce number of crates pulled in greatly
-- [X] ecs
-- [X] play_sound_once
-- [X] set_sound_volume
 - [ ] stop_sound
-- [X] all unnececary features behind feature gates (e.g. audio, input, gamepad, etc.)
-- [X] add must use to _ex sounds builder
-- [X] draggable/resizable floating window
-- [X] functions to change cursor icon
-- [X] solid triangle arrow functions
-- [X] expandable <details> type thing
-- [X] slider
 - [ ] safe multithreading
 - [ ] 3d scene for point lights
-- [X] underline and strikethrough text
-- [X] rich text ui
-- [X] ui hyperlink
 - [ ] ui span support, so i can have links and stuff inside a paragraph
 - [ ] ui select text
-- [X] ui tooltips
 - [ ] ui select in text edit
 - [ ] ui text box
 - [ ] ui drop file, with example that opens an image if dropped onto area
 - [ ] ui dotted border
-- [X] ui modal that dims the rest of the screen, like a pop up instead of a
   floating window
-- [X] 2d scene for optimising static geometry
-- [X] render geometry to scene or texture
-- [X] render to scene yeah, so like more macro shit to add to_scene functions and maybe just have a 2d renderer trait and have draw queue 2d and scene implement it and then have draw_to take a 2d renderer reference
 - [ ] dirty struct macro, which automatically keeps track of what is dirty, and you can define computations as impls with a function that takes some fields and returns a value and adds that as a field on the struct with methods for getting and getting mut and setting fields which deals with making things dirty
 - [ ] more filters
   - [ ] crt
@@ -64,31 +43,15 @@
   - [ ] custom
 - [ ] coroutines, some kind of future management so that the user can ask to run some code at the end of the frame, in some number of frames, after some time, or when something next happens
 - [ ] crates.io
-- [X] macro based wrappers around structs for persistent (fs) storage and network sync
-  - [X] fs
-    - [X] implement macro
-    - [X] add support for engine types
-  - [X] network
-- [X] fs/network functions sync/async that taps into the async runtime being worked on
 - [ ] make the ui more performant
 - [ ] re-add profiling
 - [ ] measure startup and runtime performance
   - [ ] make sure things aren't using up performance when the user isnt even using
        that part of the engine
 - [ ] revamp should add tests
-- [X] make API consistent
-- [X] outline on shape trait with rotation and everything
-- [X] macro as much as possible based on traits
-- [X] poly circles as new function / optional
-- [X] cache projection matrix
-- [X] cull off screen world draws
-- [X] Logging system, that can log to stdout/stderr (like env_logger), or to an
   onscreen thingy.
-- [X] functions to change speed of physics time
-- [X] FIX: if you render too much text it just gives up and stops rendering any
   more text, but just for that one draw queue
   - no more textures are drawn, not just ones from the same texture atlas. nothing.
-- [X] ui multiline text
 - [ ] text bg function that doesnt measure before but uses the dimensions returned
   from the drawing function and slots it in with a lower Z
 - [ ] different 3d projections for high fov (pannini)
@@ -97,24 +60,199 @@
   - [ ] compile
   - [ ] run
 - [ ] i think we need to refactor shapes into something that is just for math, and then a rendering (color) layer on top
-- [X] ui text wrapping
 - [ ] ui scroll culling (?)
 - [ ] custom post processing
-- [X] fix bloom (should be easy for someone like me)
-- [X] more collision shapes
 - [ ] include folder should convert meshes objects (maybe some way of including materials) and textures and tile maps/ scenes when we get there and sounds when we get there
 - [ ] allow user to use all collision shapes supported by rapier2d
 - [ ] just put the scissor and culling on row/col. problem solved
   - yeah no
   - [ ] maybe create a raw row/col that works as it does currently
-- [X] camera shake controller. there's no reason you couldn't use this with another camera controller, but we may want to just create a master camera controller for 2D and 3D
 - [ ] 3d physics
 - [ ] 3d FPS controller and camera
 - [ ] pannini can just be a post processing effect
 - [ ] bundled fonts should be togglable with a feature flag, at least until we get a build system
 - [ ] ooh for the build system what if you have an engine.toml file where you can include stuff and that gets parsed by a build.rs file or a macro
+- [ ] something is broken evident in shapes_3d example
+  - [ ] needs gouraud shading
+- [ ] sphere SDF
+- [ ] video
+- [ ] screenshake
+- [ ] sepia
+- [ ] edge detection
+- [ ] sharpen
+- [ ] 3d scene with lights and shadow
+- [ ] list view builder where it only generates the nodes that are actually visible
+- [ ] loading spinner
+  - [ ] needs arcs
+- [ ] player controllers
+- [ ] text box
+- [ ] probably add bold and italic to rich text. so we need fonts to be packaged
+  with all three and make bold and italics optional, and fall back to default
+- [ ] automatic interpolated values for ui elements
+- [ ] you should be able to delete textures and images and stuff
+- [ ] scissor example
+- [ ] now we have logging. log things
+- [ ] SI Unit system
+- [ ] clipping/masking
+- [ ] drop shadows 2d
+- [ ] fix culling
+- [ ] cull glyph textures out of view
+- [ ] test transform 2 and 3D
+- [ ] Compute shaders.
+- [ ] draw Sphere
+- [ ] like retaining 2d shape state would be pretty efficient ngl
+  - maybe dont have to do culling every frame, like every 5 frames or something.
+    zoo wee mama!!!
+- [ ] match material HashMap<Material, Mesh>
+- [ ] Circle anti aliasing between outline and fill is non existent
+- [ ] also fix anti aliasing in pattern fills
+- [ ] Dithering to reduce colour banding
+- [ ] Signed distance field / https://raytracing.github.io/books/RayTracingInOneWeekend.html
+- [-] arbritrary rotation and custom material for all 2d shapes
+  - [X] rotation
+  - [ ] custom material
+- [-] TEXT RENDERING!!!
+  - [X] fonts
+  - [X] multiline
+  - [X] layout / text wrapping / text alignment
+  - [X] rich text
+  - [X] text measurement
+  - [ ] text scale and rotation
+  - [ ] sdf?
+  - [ ] 3d
+- [-] Animation support
+  - [X] Needs some sort of retained state.
+  - [X] Maybe generic over types that implement some trait.
+    - [X] Implement for all numerics, transform3D, colour, vectors.
+  - [X] Struct contains start, end, time, and interpolation function.
+  - [X] Interpolation function trait.
+    - [X] So you could have structs with configurable interpolation.
+  - [ ] sprite animation
+    - (needs spritesheets/atlasses) ✅
+  - [ ] maybe have my own proc-macro based compiler to turn a folder of sprites
+    into a sprite sheet, indexable by a perfect &'static str hash table
+    - [ ] would be nice to also have a type safe enum based approach, idk how i'd
+      do that though. automatically generate the enum from the file names,
+      converted to camel case? that would certainly be nice, and you'd get
+      compiler errors when you update the name of one of the files or remove a sprite.
+  - [ ] https://docs.rs/macroquad/latest/macroquad/experimental/animation/index.html
+  - [ ] Animation state machine
+  - [ ] pause animation controller
+- [ ] egui_dock
+  positions of it in the paint program for better curves
+- [ ] image texture pair struct with builtin methods and maybe a `dirty`
+- [ ] software: draw thick line function for circles or something, see if instancing circles is good enough
+- [ ] let users access intermediary depth textures only if they want it
+- [ ] multiple cameras outputting to textures
+  - [ ] maybe a use_cameras function
+  this should make it possible to add post processing effects easily
+- [ ] scene ui element
+- [ ] Documentation
+- [ ] arcs/slices of circles
+- [ ] splines
+- [ ] let people write [a, b] instead of vec2(a, b)
+- [ ] Transform example
+- [ ] test colours
+- [ ] test everything
+- [ ] 2D custom materials
+  - [ ] use_material & use_default_material functions
+  - [ ] add default 2d material to render pipeline
+  - [ ] hashmap of material ref to mesh
+- [ ] https://github.com/not-fl3/macroquad/blob/master/examples/screen_texture.rs
+- [ ] better 2D physics. platformer
+- [ ] is this ECS?
+  - [ ] this could totally work lets be REAL https://docs.rs/hecs/latest/hecs/
+- [ ] lua scripting support
+- [ ] 2D & 3D wireframe mode. automatic. can disregard material (maybe? vertex shaders?)
+- [ ] Memory/GPU profiler
+- [ ] Asset packing
+  - [ ] and loading
+  - [ ] a build system???
+  - [ ] and a loading screen? customizable maybe just tell give the user some
+    statistics about progress and they can render it themselves. sounds good to me
+- [ ] benchmarks
+- [ ] normal mapping in 2d and 3d
+- [ ] metaballs
+  - [ ] SDF in 2D?
+- [ ] Svelte(fire) style magic for multiplayer. just have some kind of struct /
+  macro thing that detects the difference between the state of the struct
+  between frames and automatically handles that between players
+  - [ ] very high trust level. could be improved. very simple though
+  - [ ] so, so simple
+- [ ] The... web :(
+- [ ] Mobile :(
+- [-] Sound
+  - [X] 2D sound
+  - [X] Include sound
+  - [ ] 3D sound
+  - [X] Not happy with sound. need to look into it more
+- [X] Convert 2D Primitives to use Z-indexing so batching isnt a problem
+- [-] 3D
+  - [X] Camera
+  - [ ] Primitives
+  - [X] Drawing
+  - [ ] Culling
+  - [X] Importing OBJs
+  - [ ] Importing more complex objects that have materials (glTF?)
+  - [ ] SDFs
+  - [ ] Ray tracing
+  - [ ] Instanced ~draw_many~.
+  - [ ] Lights
+  - [X] Import from blender like godot does (why cant i be more like godot)
+  - [X] add mirror BVec3 to transform3d
+  - [ ] LOD
+- [ ] include_(texture|object|model|sound) macros (macro crate)
+- [X] OPTIMIZATION: do all the draws at the same time. requires adding back vertex
+  - [X] draw queue with consecutive poly and circle draw calls grouped together so
+- [X] toggle using positive y up
+- [X] add mf draw wireframe and shit
+- [X] examples for all the ui elements
+- [X] colour picker
+- [X] fix scenes
+- [X] load_sound
+- [X] load_sound_from_bytes
+- [X] space invaders using some new features
+- [X] constant particle emitters
+- [X] port debug vis to sge_ui, and make egui non default feature, reduce number of crates pulled in greatly
+- [X] ecs
+- [X] play_sound_once
+- [X] set_sound_volume
+- [X] all unnececary features behind feature gates (e.g. audio, input, gamepad, etc.)
+- [X] add must use to _ex sounds builder
+- [X] draggable/resizable floating window
+- [X] functions to change cursor icon
+- [X] solid triangle arrow functions
+- [X] expandable <details> type thing
+- [X] slider
+- [X] underline and strikethrough text
+- [X] rich text ui
+- [X] ui hyperlink
+- [X] ui tooltips
+- [X] ui modal that dims the rest of the screen, like a pop up instead of a
+- [X] 2d scene for optimising static geometry
+- [X] render geometry to scene or texture
+- [X] render to scene yeah, so like more macro shit to add to_scene functions and maybe just have a 2d renderer trait and have draw queue 2d and scene implement it and then have draw_to take a 2d renderer reference
+- [X] macro based wrappers around structs for persistent (fs) storage and network sync
+  - [X] fs
+    - [X] implement macro
+    - [X] add support for engine types
+  - [X] network
+- [X] fs/network functions sync/async that taps into the async runtime being worked on
+- [X] make API consistent
+- [X] outline on shape trait with rotation and everything
+- [X] macro as much as possible based on traits
+- [X] poly circles as new function / optional
+- [X] cache projection matrix
+- [X] cull off screen world draws
+- [X] Logging system, that can log to stdout/stderr (like env_logger), or to an
+- [X] functions to change speed of physics time
+- [X] FIX: if you render too much text it just gives up and stops rendering any
+- [X] camera shake controller. there's no reason you couldn't use this with another camera controller, but we may want to just create a master camera controller for 2D and 3D
+- [X] fix bloom (should be easy for someone like me)
+- [X] more collision shapes
+- [X] ui text wrapping
+- [X] ui multiline text
 - [X] convert colors/data to a build.rs script using quote/prettyplease so that i
-  can use real palette
 - [X] easier physics
 - [X] physics could look like this
 #+begin_src rust
@@ -164,49 +302,31 @@ fn main() {
 #+end_src
 
 - [X] proper sound
-- [ ] something is broken evident in shapes_3d example
-  - [ ] needs gouraud shading
-- [ ] sphere SDF
-- [ ] video
 - [X] particle system
-- [ ] screenshake
 - [X] proper sound
-- [ ] sepia
-- [ ] edge detection
-- [ ] sharpen
-- [ ] 3d scene with lights and shadow
-- [ ] list view builder where it only generates the nodes that are actually visible
 - [X] rename compoenents and widgets to base and library
   - [X] w95 library
 - [X] gradient fill ui node
 - [X] radial gradient
-- [ ] loading spinner
-  - [ ] needs arcs
-- [ ] player controllers
-- [ ] easy physics like godot where you can say is_on_floor is_in_air is_on_wall etc.
-- [ ] platformer example
+- [X] easy physics like godot where you can say is_on_floor is_in_air is_on_wall etc.
+- [X] platformer example
 - [X] input
 - [X] number input
 - [X] slider
-- [ ] text box
 - [X] button
 - [X] align
 - [X] aspect-ratio
 - [X] grid
 - [X] stack (overlay)
-- [ ] ui rich text (parse outside hot loop)
+- [X] ui rich text (parse outside hot loop)
 - [X] text bold
 - [X] text italic
 - [X] scissor box
-- [ ] probably add bold and italic to rich text. so we need fonts to be packaged
-  with all three and make bold and italics optional, and fall back to default
-- [ ] automatic interpolated values for ui elements
-- [ ] you should be able to delete textures and images and stuff
-- [ ] fix issue of current_z sometimes exceeding 1.0 in draw queue
-- [ ] scissor example
-- [ ] way to put if button_clicked anywhere in your ui code, for convenience
+- [X] fix issue of current_z sometimes exceeding 1.0 in draw queue
+- [X] add underline and strikethrough text to rich text
+- [X] way to put if button_clicked anywhere in your ui code, for convenience
 - [X] test ui only rerender on input event
-- [ ] text example is broken
+- [X] text example is broken
 - [X] rounded rectangle primitive
   https://www.shadertoy.com/view/Nlc3zf
   https://www.youtube.com/watch?v=62-pRVZuS5c
@@ -234,41 +354,25 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord) {
 
   #+end_src
 - [X] probably split into multiple crates
-- [ ] now we have logging. log things
-- [ ] SI Unit system
-- [ ] clipping/masking
-- [ ] drop shadows 2d
 - [X] Reduce build time
-- [ ] fix culling
-- [ ] cull glyph textures out of view
-- [ ] test transform 2 and 3D
-- [ ] Compute shaders.
 - [X] frame time in debug
 - [X] color schemes? like built in struct called colour scheme with gruvbox and
   cattpucin and stuff?
 - [X] Fix examples now get_input() doesnt exist SPC / get_input
 - [X] use bump allocators for per-frame data that gets cleared
 - [X] texture atlasses
-- [ ] clipboard interaction
-- [ ] Serde feature to make everything publicly facing serializable.
-  - [ ] automatic saving and loading support with efficient binary format
+- [X] clipboard interaction
+- [X] Serde feature to make everything publicly facing serializable.
+  - [X] automatic saving and loading support with efficient binary format
 - [X] Transparency is fucked
   - [X] Very fucked
   - [X] Someone needs to do something about this
 - [X] debug AABB draw lines on ::new() in wireframe feature
-- [ ] draw line 3D
-- [ ] draw Sphere
+- [X] draw line 3D
 - [X] draw cube
-- [ ] draw cuboid from Vec3
-- [ ] like retaining 2d shape state would be pretty efficient ngl
-  - maybe dont have to do culling every frame, like every 5 frames or something.
-    zoo wee mama!!!
-- [ ] match material HashMap<Material, Mesh>
-- [ ] Circle anti aliasing between outline and fill is non existent
-- [X] Move draw param overrides to the material
+- [X] draw cuboid from Vec3
 - [X] https://github.com/sqrew/tunes
-- [ ] Dithering to reduce colour banding
-- [ ] Signed distance field / https://raytracing.github.io/books/RayTracingInOneWeekend.html
+- [X] Move draw param overrides to the material
 - [X] Custom materials
 - [X] Custom programs
 - [X] Post processing [7/7]
@@ -292,52 +396,17 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord) {
     a compute shader like for game of life.
     - [X] Or render to a lower resolution texture and scale it up for a pixelated effect.
 - [X] draw hexagon poly thing
-- [-] arbritrary rotation and custom material for all 2d shapes
-  - [X] rotation
-  - [ ] custom material
 - [X] good api for creating and managing and drawing spritesheets
-- [-] TEXT RENDERING!!!
-  - [X] fonts
-  - [X] multiline
-  - [ ] layout / text wrapping / text alignment
-  - [X] rich text
-  - [X] text measurement
-  - [ ] text scale and rotation
-  - [ ] sdf?
-  - [ ] 3d
 - [X] transparant textures?
 - [X] controller support
   - [X] Implementation
   - [X] Testing
   - [X] Examples
-- [ ] drag and drop files?
-- [-] Animation support
-  - [X] Needs some sort of retained state.
-  - [X] Maybe generic over types that implement some trait.
-    - [X] Implement for all numerics, transform3D, colour, vectors.
-  - [X] Struct contains start, end, time, and interpolation function.
-  - [X] Interpolation function trait.
-    - [X] So you could have structs with configurable interpolation.
-  - [ ] sprite animation
-    - (needs spritesheets/atlasses) ✅
-  - [ ] maybe have my own proc-macro based compiler to turn a folder of sprites
-    into a sprite sheet, indexable by a perfect &'static str hash table
-    - [ ] would be nice to also have a type safe enum based approach, idk how i'd
-      do that though. automatically generate the enum from the file names,
-      converted to camel case? that would certainly be nice, and you'd get
-      compiler errors when you update the name of one of the files or remove a sprite.
-  - [ ] https://docs.rs/macroquad/latest/macroquad/experimental/animation/index.html
-  - [ ] Animation state machine
-  - [ ] pause animation controller
-- [ ] egui_dock
+- [X] drag and drop files?
 - [X] winit input helper fork add precise mouse movemnt so that i can have all the
-  positions of it in the paint program for better curves
-- [ ] image texture pair struct with builtin methods and maybe a `dirty`
 - [X] make implementing ui like clicking and hovering easier
-- [ ] software: draw thick line function for circles or something, see if instancing circles is good enough
-- [ ] hardware: rounded line function (with circle end caps). can replace a bunch of boiler plate in api.rs
+- [X] hardware: rounded line function (with circle end caps). can replace a bunch of boiler plate in api.rs
 - [X] expose egui charts if not already
-- [ ] let users access intermediary depth textures only if they want it
 - [X] impl mul TransformXD for VecX
 - [X] impl mul Transform * Transform
 - [X] .translate_point method
@@ -349,8 +418,6 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord) {
 - [X] 2d mouse camera controller, like whats in the examples but built into the engine
 - [X] Custom keybind/action map struct generic over action enum/struct
 - [X] https://docs.rs/macroquad/latest/macroquad/experimental/collections/storage/index.html
-- [ ] multiple cameras outputting to textures
-  - [ ] maybe a use_cameras function
 - [X] Render pass
   #+begin_src rust
     pub struct RenderPass {
@@ -363,35 +430,17 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord) {
   - [X] function to render a texture to the screen as a fullscreen quad
   - [X] just let the user create a render pipeline which has the various draw queues, and let the draw queues also contain their proj matrices so it can be drawn with just a reference to the engine state.
   - [X] let the engine use a default render pipeline, and have it be a vector of impl RenderPipelinePass which is implemented by draw_queue 2 and 3d and for drawing the UI in case the user wants to put things above that.
-  this should make it possible to add post processing effects easily
-- [ ] scene ui element
-- [-] drawing curves
+- [X] drawing curves
   - [X] lines that connect points
-  - [ ] bezier
-  - [ ] cubic
-  - [ ] quadratic
-- [ ] Documentation
-- [ ] arcs/slices of circles
-- [ ] splines
-- [ ] let people write [a, b] instead of vec2(a, b)
+  - [X] bezier
+  - [X] cubic
+  - [X] quadratic
 - [X] 2d grid
 - [X] function to get screen size, width, height
 - [X] Fix backface culling
 - [X] export all colours as normal consts
-- [ ] Transform example
 - [X] change cursor icons
 - [X] Reorganize everything, especially draw_queue2d.rs and shapes2d.rs
-- [ ] test colours
-- [ ] test everything
-- [ ] 2D custom materials
-  - [ ] use_material & use_default_material functions
-  - [ ] add default 2d material to render pipeline
-  - [ ] hashmap of material ref to mesh
-- [ ] https://github.com/not-fl3/macroquad/blob/master/examples/screen_texture.rs
-- [ ] better 2D physics. platformer
-- [ ] is this ECS?
-  - [ ] this could totally work lets be REAL https://docs.rs/hecs/latest/hecs/
-- [ ] lua scripting support
 - [X] replace anyhow with concrete error types
 - [X] more warnings and better errors
 - [X] Colors from hex code
@@ -400,196 +449,3 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord) {
 - [X] Arbritrary transform of 2D shapes
   - [X] Transform2D struct
   - [X] functions to specify arbritrary transform of 2d shapes
-- [ ] 2D & 3D wireframe mode. automatic. can disregard material (maybe? vertex shaders?)
-- [ ] Memory/GPU profiler
-- [ ] Asset packing
-  - [ ] and loading
-  - [ ] a build system???
-  - [ ] and a loading screen? customizable maybe just tell give the user some
-    statistics about progress and they can render it themselves. sounds good to me
-- [ ] benchmarks
-- [ ] normal mapping in 2d and 3d
-- [ ] metaballs
-  - [ ] SDF in 2D?
-- [ ] Svelte(fire) style magic for multiplayer. just have some kind of struct /
-  macro thing that detects the difference between the state of the struct
-  between frames and automatically handles that between players
-  - [ ] very high trust level. could be improved. very simple though
-  - [ ] so, so simple
-- [ ] The... web :(
-- [ ] Mobile :(
-- [-] Sound
-  - [X] 2D sound
-  - [X] Include sound
-  - [ ] 3D sound
-  - [X] Not happy with sound. need to look into it more
-- [X] Convert 2D Primitives to use Z-indexing so batching isnt a problem
-- [-] 3D
-  - [X] Camera
-  - [ ] Primitives
-  - [X] Drawing
-  - [ ] Culling
-  - [X] Importing OBJs
-  - [ ] Importing more complex objects that have materials (glTF?)
-  - [ ] SDFs
-  - [ ] Ray tracing
-  - [ ] Instanced ~draw_many~.
-  - [ ] Lights
-  - [X] Import from blender like godot does (why cant i be more like godot)
-  - [X] add mirror BVec3 to transform3d
-  - [ ] LOD
-- [ ] include_(texture|object|model|sound) macros (macro crate)
-
-* Make everything good
-- [X] sge_error_union/lib.rs
-- [X] gilrs_input_helper/gamepad_state.rs
-- [X] gilrs_input_helper/lib.rs
-- [X] sge_global/lib.rs
-- [X] include_folder/include_folder_macros/lib.rs
-- [X] include_folder/include_folder_shared/globbing.rs
-- [X] include_folder/include_folder_shared/lib.rs
-- [X] include_folder/lib.rs
-- [X] include_folder/main.rs
-- [X] include_folder/test.rs
-- [X] include_folder_2/macros/lib.rs
-- [X] include_folder_2/macros/main.rs
-- [X] sge_animation/lib.rs
-- [X] sge_api/area.rs
-- [X] sge_api/lib.rs
-- [X] sge_api/shapes_2d.rs
-- [X] sge_audio/lib.rs
-- [X] sge_camera/controllers/mod.rs
-- [X] sge_camera/controllers/orbit.rs
-- [X] sge_camera/controllers/pan.rs
-- [X] sge_camera/controllers/shake.rs
-- [X] sge_camera/d2.rs
-- [X] sge_camera/d3.rs
-- [X] sge_camera/lib.rs
-- [X] sge_color/build.rs
-- [X] sge_color/colors.json
-- [X] sge_color/lib.rs
-- [X] sge_color/schemes.rs
-- [X] sge_color/tests.rs
-- [ ] sge_color/u8.rs
-- [ ] sge_config/lib.rs
-- [ ] sge_debug_visualisations/grid.rs
-- [ ] sge_debug_visualisations/lib.rs
-- [ ] sge_debugging/implementation.rs
-- [ ] sge_debugging/lib.rs
-- [ ] sge_egui/lib.rs
-- [ ] sge_image/lib.rs
-- [ ] sge_image/rendering.rs
-- [ ] sge_input/keys.rs
-- [ ] sge_input/lib.rs
-- [ ] sge_logging/lib.rs
-- [ ] sge_macros/lib.rs
-- [ ] sge_math/collision/mod.rs
-- [ ] sge_math/collision/ray.rs
-- [ ] sge_math/lib.rs
-- [ ] sge_math/transform/d2.rs
-- [ ] sge_math/transform/d3.rs
-- [ ] sge_math/transform/mod.rs
-- [ ] sge_math/usize_rect.rs
-- [ ] sge_particles/lib.rs
-- [ ] sge_physics/lib.rs
-- [ ] sge_physics/player.rs
-- [ ] sge_programs/shaders/blinn_phong/fragment.glsl
-- [ ] sge_programs/shaders/blinn_phong/vertex.glsl
-- [ ] sge_programs/shaders/circle/fragment.glsl
-- [ ] sge_programs/shaders/circle/vertex.glsl
-- [ ] sge_programs/shaders/copy/fragment.glsl
-- [ ] sge_programs/shaders/copy/vertex.glsl
-- [ ] sge_programs/shaders/flat/fragment.glsl
-- [ ] sge_programs/shaders/flat/vertex.glsl
-- [ ] sge_programs/shaders/flat_3d/fragment.glsl
-- [ ] sge_programs/shaders/flat_3d/vertex.glsl
-- [ ] sge_programs/shaders/gourad/fragment.glsl
-- [ ] sge_programs/shaders/gourad/vertex.glsl
-- [ ] sge_programs/shaders/grid/fragment.glsl
-- [ ] sge_programs/shaders/grid/vertex.glsl
-- [ ] sge_programs/shaders/radial/fragment.glsl
-- [ ] sge_programs/shaders/radial/vertex.glsl
-- [ ] sge_programs/shaders/rounded/fragment.glsl
-- [ ] sge_programs/shaders/rounded/vertex.glsl
-- [ ] sge_programs/shaders/sprite/fragment.glsl
-- [ ] sge_programs/shaders/sprite/vertex.glsl
-- [ ] sge_programs/shaders/test/fragment.glsl
-- [ ] sge_programs/shaders/test/vertex.glsl
-- [ ] sge_programs/shaders/textured/fragment.glsl
-- [ ] sge_programs/shaders/textured/vertex.glsl
-- [ ] sge_programs/lib.rs
-- [ ] sge_rendering/api.rs
-- [ ] sge_rendering/d2.rs
-- [ ] sge_rendering/d3.rs
-- [ ] sge_rendering/lib.rs
-- [ ] sge_rendering/materials.rs
-- [ ] sge_rendering/object_3d.rs
-- [ ] sge_rendering/pipeline.rs
-- [ ] sge_rendering/post_processing.rs
-- [ ] sge_rendering/scissor.rs
-- [ ] sge_rendering/shapes_3d.rs
-- [ ] sge_rng/lib.rs
-- [ ] sge_shapes/d2.rs
-- [ ] sge_shapes/lib.rs
-- [ ] sge_text/icons.rs
-- [ ] sge_text/lib.rs
-- [ ] sge_text/rich_text.rs
-- [ ] sge_text/wrapped_text.rs
-- [ ] sge_texture_atlas/lib.rs
-- [ ] sge_textures/lib.rs
-- [ ] sge_time/lib.rs
-- [ ] sge_types/aabb.rs
-- [ ] sge_types/area.rs
-- [ ] sge_types/lib.rs
-- [ ] sge_types/rendering.rs
-- [ ] sge_types/vertex.rs
-- [ ] sge_ui/base/active_fill.rs
-- [ ] sge_ui/base/align.rs
-- [ ] sge_ui/base/aspect_ratio.rs
-- [ ] sge_ui/base/border.rs
-- [ ] sge_ui/base/box_fill.rs
-- [ ] sge_ui/base/button.rs
-- [ ] sge_ui/base/center.rs
-- [ ] sge_ui/base/circle.rs
-- [ ] sge_ui/base/col.rs
-- [ ] sge_ui/base/empty.rs
-- [ ] sge_ui/base/fill.rs
-- [ ] sge_ui/base/fit.rs
-- [ ] sge_ui/base/flex.rs
-- [ ] sge_ui/base/gradient_fill.rs
-- [ ] sge_ui/base/grid.rs
-- [ ] sge_ui/base/hoverable.rs
-- [ ] sge_ui/base/image.rs
-- [ ] sge_ui/base/input.rs
-- [ ] sge_ui/base/loading_bar.rs
-- [ ] sge_ui/base/mod.rs
-- [ ] sge_ui/base/padding.rs
-- [ ] sge_ui/base/progress_bar.rs
-- [ ] sge_ui/base/rounded_fill.rs
-- [ ] sge_ui/base/row.rs
-- [ ] sge_ui/base/scissor_box.rs
-- [ ] sge_ui/base/scroll.rs
-- [ ] sge_ui/base/sized_box.rs
-- [ ] sge_ui/base/stack.rs
-- [ ] sge_ui/base/text.rs
-- [ ] sge_ui/lib.rs
-- [ ] sge_ui/library/flat/button.rs
-- [ ] sge_ui/library/flat/card.rs
-- [ ] sge_ui/library/flat/loading_bar.rs
-- [ ] sge_ui/library/flat/mod.rs
-- [ ] sge_ui/library/flat/progress_bar.rs
-- [ ] sge_ui/library/mod.rs
-- [ ] sge_ui/library/w95/button.rs
-- [ ] sge_ui/library/w95/card.rs
-- [ ] sge_ui/library/w95/mod.rs
-- [ ] sge_ui/library/w95/progress_bar.rs
-- [ ] sge_utils/lib.rs
-- [ ] sge_window/lib.rs
-- [ ] si/si_macros/lib.rs
-- [ ] si/lib.rs
-- [ ] winit_input_helper/current_input.rs
-- [ ] winit_input_helper/lib.rs
-- [ ] winit_input_helper/winit_input_helper.rs
-- [ ] src/api.rs
-- [ ] src/lib.rs
-- [ ] src/user_storage.rs

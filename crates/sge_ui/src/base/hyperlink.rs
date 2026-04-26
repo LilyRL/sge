@@ -29,9 +29,7 @@ impl UiNode for Hyperlink {
         }
 
         if ui.is_clicked(new_area) {
-            if let Err(err) = open::that(&self.href) {
-                log::error!("Failed to open hyperlink: {}", err);
-            }
+            sge_input::open_url(&self.href);
         }
 
         size

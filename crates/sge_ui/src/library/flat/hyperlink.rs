@@ -19,4 +19,15 @@ impl Hyperlink {
 
         base::Hyperlink::new(href, rich_text)
     }
+
+    pub fn with_title(href: impl ToString, title: impl ToString) -> UiRef {
+        let rich_text = RichTextNode::new(RichText::new(vec![RichTextBlock::custom(
+            title.to_string(),
+            Color::SKY_500,
+            true,
+            false,
+        )]));
+
+        base::Hyperlink::new(href, rich_text)
+    }
 }

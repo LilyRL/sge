@@ -26,16 +26,16 @@ use std::{path::PathBuf, time::Duration};
 /// All the window events should have been registered beforehand by calls of `WinitInputHelper::process_window_event()`.
 #[derive(Clone)]
 pub struct WinitInputHelper {
-    current: Option<CurrentInput>,
-    dropped_file: Option<PathBuf>,
-    window_resized: Option<PhysicalSize<u32>>,
-    window_size: Option<(u32, u32)>,
-    scale_factor_changed: Option<f64>,
-    scale_factor: Option<f64>,
-    destroyed: bool,
-    close_requested: bool,
-    step_start: Option<Instant>,
-    step_duration: Option<Duration>,
+    pub(crate) current: Option<CurrentInput>,
+    pub(crate) dropped_file: Option<PathBuf>,
+    pub(crate) window_resized: Option<PhysicalSize<u32>>,
+    pub(crate) window_size: Option<(u32, u32)>,
+    pub(crate) scale_factor_changed: Option<f64>,
+    pub(crate) scale_factor: Option<f64>,
+    pub(crate) destroyed: bool,
+    pub(crate) close_requested: bool,
+    pub(crate) step_start: Option<Instant>,
+    pub(crate) step_duration: Option<Duration>,
 }
 
 impl Default for WinitInputHelper {

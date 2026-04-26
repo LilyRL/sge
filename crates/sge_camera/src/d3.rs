@@ -1,5 +1,5 @@
-use sge_vectors::{Mat4, Quat, Vec2, Vec3};
 use glium::winit::window::Window;
+use sge_vectors::{Mat4, Quat, Vec2, Vec3, Vec4Swizzles};
 
 #[derive(Clone, Copy, Debug)]
 pub struct Camera3D {
@@ -50,6 +50,28 @@ impl Camera3D {
     pub fn update_sizes(&mut self, window_width: u32, window_height: u32) {
         self.window_size = Vec2::new(window_width as f32, window_height as f32);
         self.needs_update = true;
+    }
+
+    pub fn world_to_screen(&mut self, world_pos: Vec3) -> Option<Vec2> {
+        let clip = self.view_proj() * world_pos.extend(1.0);
+
+        if clip.w <= 0.0 {
+            return None;
+        }
+
+        let ndc = clip.xyz() / clip.w;
+
+        if ndc.x < -1.0 || ndc.x > 1.0 || ndc.y < -1.0 || ndc.y > 1.0 || ndc.z < -1.0 || ndc.z > 1.0
+        {
+            return None;
+        }
+
+        let screen = Vec2::new(
+            (ndc.x + 1.0) * 0.5 * self.window_size.x,
+            (1.0 - ndc.y) * 0.5 * self.window_size.y,
+        );
+
+        Some(screen)
     }
 
     pub fn update_matrices(&mut self) {

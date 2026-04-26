@@ -1,3 +1,4 @@
+use arboard::Clipboard;
 #[cfg(feature = "gamepad")]
 pub use gilrs;
 #[cfg(feature = "gamepad")]
@@ -5,10 +6,11 @@ use gilrs::Gilrs;
 use glium::winit;
 use helper::WinitInputHelper;
 use log::info;
-use sge_error_union::Union;
+use sge_error_union::{ErrorUnion, Union};
 use sge_global::global;
 use sge_types::Area;
 use sge_vectors::{UVec2, Vec2, vec2};
+use std::ffi::OsStr;
 use std::path::PathBuf;
 use std::{
     collections::HashMap,
@@ -28,21 +30,17 @@ pub struct Input {
     #[cfg(feature = "gamepad")]
     pub gamepad: Gilrs,
     last_cursor_position: Vec2,
+    #[cfg(feature = "clipboard")]
+    clipboard: Clipboard,
 }
 
 global!(Input, input);
 
 #[cfg(feature = "gamepad")]
-pub fn init() -> Result<(), GilrsError> {
+pub fn init() -> Result<(), InputError> {
     set_input(Input::new()?);
     info!("Initialized input");
     Ok(())
-}
-
-#[cfg(not(feature = "gamepad"))]
-pub fn init() {
-    set_input(Input::new());
-    info!("Initialized input");
 }
 
 pub fn update() {
@@ -108,24 +106,25 @@ impl Action {
     }
 }
 
-impl Input {
+#[derive(ErrorUnion, Debug)]
+pub enum InputError {
     #[cfg(feature = "gamepad")]
-    pub fn new() -> Result<Self, GilrsError> {
+    Gilrs(GilrsError),
+    #[cfg(feature = "gamepad")]
+    Clipboard(arboard::Error),
+}
+
+impl Input {
+    pub fn new() -> Result<Self, InputError> {
         Ok(Self {
             helper: WinitInputHelper::new(),
             action_map: HashMap::new(),
-            gamepad: Gilrs::new()?,
+            #[cfg(feature = "gamepad")]
+            gamepad: Gilrs::new().map_err(|e| GilrsError::from(e))?,
             last_cursor_position: Vec2::ZERO,
+            #[cfg(feature = "clipboard")]
+            clipboard: Clipboard::new()?,
         })
-    }
-
-    #[cfg(not(feature = "gamepad"))]
-    pub fn new() -> Self {
-        Self {
-            helper: WinitInputHelper::new(),
-            action_map: HashMap::new(),
-            last_cursor_position: Vec2::ZERO,
-        }
     }
 
     pub fn is_cursor_within_area(&self, area: Area) -> bool {
@@ -550,5 +549,25 @@ impl std::fmt::Display for GilrsError {
             ),
             Self::Other(e) => e.fmt(f),
         }
+    }
+}
+
+pub fn is_focused() -> bool {
+    get_input().helper.current.is_some()
+}
+
+#[cfg(feature = "clipboard")]
+pub fn get_clipboard_text() -> Option<String> {
+    get_input().clipboard.get_text().ok()
+}
+
+#[cfg(feature = "clipboard")]
+pub fn set_clipboard_text() -> Option<String> {
+    get_input().clipboard.get_text().ok()
+}
+
+pub fn open_url(url: impl AsRef<OsStr>) {
+    if let Err(err) = open::that(url) {
+        log::error!("Failed to open url: {}", err);
     }
 }
