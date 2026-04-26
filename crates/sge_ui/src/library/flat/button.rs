@@ -28,4 +28,8 @@ impl Button {
     pub fn danger(id: usize, child: Child) -> UiRef {
         Self::new(super::BG1, super::ERROR, id, child)
     }
+
+    pub fn danger_text(id: usize, text: impl ToString) -> UiRef {
+        Self::text(super::BG1, super::ERROR, id, text)
+    }
 }

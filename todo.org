@@ -46,7 +46,9 @@
 - [X] ui tooltips
 - [ ] ui select in text edit
 - [ ] ui text box
-- [ ] ui modal that dims the rest of the screen, like a pop up instead of a
+- [ ] ui drop file, with example that opens an image if dropped onto area
+- [ ] ui dotted border
+- [X] ui modal that dims the rest of the screen, like a pop up instead of a
   floating window
 - [X] 2d scene for optimising static geometry
 - [ ] render geometry to scene or texture

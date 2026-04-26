@@ -1,4 +1,5 @@
 use core::f32;
+use std::process::exit;
 
 use sge::prelude::*;
 use ui::*;
@@ -728,6 +729,7 @@ fn multipoint_gradient_fill() -> UiRef {
 
 fn modal() -> UiRef {
     let button_id = id!();
+    let delete_button_id = id!();
     let modal_id = id!();
 
     struct State {
@@ -744,6 +746,11 @@ fn modal() -> UiRef {
         state.open = !state.open;
     }
 
+    if button_clicked_last_frame(delete_button_id) {
+        log::warn!("Account deleted!");
+        state.open = false;
+    }
+
     Col::new([
         flat::Modal::new(
             "Are you sure?",
@@ -754,10 +761,17 @@ fn modal() -> UiRef {
                 [
                     Text::nowrap("This is a destructive action"),
                     Text::nowrap("Maybe you should think again..."),
-                    FlexRow::new([
-                        FlexBox::Flex(EMPTY),
-                        FlexBox::Fixed(flat::Button::primary_text(button_id, "Close")),
-                    ]),
+                    FlexRow::with_gap(
+                        10.0,
+                        [
+                            FlexBox::Flex(EMPTY),
+                            FlexBox::Fixed(flat::Button::danger_text(
+                                delete_button_id,
+                                "Delete account",
+                            )),
+                            FlexBox::Fixed(flat::Button::primary_text(button_id, "Close")),
+                        ],
+                    ),
                 ],
             ),
         ),
