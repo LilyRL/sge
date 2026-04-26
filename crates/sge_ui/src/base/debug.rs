@@ -1,3 +1,5 @@
+use sge_debugging::avg_fps;
+
 use super::*;
 
 #[derive(Debug)]
@@ -20,5 +22,13 @@ impl UiNode for DebugNode {
 
     fn draw(&self, area: sge_types::Area, ui: &crate::UiState) -> Vec2 {
         Text::mono_nowrap(format!("{:#?}", area)).draw(area, ui)
+    }
+}
+
+pub struct FpsNode;
+
+impl FpsNode {
+    pub fn new() -> UiRef {
+        Text::mono_nowrap(format!("FPS: {}", avg_fps()))
     }
 }
