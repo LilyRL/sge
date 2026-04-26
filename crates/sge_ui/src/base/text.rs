@@ -228,6 +228,16 @@ impl Text {
         .to_ref()
     }
 
+    pub fn italic_with_color(text: impl ToString, color: Color) -> UiRef {
+        Self {
+            text: text.to_string(),
+            font: SANS_ITALIC,
+            color,
+            ..Default::default()
+        }
+        .to_ref()
+    }
+
     pub fn bold(text: impl ToString) -> UiRef {
         Self {
             text: text.to_string(),
@@ -238,11 +248,33 @@ impl Text {
         .to_ref()
     }
 
+    pub fn bold_with_color(text: impl ToString, color: Color) -> UiRef {
+        Self {
+            text: text.to_string(),
+            font: SANS_BOLD,
+            font_size: 18,
+            color,
+            ..Default::default()
+        }
+        .to_ref()
+    }
+
     pub fn bold_italic(text: impl ToString) -> UiRef {
         Self {
             text: text.to_string(),
             font: SANS_BOLD_ITALIC,
             font_size: 18,
+            ..Default::default()
+        }
+        .to_ref()
+    }
+
+    pub fn bold_italic_with_color(text: impl ToString, color: Color) -> UiRef {
+        Self {
+            text: text.to_string(),
+            font: SANS_BOLD_ITALIC,
+            font_size: 18,
+            color,
             ..Default::default()
         }
         .to_ref()

@@ -26,6 +26,13 @@ const int CONCENTRIC_RINGS = 16;
 const int TRUCHET = 17;
 const int RANDOM_TILES = 18;
 const int DIAGONAL_WAVES = 19;
+const int TOPOLOGY = 20;
+const int ZEBRA = 21;
+const int FISH_SCALES = 22;
+const int MAZE = 23;
+const int MOIRE = 24;
+const int LEOPARD_SPOTS = 25;
+const int RINGS = 26;
 
 out vec4 color;
 
@@ -292,6 +299,183 @@ vec4 diagonal_waves() {
     }
 }
 
+vec4 topology() {
+    // primary diagonal direction
+    float d = (v_pos.x + v_pos.y) / v_scale;
+
+    // perturb using multiple sine waves at different frequencies/directions
+    // to create organic wobble along the stripe
+    float perp = (v_pos.x - v_pos.y) / v_scale;
+    float wobble =
+        sin(perp * 0.3) * 1.8 + // large slow bends
+            sin(perp * 0.7 + 1.4) * 0.9 + // medium bends
+            sin(perp * 1.7 + 2.8) * 0.35; // small wiggles
+
+    float stripe = sin((d + wobble) * 3.14159);
+    if (stripe > 0.25) {
+        return v_color;
+    } else {
+        return v_alt_color;
+    }
+}
+
+vec4 zebra() {
+    float scale = v_scale * 2.0;
+    float d = (v_pos.x + v_pos.y) / scale;
+    float perp = (v_pos.x - v_pos.y) / scale;
+
+    // which stripe are we in
+    float stripe_id = floor(d);
+
+    // each stripe gets unique random properties
+    float r1 = hash(vec2(stripe_id, 0.0));
+    float r2 = hash(vec2(stripe_id, 1.0));
+    float r3 = hash(vec2(stripe_id + 1.0, 0.0)); // neighbour, for edge wobble
+
+    // wobble the edges using perp position + per-stripe random phase/amplitude
+    float wobble = sin(perp * 0.4 + r1 * 6.28) * (0.15 + r2 * 0.25)
+            + sin(perp * 0.15 + r3 * 6.28) * 0.2;
+
+    float local = fract(d + wobble);
+
+    // vary stripe width per stripe: dark band takes 55-75% of the cell
+    float width = 0.55 + r1 * 0.2;
+
+    if (local < width) {
+        return v_color;
+    } else {
+        return v_alt_color;
+    }
+}
+
+vec4 fish_scales() {
+    float s = v_scale * 2.0;
+    float row_h = s * 0.7;
+
+    float row = floor(v_pos.y / row_h + BIAS);
+    float x_off = mod(row, 2.0) * s * 0.5;
+    float col = floor((v_pos.x + x_off) / s + BIAS);
+
+    vec2 center = vec2(
+            col * s - x_off + s * 0.5,
+            row * row_h + row_h * 0.5
+        );
+
+    vec2 lp = v_pos - center;
+    float dist = length(lp);
+
+    if (dist > s * 0.5) {
+        return v_alt_color;
+    }
+
+    // rings inside scale
+    float ring = mod(floor(dist / (s * 0.18) + BIAS), 2.0);
+    return ring == 0.0 ? v_color : v_alt_color;
+}
+
+vec4 maze() {
+    float s = v_scale;
+    float cx = floor(v_pos.x / s + BIAS);
+    float cy = floor(v_pos.y / s + BIAS);
+    float lx = mod(v_pos.x, s) / s;
+    float ly = mod(v_pos.y, s) / s;
+
+    // is this fragment in the right wall strip of its cell?
+    bool in_right_strip = lx > 0.85;
+    // is this fragment in the bottom wall strip of its cell?
+    bool in_bottom_strip = ly > 0.85;
+
+    // does this cell have a right wall? check the cell that owns it
+    bool has_right_wall = hash(vec2(cx, cy)) > 0.5;
+    // does this cell have a bottom wall?
+    bool has_bottom_wall = hash(vec2(cx + 17.3, cy + 3.7)) > 0.5;
+
+    // top and left borders are the right/bottom wall of the neighbouring cell
+    bool in_left_strip = lx < 0.15;
+    bool in_top_strip = ly < 0.15;
+    bool neighbour_has_right = hash(vec2(cx - 1.0, cy)) > 0.5;
+    bool neighbour_has_bottom = hash(vec2(cx + 17.3 - 0.0, cy - 1.0 + 3.7)) > 0.5;
+
+    bool wall = (in_right_strip && has_right_wall)
+            || (in_bottom_strip && has_bottom_wall)
+            || (in_left_strip && neighbour_has_right)
+            || (in_top_strip && neighbour_has_bottom);
+
+    return wall ? v_color : v_alt_color;
+}
+
+vec4 moire() {
+    // two clearly separated centers
+    float offset = v_scale * 8.0;
+    vec2 center1 = vec2(0.0, 0.0);
+    vec2 center2 = vec2(offset, offset * 0.3);
+
+    float r1 = sin(length(v_pos - center1) / v_scale * 3.14159);
+    float r2 = sin(length(v_pos - center2) / v_scale * 3.14159);
+
+    return r1 * r2 > 0.0 ? v_color : v_alt_color;
+}
+
+vec4 leopard_spots() {
+    // voronoi — color based on nearest random point
+    // search 3x3 neighbourhood of cells for nearest point
+    float s = v_scale * 3.0;
+    vec2 cell = floor(v_pos / s);
+    vec2 lp = mod(v_pos, s);
+
+    float min_dist1 = 1e10; // nearest point distance
+    float min_dist2 = 1e10; // second nearest
+    vec2 nearest = vec2(0.0);
+
+    for (int dy = -1; dy <= 1; dy++) {
+        for (int dx = -1; dx <= 1; dx++) {
+            vec2 nc = cell + vec2(float(dx), float(dy));
+            // random point within this cell
+            vec2 point = vec2(
+                    hash(nc),
+                    hash(nc + vec2(43.7, 91.3))
+                ) * s + vec2(float(dx), float(dy)) * s;
+            float dist = length(lp - point);
+            if (dist < min_dist1) {
+                min_dist2 = min_dist1;
+                min_dist1 = dist;
+                nearest = nc;
+            } else if (dist < min_dist2) {
+                min_dist2 = dist;
+            }
+        }
+    }
+
+    // dark border ring around each spot using difference between
+    // nearest and second nearest distances (voronoi edge detection)
+    float edge = min_dist2 - min_dist1;
+    float border = s * 0.15;
+    if (edge < border) {
+        return v_color; // dark border
+    }
+
+    // spot or background based on per-cell hash
+    float spot_chance = hash(nearest + vec2(12.4, 56.7));
+    if (spot_chance > 0.45) {
+        return v_color; // spot
+    } else {
+        return v_alt_color; // background
+    }
+}
+
+vec4 rings() {
+    float scale = v_scale * 2.0;
+    float cell_x = mod(v_pos.x, scale);
+    float cell_y = mod(v_pos.y, scale);
+    float dist = length(vec2(cell_x - scale * 0.5, cell_y - scale * 0.5));
+
+    if (dist < scale * 0.2 || dist > scale * 0.4) {
+        return v_color;
+    } else {
+        return v_alt_color;
+    }
+}
+
 void main() {
     if (v_pattern == FILL) {
         color = fill();
@@ -333,6 +517,20 @@ void main() {
         color = random_tiles();
     } else if (v_pattern == DIAGONAL_WAVES) {
         color = diagonal_waves();
+    } else if (v_pattern == TOPOLOGY) {
+        color = topology();
+    } else if (v_pattern == ZEBRA) {
+        color = zebra();
+    } else if (v_pattern == FISH_SCALES) {
+        color = fish_scales();
+    } else if (v_pattern == MAZE) {
+        color = maze();
+    } else if (v_pattern == MOIRE) {
+        color = moire();
+    } else if (v_pattern == LEOPARD_SPOTS) {
+        color = leopard_spots();
+    } else if (v_pattern == RINGS) {
+        color = rings();
     } else {
         // default to solid fill if unknown pattern
         color = v_color;

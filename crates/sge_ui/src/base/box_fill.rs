@@ -1,4 +1,5 @@
 use sge_api::area::AreaExt;
+use sge_types::Pattern;
 
 use super::*;
 
@@ -72,5 +73,42 @@ impl UiNode for HoverBoxFill {
         area.fill(color);
         self.child.node.draw(area, state);
         area.size
+    }
+}
+
+#[derive(Debug)]
+pub struct PatternBoxFill {
+    main: Color,
+    alt: Color,
+    pattern: Pattern,
+    scale: f32,
+    child: Child,
+}
+
+impl PatternBoxFill {
+    pub fn new(main: Color, alt: Color, pattern: Pattern, scale: f32, child: Child) -> UiRef {
+        Self {
+            main,
+            alt,
+            pattern,
+            scale,
+            child,
+        }
+        .to_ref()
+    }
+}
+
+impl UiNode for PatternBoxFill {
+    fn preferred_dimensions(&self) -> Vec2 {
+        self.child.node.preferred_dimensions()
+    }
+
+    fn size(&self, area: Area) -> Vec2 {
+        self.child.node.size(area)
+    }
+
+    fn draw(&self, area: Area, state: &UiState) -> Vec2 {
+        area.fill_pattern(self.main, self.alt, self.pattern, self.scale);
+        self.child.node.draw(area, state)
     }
 }

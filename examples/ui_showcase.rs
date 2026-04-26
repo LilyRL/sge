@@ -1,5 +1,4 @@
 use core::f32;
-use std::process::exit;
 
 use sge::prelude::*;
 use ui::*;
@@ -19,6 +18,7 @@ const NODES: &[(&str, fn() -> UiRef)] = &[
     ("Fill/fill", fill),
     ("Fill/gradient", gradient_fill),
     ("Fill/multigradient", multipoint_gradient_fill),
+    ("Fill/pattern", pattern_fill),
     ("Fill/rounded", rounded_fill),
     ("Hoverable", hoverable),
     ("Hyperlink", hyperlink),
@@ -186,6 +186,32 @@ fn border() -> UiRef {
 
 fn box_fill() -> UiRef {
     BoxFill::new(SCHEME.green, EMPTY).square(200.0)
+}
+
+fn pattern_fill() -> UiRef {
+    Col::with_gap(
+        20.0,
+        [
+            PatternBoxFill::new(
+                Color::YELLOW_500,
+                Color::TRANSPARENT,
+                Pattern::NeswLines,
+                50.0,
+                EMPTY,
+            )
+            .border(Color::YELLOW_500, 10.0)
+            .sized_wh(600.0, 100.0),
+            PatternBoxFill::new(
+                Color::NEUTRAL_100,
+                Color::PINK_100,
+                Pattern::Triangles,
+                40.0,
+                Padding::all(30.0, Text::bold_with_color("Hello!!! <3", Color::BLACK)),
+            )
+            .border(Color::WHITE, 10.0)
+            .square(300.0),
+        ],
+    )
 }
 
 fn button() -> UiRef {

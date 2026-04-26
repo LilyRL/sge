@@ -86,7 +86,7 @@ pub struct PatternVertex2D {
     pub scale: f32,
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Debug)]
 #[repr(i32)]
 pub enum Pattern {
     Fill = 0,
@@ -109,6 +109,13 @@ pub enum Pattern {
     Truchet,
     RandomTiles,
     DiagonalWaves,
+    Topology,
+    Zebra,
+    FishScales,
+    Maze,
+    Moire,
+    LeopardSpots,
+    Rings,
 }
 
 // ////////////////////////////////////////////////////////////////////////////
