@@ -39,11 +39,11 @@
 - [ ] safe multithreading
 - [ ] 3d scene for point lights
 - [X] underline and strikethrough text
-- [ ] rich text ui
-- [ ] ui hyperlink
+- [X] rich text ui
+- [X] ui hyperlink
 - [ ] ui span support, so i can have links and stuff inside a paragraph
 - [ ] ui select text
-- [ ] ui tooltips
+- [X] ui tooltips
 - [ ] ui select in text edit
 - [ ] ui text box
 - [ ] ui modal that dims the rest of the screen, like a pop up instead of a

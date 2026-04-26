@@ -1033,7 +1033,7 @@ pub enum Orientation {
     Horizontal,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 pub struct GradientPoint {
     width: f32,
     color: Color,

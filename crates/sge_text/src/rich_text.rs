@@ -1,6 +1,8 @@
+use crate::{MONO, wrapped_text::get_space_width};
 use sge_api::shapes_2d::draw_line_to;
 use sge_color::{Color, str_to_color};
 use sge_rendering::{d2::Renderer2D, dq2d, wdq2d};
+use sge_types::Area;
 use sge_vectors::Vec2;
 use thiserror::Error;
 
@@ -73,7 +75,16 @@ impl RichTextParser {
                     }
                 }
             } else {
-                let text = self.consume_until('{')?;
+                let mut text = String::new();
+                text.push(c);
+                loop {
+                    if self.peek() == Some('{') || self.peek().is_none() {
+                        break;
+                    }
+                    if let Some(next_c) = self.next() {
+                        text.push(next_c);
+                    }
+                }
                 self.blocks.push(RichTextBlock {
                     color: self.color,
                     underline: self.underline,
@@ -87,12 +98,6 @@ impl RichTextParser {
             blocks: self.blocks,
         })
     }
-
-    // fn consume_or_not(&mut self, token: char) {
-    //     if self.peek() == Some(token) {
-    //         self.next();
-    //     }
-    // }
 
     fn consume(&mut self, token: char) -> Result<(), RichTextParseError> {
         if let Some(c) = self.next() {
@@ -137,30 +142,6 @@ impl RichTextParser {
     }
 }
 
-/// parses from a format of colors/styles between curly braces, which give their color/style to all text
-/// that comes after it, overridden with another format block.
-/// format example:
-///
-/// ```text
-/// if you provide no color block, it defaults to white
-/// {RED_500}red text
-/// {red5}this would give the same color, as it ignores underscores and zeros, and case
-/// {#f00}another red
-/// {#f00a}semi-transparent red
-/// {#ff0000}another another red
-/// {#ff0000aa}another semi-transparent red
-/// {rgb(10, 250, 10)}green
-/// {rgb(0.1, 0.9, 0.1)} a single space between the color block and the text is ignored
-/// {rgb 10 250 10} this is also valid
-/// {hsl 180 100 200} hsl is supported
-/// {oklch 180 100 200} oklch is supported
-/// {rgb 0.5 230 0.9} you can mix and match
-/// {rgb 1 1 1} this will get parsed as almost black, because it prioritizes the (255, 255, 255)
-/// format, so you should write {rgb 1.0 1.0 1.0} instead
-/// {st}This text will be struck through, you can also use {strikethrough}
-/// {nost}Reset to normal, and {ul} or {underline} will add an underline
-/// {reset} or {r} turns everything back to normal
-/// ```
 pub fn rich_text(input: impl AsRef<str>) -> Result<RichText, RichTextParseError> {
     RichText::parse(input)
 }
@@ -174,7 +155,7 @@ pub struct RichTextDrawParams {
     pub font: Option<FontRef>,
     pub font_size: usize,
     pub position: Vec2,
-    /// scale the font size by the DPI scaling of your monitor
+
     pub do_dpi_scaling: bool,
     pub line_spacing: f32,
 }
@@ -208,27 +189,6 @@ impl RichText {
         Self { blocks }
     }
 
-    /// parses from a format of colors between curly braces, which give their color to all text
-    /// that comes after it, overridden with another color block.
-    /// format example:
-    ///
-    /// ```text
-    /// if you provide no color block, it defaults to white
-    /// {RED_500}red text
-    /// {red5}this would give the same color, as it ignores underscores and zeros, and case
-    /// {#f00}another red
-    /// {#f00a}semi-transparent red
-    /// {#ff0000}another another red
-    /// {#ff0000aa}another semi-transparent red
-    /// {rgb(10, 250, 10)}green
-    /// {rgb(0.1, 0.9, 0.1)} a single space between the color block and the text is ignored
-    /// {rgb 10 250 10} this is also valid
-    /// {hsl 180 100 200} hsl is supported
-    /// {oklch 180 100 200} oklch is supported
-    /// {rgb 0.5 230 0.9} you can mix and match
-    /// {rgb 1 1 1} this will get parsed as almost black, because it prioritizes the (255, 255, 255)
-    /// format, so you should write {rgb 1.0 1.0 1.0} instead
-    /// ```
     pub fn parse(input: impl AsRef<str>) -> Result<RichText, RichTextParseError> {
         RichTextParser::new(input.as_ref()).parse()
     }
@@ -325,6 +285,212 @@ impl RichText {
         }
 
         writeln!(&mut stdout).unwrap();
+    }
+
+    pub fn draw_in_area(&self, area: Area, params: RichTextDrawParams) -> TextDimensions {
+        self.draw_in_area_to(area, params, dq2d())
+    }
+
+    pub fn draw_in_area_world(&self, area: Area, params: RichTextDrawParams) -> TextDimensions {
+        self.draw_in_area_to(area, params, wdq2d())
+    }
+
+    fn draw_in_area_to(
+        &self,
+        area: Area,
+        params: RichTextDrawParams,
+        renderer: Renderer2D,
+    ) -> TextDimensions {
+        use sge_window::dpi_scaling;
+
+        let max_width = area.width();
+        let line_height = params.font_size as f32 * params.line_spacing;
+        let left_edge = area.top_left().x;
+
+        let dpi_scaling_factor = if params.do_dpi_scaling {
+            dpi_scaling()
+        } else {
+            1.0
+        };
+        let font_size_scaled = (params.font_size as f32 * dpi_scaling_factor).ceil();
+
+        let font_ref = params.font.unwrap_or(MONO);
+        let space_width = get_space_width(font_ref.get_mut(), font_size_scaled as usize);
+
+        #[derive(Clone)]
+        struct StyledWord {
+            text: String,
+            color: sge_color::Color,
+            underline: bool,
+            strikethrough: bool,
+            width: f32,
+            is_newline: bool,
+        }
+
+        let mut styled_words: Vec<StyledWord> = Vec::new();
+
+        for block in &self.blocks {
+            let paragraphs: Vec<&str> = block.text.split('\n').collect();
+            for (pi, paragraph) in paragraphs.iter().enumerate() {
+                if pi > 0 {
+                    styled_words.push(StyledWord {
+                        text: String::new(),
+                        color: block.color,
+                        underline: block.underline,
+                        strikethrough: block.strikethrough,
+                        width: 0.0,
+                        is_newline: true,
+                    });
+                }
+
+                let mut remaining = *paragraph;
+                while !remaining.is_empty() {
+                    let (chunk, rest) = match remaining.find(' ') {
+                        Some(pos) => (&remaining[..pos + 1], &remaining[pos + 1..]),
+                        None => (remaining, ""),
+                    };
+                    remaining = rest;
+
+                    let mut layout = fontdue::layout::Layout::new(
+                        fontdue::layout::CoordinateSystem::PositiveYDown,
+                    );
+                    layout.append(
+                        &[&font_ref.get_mut().font],
+                        &fontdue::layout::TextStyle::new(chunk, font_size_scaled, 0),
+                    );
+                    let mut word_width = 0.0f32;
+                    for gp in layout.glyphs() {
+                        let glyph = crate::Glyph {
+                            character: gp.parent,
+                            size: font_size_scaled as usize,
+                        };
+                        if !font_ref.get_mut().contains(glyph) {
+                            font_ref.get_mut().cache_glyph(glyph);
+                        }
+                        let char_info = &font_ref.get_mut().characters[&glyph];
+                        word_width = word_width.max(gp.x + char_info.advance);
+                    }
+
+                    styled_words.push(StyledWord {
+                        text: chunk.to_string(),
+                        color: block.color,
+                        underline: block.underline,
+                        strikethrough: block.strikethrough,
+                        width: word_width,
+                        is_newline: false,
+                    });
+                }
+            }
+        }
+
+        let mut lines: Vec<Vec<StyledWord>> = Vec::new();
+        let mut current_line: Vec<StyledWord> = Vec::new();
+        let mut current_width = 0.0f32;
+
+        for word in styled_words {
+            if word.is_newline {
+                lines.push(std::mem::take(&mut current_line));
+                current_width = 0.0;
+                continue;
+            }
+
+            if current_line.is_empty() || current_width + word.width <= max_width {
+                current_width += word.width;
+                current_line.push(word);
+            } else {
+                lines.push(std::mem::take(&mut current_line));
+                let mut w = word;
+                if w.text.starts_with(' ') {
+                    w.text.remove(0);
+                    w.width -= space_width;
+                }
+                current_width = w.width;
+                current_line.push(w);
+            }
+        }
+        if !current_line.is_empty() {
+            lines.push(current_line);
+        }
+
+        let mut cursor = area.top_left() + Vec2::new(0.0, params.position.y);
+        cursor.x = left_edge;
+        let start_y = cursor.y;
+        let mut max_actual_width = 0.0f32;
+
+        for line_words in &lines {
+            cursor.x = left_edge;
+            for word in line_words {
+                let text_params = TextDrawParams {
+                    font: params.font,
+                    font_size: params.font_size,
+                    color: word.color,
+                    position: cursor,
+                    do_dpi_scaling: params.do_dpi_scaling,
+                };
+                let dims = draw_text_to(&word.text, text_params, renderer);
+                cursor.x += dims.size.x;
+                max_actual_width = max_actual_width.max(cursor.x - left_edge);
+
+                if word.strikethrough {
+                    let strike_y = cursor.y + line_height / 2.0;
+                    draw_line_to(
+                        Vec2::new(cursor.x - dims.size.x, strike_y),
+                        Vec2::new(cursor.x, strike_y),
+                        2.0,
+                        word.color,
+                        renderer,
+                    );
+                }
+                if word.underline {
+                    let underline_y = cursor.y + line_height;
+                    draw_line_to(
+                        Vec2::new(cursor.x - dims.size.x, underline_y),
+                        Vec2::new(cursor.x, underline_y),
+                        2.0,
+                        word.color,
+                        renderer,
+                    );
+                }
+            }
+            cursor.y += line_height;
+        }
+
+        let total_height = cursor.y - start_y;
+        TextDimensions {
+            size: Vec2::new(max_actual_width, total_height),
+            final_cursor_pos: cursor,
+        }
+    }
+
+    pub fn measure(&self, params: RichTextDrawParams) -> TextDimensions {
+        let mut text = String::new();
+        for block in &self.blocks {
+            text.push_str(&block.text);
+        }
+        let params = TextDrawParams {
+            font: params.font,
+            font_size: params.font_size,
+            color: Color::WHITE,
+            position: Vec2::ZERO,
+            do_dpi_scaling: params.do_dpi_scaling,
+        };
+        crate::measure_text_ex(&text, params)
+    }
+
+    pub fn measure_in_area(&self, area: Area, params: RichTextDrawParams) -> Vec2 {
+        let mut text = String::new();
+        for block in &self.blocks {
+            text.push_str(&block.text);
+        }
+
+        crate::measure_wrapped_text(
+            &text,
+            area.width(),
+            params.font,
+            params.font_size,
+            params.do_dpi_scaling,
+            params.line_spacing,
+        )
     }
 }
 

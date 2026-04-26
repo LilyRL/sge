@@ -110,6 +110,15 @@ pub use data_input::*;
 mod debug;
 pub use debug::*;
 
+mod hyperlink;
+pub use hyperlink::*;
+
+mod tooltip;
+pub use tooltip::*;
+
+mod modal;
+pub use modal::*;
+
 use sge_window::window_width;
 
 pub fn media_query<T>(small: T, medium: T, large: T) -> T {

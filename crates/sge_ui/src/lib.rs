@@ -1,5 +1,6 @@
 #![allow(clippy::new_ret_no_self)]
 #![feature(trait_alias)]
+#![feature(unsafe_cell_access)]
 
 use std::{
     collections::HashMap,
@@ -7,7 +8,7 @@ use std::{
     ops::{Add, Deref, DerefMut, Div, Mul, Sub},
 };
 
-use base::{Empty, FloatingWindow};
+use base::{Empty, FloatingWindow, Modal, Tooltip};
 use glium::winit::event::MouseButton;
 use num_traits::Zero;
 use sge_color::Color;
@@ -29,8 +30,8 @@ pub mod prelude;
 sge_global::global!(Textures, ui_textures);
 
 struct Textures {
-    close: TextureRef,
-    minimise: TextureRef,
+    pub close: TextureRef,
+    pub minimise: TextureRef,
 }
 
 pub use sge_rng::id;
@@ -40,6 +41,8 @@ pub struct UiStorage {
     elements_interacted: HashMap<usize, usize>,
     elements_interacted_this_frame: Vec<usize>,
     windows: Vec<*const FloatingWindow>,
+    tooltips: Vec<*const Tooltip>,
+    modals: Vec<*const Modal>,
 }
 
 sge_global::global!(UiStorage, ui_storage);
@@ -56,6 +59,8 @@ pub fn init_ui() {
         elements_interacted: HashMap::new(),
         elements_interacted_this_frame: Vec::new(),
         windows: Vec::new(),
+        tooltips: Vec::new(),
+        modals: Vec::new(),
     });
     log::info!("Initialized sge_ui");
     update();
@@ -173,9 +178,19 @@ impl Default for UiRef {
 
 /// run at start of frame
 pub fn update() {
+    for tooltip in get_ui_storage().tooltips.drain(..) {
+        let tooltip = unsafe { &*tooltip };
+        tooltip.actually_draw();
+    }
+
     for window in get_ui_storage().windows.drain(..) {
         let window = unsafe { &*window };
         window.actually_draw(&UiState::new());
+    }
+
+    for modal in get_ui_storage().modals.drain(..) {
+        let modal = unsafe { &*modal };
+        modal.actually_draw(&UiState::new());
     }
 
     get_ui_nodes_state().clear();

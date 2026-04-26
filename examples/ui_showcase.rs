@@ -17,10 +17,12 @@ const NODES: &[(&str, fn() -> UiRef)] = &[
     ("Fill/box", box_fill),
     ("Fill/fill", fill),
     ("Fill/gradient", gradient_fill),
+    ("Fill/multigradient", multipoint_gradient_fill),
     ("Fill/rounded", rounded_fill),
     ("Hoverable", hoverable),
-    ("Image/sync", image),
+    ("Hyperlink", hyperlink),
     ("Image/async", async_image),
+    ("Image/sync", image),
     ("Inactive Overlay", inactive_overlay),
     ("Input/data", data_input),
     ("Input/text", input),
@@ -29,6 +31,7 @@ const NODES: &[(&str, fn() -> UiRef)] = &[
     ("Layout/grid", grid),
     ("Layout/row", row),
     ("Loading Bar", loading_bar),
+    ("Modal", modal),
     ("Progress Bar", progress_bar),
     ("Scissor Box", scissor_box),
     ("Scroll", scroll),
@@ -36,6 +39,8 @@ const NODES: &[(&str, fn() -> UiRef)] = &[
     ("Sized Box", sized_box),
     ("Slider", slider),
     ("Stack", stack),
+    ("Text/rich", rich_text_page),
+    ("Tooltip", tooltip),
     ("Window", window),
 ];
 const SCHEME: ColorScheme = ColorScheme::LACKLUSTER;
@@ -214,6 +219,7 @@ fn button() -> UiRef {
             },
             flat::Button::primary_text(button_b, "Increment"),
             text(state.counter),
+            flat::Button::danger(id!(), Text::nowrap("Delete account")),
         ],
     )
 }
@@ -230,6 +236,7 @@ fn line_chart() -> UiRef {
             text(
                 "This sin graph looks weird with the round_coords feature enabled, but that feature makes other parts of the UI look more crisp. You can enable and disable it in your Cargo.toml.",
             ),
+            flat::Hyperlink::new("https://doc.rust-lang.org/cargo/reference/features.html"),
         ],
     )
 }
@@ -254,7 +261,7 @@ fn drawer() -> UiRef {
         "Open drawer...",
         SCHEME.bg1,
         id!(),
-        Text::new("Porro voluptate quis voluptatum voluptatem aspernatur et. Natus quos debitis repellendus voluptas voluptatem sit odit. Tenetur voluptatem quis quibusdam. Iusto et repellat et et eos consequuntur. Et nesciunt distinctio eveniet et et velit nihil.")
+        text("Porro voluptate quis voluptatum voluptatem aspernatur et. Natus quos debitis repellendus voluptas voluptatem sit odit. Tenetur voluptatem quis quibusdam. Iusto et repellat et et eos consequuntur. Et nesciunt distinctio eveniet et et velit nihil.")
             .square(400.0)
     )
     .max_width(400.0)
@@ -268,7 +275,7 @@ fn fill() -> UiRef {
         [
             RoundedFill::new(SCHEME.fg0, *value, EMPTY).square(200.0),
             flat::Slider::alternate(value, 0.0, 100.0, id!()).max_width(200.0),
-            Text::new("Draws a box fill if radius is 0, and a rounded fill otherwise"),
+            text("Draws a box fill if radius is 0, and a rounded fill otherwise"),
         ],
     )
 }
@@ -504,7 +511,7 @@ fn scroll() -> UiRef {
         .map(|n| {
             SizedBox::height(
                 40.0,
-                RoundedHoverFill::new(SCHEME.bg2, SCHEME.bg3, 7.0, Center::new(Text::new(n))),
+                RoundedHoverFill::new(SCHEME.bg2, SCHEME.bg3, 7.0, Center::new(text(n))),
             )
         })
         .collect::<Vec<_>>();
@@ -527,7 +534,7 @@ fn selectbox() -> UiRef {
         20.0,
         [
             flat::SelectBox::new_text(SCHEME.bg1, SCHEME.bg2, id, choices).max_width(300.0),
-            Text::new(select_box_value(id).unwrap_or(0)),
+            text(select_box_value(id).unwrap_or(0)),
         ],
     )
 }
@@ -545,12 +552,14 @@ fn slider() -> UiRef {
         a: f32,
         b: f32,
         c: f32,
+        d: usize,
     }
 
     storage_init_state::<SliderExampleState>(SliderExampleState {
         a: 10.0,
         b: 5.0,
         c: 15.0,
+        d: 5,
     });
 
     let state = storage_get_state_mut::<SliderExampleState>();
@@ -558,12 +567,40 @@ fn slider() -> UiRef {
     Col::with_gap(
         20.0,
         [
-            flat::Slider::new(&mut state.a, 0.0, 30.0, id!()),
-            flat::Slider::alternate(&mut state.b, 0.0, 30.0, id!()),
-            flat::Slider::rounded(&mut state.c, 0.0, 30.0, id!()),
+            Col::with_gap(
+                20.0,
+                [
+                    flat::Slider::new(&mut state.a, 0.0, 30.0, id!()),
+                    flat::Slider::alternate(&mut state.b, 0.0, 30.0, id!()),
+                    flat::Slider::rounded(&mut state.c, 0.0, 30.0, id!()),
+                    fancy_slider(&mut state.d),
+                ],
+            )
+            .max_width(300.0),
+            text(
+                "Sliders can be quite complicated to use, since they let you decide exactly how it should look. The source code for the flat::Slider is a good place to start. Another example is the fancy_slider function in this example.",
+            ),
         ],
     )
-    .max_width(300.0)
+}
+
+fn fancy_slider(value: &mut usize) -> UiRef {
+    let max = 10;
+    let bar = MultiPointGradientFill::new(
+        Orientation::Horizontal,
+        (0..10)
+            .map(|n| {
+                let hue = n as f32 * 36.0;
+                let color = Color::from_hsl(hue, 1.0, 0.5);
+                GradientPoint::new(color, 1.0)
+            })
+            .collect::<Vec<_>>(),
+    )
+    .min_height(10.0)
+    .padding_vertical(10.0);
+    let handle = BoxFill::new(Color::WHITE, EMPTY).sized_wh(20.0, 30.0);
+
+    Slider::new(value, 0, max, handle, bar, id!())
 }
 
 fn stack() -> UiRef {
@@ -594,11 +631,18 @@ fn stack() -> UiRef {
 
 fn window() -> UiRef {
     let size = vec2(400.0, 600.0);
+    let id = id!();
+
+    if key_pressed(KeyCode::Escape) {
+        let state = floating_window_state(id).unwrap();
+        state.open = !state.open;
+    }
+
     flat::FloatingWindow::custom(
         "Example window",
         size,
         vec2((window_width() - size.x) / 2.0, 100.0),
-        id!(),
+        id,
         Center::new(text("This is a floating window. You can drag it around!")),
     )
     .max_width(300.0)
@@ -606,4 +650,117 @@ fn window() -> UiRef {
 
 fn text(text: impl ToString) -> UiRef {
     Text::new_with_color(text, SCHEME.fg0)
+}
+
+fn rich_text_page() -> UiRef {
+    struct State {
+        rich_text: RichText,
+    }
+
+    if !storage_exists::<State>() {
+        storage_store_state(State {
+            rich_text: rich_text(
+                "{green5}Uncommon{r} items, like the {ul}{purple5}Magic power gem{r} can be very {red5}powerful{r}.",
+            ).unwrap(),
+        });
+    }
+
+    let rich_text = storage_get_state::<State>().rich_text.clone();
+    let dbg = format!("{:#?}", &rich_text);
+
+    Col::with_gap(
+        40.0,
+        [
+            RichTextNode::with_size(rich_text, 32),
+            Text::mono_nowrap(dbg),
+        ],
+    )
+}
+
+fn hyperlink() -> UiRef {
+    flat::Hyperlink::new("https://google.com")
+}
+
+fn tooltip() -> UiRef {
+    Col::with_gap(
+        20.0,
+        [
+            TooltipPosition::Top,
+            TooltipPosition::Bottom,
+            TooltipPosition::Left,
+            TooltipPosition::Right,
+            TooltipPosition::AboveCursorRight,
+            TooltipPosition::BelowCursorRight,
+            TooltipPosition::AboveCursorLeft,
+            TooltipPosition::BelowCursorLeft,
+        ]
+        .into_iter()
+        .map(|pos| {
+            flat::Tooltip::text(
+                pos,
+                SizedBox::square(
+                    200.0,
+                    Fill::new(
+                        SCHEME.bg2,
+                        Center::new(text(format!("Hover me ({:?})", pos))),
+                    ),
+                ),
+                Text::nowrap("Add anything you want here"),
+            )
+        })
+        .collect::<Vec<_>>(),
+    )
+}
+
+fn multipoint_gradient_fill() -> UiRef {
+    MultiPointGradientFill::new(
+        Orientation::Horizontal,
+        (0..10)
+            .map(|n| {
+                let hue = n as f32 * 36.0;
+                let color = Color::from_hsl(hue, 1.0, 0.5);
+                GradientPoint::new(color, 1.0)
+            })
+            .collect::<Vec<_>>(),
+    )
+    .square(200.0)
+}
+
+fn modal() -> UiRef {
+    let button_id = id!();
+    let modal_id = id!();
+
+    struct State {
+        open: bool,
+    }
+
+    if !storage_exists::<State>() {
+        storage_store_state(State { open: false });
+    }
+
+    let state = storage_get_state_mut::<State>();
+
+    if button_clicked_last_frame(button_id) {
+        state.open = !state.open;
+    }
+
+    Col::new([
+        flat::Modal::new(
+            "Are you sure?",
+            &mut state.open,
+            modal_id,
+            Col::with_gap(
+                20.0,
+                [
+                    Text::nowrap("This is a destructive action"),
+                    Text::nowrap("Maybe you should think again..."),
+                    FlexRow::new([
+                        FlexBox::Flex(EMPTY),
+                        FlexBox::Fixed(flat::Button::primary_text(button_id, "Close")),
+                    ]),
+                ],
+            ),
+        ),
+        flat::Button::danger(button_id, Text::nowrap("Delete account")),
+    ])
 }

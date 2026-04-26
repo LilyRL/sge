@@ -74,4 +74,8 @@ impl Card {
     pub fn bg4_sized(size: Vec2, child: Child) -> UiRef {
         Self::sized(size, super::BG4, child)
     }
+
+    pub fn text(child: Child) -> UiRef {
+        Padding::tblr(10.0, 15.0, 40.0, 40.0, child).fill(super::BG0)
+    }
 }
