@@ -18,8 +18,6 @@
 - [ ] take screenshot
 - [ ] load image from texture
 - [ ] load image from screen
-- [ ] draw pixel
-- [ ] draw pixel line
 - [ ] add post frame callback
 - [ ] play_sound_looped
 - [ ] stop_sound
@@ -449,3 +447,5 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord) {
 - [X] Arbritrary transform of 2D shapes
   - [X] Transform2D struct
   - [X] functions to specify arbritrary transform of 2d shapes
+- [X] draw pixel
+- [X] draw pixel line

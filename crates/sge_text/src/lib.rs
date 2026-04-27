@@ -2,7 +2,7 @@ use std::{collections::HashMap, hash::Hash};
 
 use fontdue::{Metrics, layout::TextStyle};
 use glium::uniforms::{MagnifySamplerFilter, MinifySamplerFilter};
-use sge_color::{Color, u8::Pixel};
+use sge_color::{Color, u8::ColorU8};
 use sge_error_union::ErrorUnion;
 use sge_image::Image;
 use sge_macros::gen_ref_type;
@@ -268,7 +268,7 @@ impl SgeFont {
             metrics.height,
             bitmap
                 .iter()
-                .map(|coverage| Pixel::from_rgba(255, 255, 255, *coverage))
+                .map(|coverage| ColorU8::from_rgba(255, 255, 255, *coverage))
                 .collect(),
         ));
         let advance = metrics.advance_width;

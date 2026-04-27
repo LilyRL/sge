@@ -91,11 +91,12 @@ pub fn draw_debug_info() {
                                     "Vertex count: {}",
                                     current_frame.vertex_count
                                 )),
-                                flat::LineChart::with_y(
+                                flat::LineChart::with_y_and_line_thickness(
                                     vertex_points,
                                     200.0,
                                     200.0,
                                     max.vertex_count,
+                                    1.0,
                                 ),
                             ],
                         ),
@@ -104,11 +105,12 @@ pub fn draw_debug_info() {
                             [
                                 // indices
                                 Text::nowrap(format!("Index count: {}", current_frame.index_count)),
-                                flat::LineChart::with_y(
+                                flat::LineChart::with_y_and_line_thickness(
                                     index_points,
                                     200.0,
                                     200.0,
                                     max.index_count,
+                                    1.0,
                                 ),
                             ],
                         ),
@@ -125,11 +127,12 @@ pub fn draw_debug_info() {
                                     "Draw call count: {}",
                                     current_frame.draw_calls
                                 )),
-                                flat::LineChart::with_y(
+                                flat::LineChart::with_y_and_line_thickness(
                                     draw_call_points,
                                     200.0,
                                     200.0,
                                     max.draw_calls,
+                                    1.0,
                                 ),
                             ],
                         ),
@@ -141,11 +144,12 @@ pub fn draw_debug_info() {
                                     "Engine time (ms): {:.3}",
                                     current_frame.engine_time
                                 )),
-                                flat::LineChart::with_y(
+                                flat::LineChart::with_y_and_line_thickness(
                                     engine_time_points,
                                     200.0,
                                     200.0,
                                     max.engine_time,
+                                    1.0,
                                 ),
                             ],
                         ),

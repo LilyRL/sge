@@ -21,4 +21,17 @@ impl LineChart {
             .fill(super::BG1)
             .sized_wh(width, height)
     }
+
+    pub fn with_y_and_line_thickness<T: NumberValue>(
+        data: impl Into<Data<T>>,
+        width: f32,
+        height: f32,
+        include_y: T,
+        line_thickness: f32,
+    ) -> UiRef {
+        crate::base::LineChart::custom(data, super::FG3, line_thickness, include_y)
+            .padding(4.0)
+            .fill(super::BG1)
+            .sized_wh(width, height)
+    }
 }

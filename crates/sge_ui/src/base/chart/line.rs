@@ -1,4 +1,4 @@
-use sge_api::shapes_2d::draw_line;
+use sge_api::shapes_2d::{draw_line, draw_pixel_line};
 use sge_vectors::vec2;
 
 use super::*;
@@ -84,6 +84,7 @@ impl<T: NumberValue> UiNode for LineChart<T> {
         let height_of_one = area.height() / max_value;
         let width_of_one = area.width() / (n - 1) as f32;
         let mut last_point: Option<Vec2> = None;
+        // let should_draw_single = data.len() > area.width() as usize;
 
         for i in 0..n {
             let value = data[i];
@@ -94,12 +95,16 @@ impl<T: NumberValue> UiNode for LineChart<T> {
             }
             let point = vec2(x, y);
             if let Some(lp) = last_point {
-                draw_line(
-                    area.top_left + lp,
-                    area.top_left + point,
-                    self.line_thickness,
-                    self.line_color,
-                );
+                if self.line_thickness == 1.0 {
+                    draw_pixel_line(area.top_left + lp, area.top_left + point, self.line_color);
+                } else {
+                    draw_line(
+                        area.top_left + lp,
+                        area.top_left + point,
+                        self.line_thickness,
+                        self.line_color,
+                    );
+                }
             }
             last_point = Some(point);
         }

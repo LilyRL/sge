@@ -146,6 +146,26 @@ impl Shape2DExt for Line2D {
     }
 }
 
+impl Shape2DExt for Pixel {
+    fn draw_to(&self, mut renderer: Renderer2D) {
+        renderer.add_pixel(self);
+    }
+
+    fn draw_outline_to(&self, _renderer: Renderer2D, _thickness: f32, _color: Color) {
+        unimplemented!()
+    }
+}
+
+impl Shape2DExt for PixelLine {
+    fn draw_to(&self, mut renderer: Renderer2D) {
+        renderer.add_pixel_line(self);
+    }
+
+    fn draw_outline_to(&self, _renderer: Renderer2D, _thickness: f32, _color: Color) {
+        unimplemented!()
+    }
+}
+
 impl Shape2DExt for Poly {
     fn draw_to(&self, mut renderer: Renderer2D) {
         renderer.add_shape(self);
@@ -294,6 +314,14 @@ draw_shape_variants! {
     hexagon_pointy [outline, with_outline]:
         center: Vec2, radius: f32, color: Color
         => Poly { center, sides: 6, radius, rotation: std::f32::consts::FRAC_PI_6, color },
+
+    pixel []:
+        pos: Vec2, color: Color
+        => Pixel { pos, color },
+
+    pixel_line []:
+        start: Vec2, end: Vec2, color: Color
+        => PixelLine { start, end, color },
 
     radial_gradient []:
         center: Vec2, radius: Vec2, inner_color: Color, outer_color: Color,

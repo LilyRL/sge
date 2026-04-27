@@ -18,6 +18,101 @@ pub trait Shape2D: HasBounds2D + DynClone {
 }
 
 #[derive(Clone, Copy, Debug)]
+pub struct Pixel {
+    pub pos: Vec2,
+    pub color: Color,
+}
+
+impl Pixel {
+    pub fn new(pos: Vec2, color: Color) -> Self {
+        Self { pos, color }
+    }
+}
+
+impl HasBounds2D for Pixel {
+    fn bounds(&self) -> Aabb2d {
+        Aabb2d::new(self.pos, self.pos)
+    }
+}
+
+impl Shape2D for Pixel {
+    fn gen_mesh(&self, starting_index: u32) -> (Vec<u32>, Vec<ColorVertex2D>) {
+        (
+            vec![starting_index],
+            vec![ColorVertex2D::new(self.pos.x, self.pos.y, self.color)],
+        )
+    }
+
+    fn set_rotation(&mut self, _: f32) {}
+
+    fn set_color(&mut self, color: Color) {
+        self.color = color;
+    }
+
+    fn get_color(&self) -> Color {
+        self.color
+    }
+
+    fn set_pos(&mut self, pos: Vec2) {
+        self.pos = pos;
+    }
+}
+
+#[derive(Clone, Copy, Debug)]
+pub struct PixelLine {
+    pub start: Vec2,
+    pub end: Vec2,
+    pub color: Color,
+}
+
+impl PixelLine {
+    pub fn new(start: Vec2, end: Vec2, color: Color) -> Self {
+        Self { start, end, color }
+    }
+}
+
+impl HasBounds2D for PixelLine {
+    fn bounds(&self) -> Aabb2d {
+        Aabb2d::new(self.start.min(self.end), self.start.max(self.end))
+    }
+}
+
+impl Shape2D for PixelLine {
+    fn gen_mesh(&self, starting_index: u32) -> (Vec<u32>, Vec<ColorVertex2D>) {
+        (
+            vec![starting_index, starting_index + 1],
+            vec![
+                ColorVertex2D::new(self.start.x, self.start.y, self.color),
+                ColorVertex2D::new(self.end.x, self.end.y, self.color),
+            ],
+        )
+    }
+
+    fn set_rotation(&mut self, rot: f32) {
+        let center = (self.start + self.end) / 2.0;
+        let mat = Mat3::from_translation(center)
+            * Mat3::from_angle(rot)
+            * Mat3::from_translation(-center);
+        self.start = mat.transform_point2(self.start);
+        self.end = mat.transform_point2(self.end);
+    }
+
+    fn set_color(&mut self, color: Color) {
+        self.color = color;
+    }
+
+    fn get_color(&self) -> Color {
+        self.color
+    }
+
+    fn set_pos(&mut self, pos: Vec2) {
+        let offset = pos - self.start;
+        self.start += offset;
+        self.end += offset;
+    }
+}
+
+#[derive(Clone, Copy, Debug)]
 pub struct Circle {
     pub center: Vec2,
     pub radius: Vec2,

@@ -1,7 +1,7 @@
 use std::{io::Cursor, marker::PhantomData};
 
 use image::ImageFormat;
-use sge_color::u8::Pixel;
+use sge_color::u8::ColorU8;
 use sge_error_union::ErrorUnion;
 use sge_macros::gen_ref_type;
 use sge_math::usize_rect::USizeRect;
@@ -14,7 +14,7 @@ mod rendering;
 pub struct Image {
     pub width: usize,
     pub height: usize,
-    pub buf: Vec<Pixel>,
+    pub buf: Vec<ColorU8>,
 }
 
 #[derive(Debug, Error)]
@@ -26,15 +26,15 @@ pub enum SgeImageError {
 gen_ref_type!(Image, ImageRef, images);
 
 impl Image {
-    pub fn new(width: usize, height: usize, buf: Vec<Pixel>) -> Self {
+    pub fn new(width: usize, height: usize, buf: Vec<ColorU8>) -> Self {
         Self { width, height, buf }
     }
 
     pub fn empty(width: usize, height: usize) -> Self {
-        Self::gen_color(width, height, Pixel::TRANSPARENT)
+        Self::gen_color(width, height, ColorU8::TRANSPARENT)
     }
 
-    pub fn gen_color(width: usize, height: usize, color: Pixel) -> Self {
+    pub fn gen_color(width: usize, height: usize, color: ColorU8) -> Self {
         let buf = vec![color; width * height];
         Self { width, height, buf }
     }
@@ -46,9 +46,9 @@ impl Image {
             Err(SgeImageError::BufferSizeMismatch(width * height * 4, len))
         } else {
             let size = width * height;
-            let ptr = buf.as_ptr() as *const Pixel;
+            let ptr = buf.as_ptr() as *const ColorU8;
             std::mem::forget(buf); // prevent free
-            let buf = unsafe { Vec::from_raw_parts(ptr as *mut Pixel, size, size) };
+            let buf = unsafe { Vec::from_raw_parts(ptr as *mut ColorU8, size, size) };
             Ok(Self { width, height, buf })
         }
     }
@@ -98,7 +98,7 @@ impl Image {
     }
 
     #[inline]
-    pub fn clear(&mut self, color: Pixel) {
+    pub fn clear(&mut self, color: ColorU8) {
         #[cfg(target_arch = "x86_64")]
         unsafe {
             self.clear_simd_x86(color);
@@ -111,7 +111,7 @@ impl Image {
     }
 
     #[cfg(target_arch = "x86_64")]
-    unsafe fn clear_simd_x86(&mut self, color: Pixel) {
+    unsafe fn clear_simd_x86(&mut self, color: ColorU8) {
         use std::arch::x86_64::*;
 
         let len = self.buf.len();
@@ -119,7 +119,7 @@ impl Image {
         let total_bytes = len * 4;
 
         unsafe {
-            let pixel_u32 = std::mem::transmute::<Pixel, u32>(color);
+            let pixel_u32 = std::mem::transmute::<ColorU8, u32>(color);
             let broadcast = _mm256_set1_epi32(pixel_u32 as i32);
 
             let mut offset = 0;
@@ -144,7 +144,7 @@ impl Image {
         }
     }
 
-    pub fn get_pixel(&self, x: usize, y: usize) -> Option<&Pixel> {
+    pub fn get_pixel(&self, x: usize, y: usize) -> Option<&ColorU8> {
         if x < self.width && y < self.height {
             Some(&self.buf[y * self.width + x])
         } else {
@@ -152,7 +152,7 @@ impl Image {
         }
     }
 
-    pub fn get_pixel_mut(&mut self, x: usize, y: usize) -> Option<&mut Pixel> {
+    pub fn get_pixel_mut(&mut self, x: usize, y: usize) -> Option<&mut ColorU8> {
         if x < self.width && y < self.height {
             Some(&mut self.buf[y * self.width + x])
         } else {
@@ -160,13 +160,13 @@ impl Image {
         }
     }
 
-    pub fn set(&mut self, x: usize, y: usize, to: Pixel) {
+    pub fn set(&mut self, x: usize, y: usize, to: ColorU8) {
         if let Some(pixel) = self.get_pixel_mut(x, y) {
             *pixel = to;
         }
     }
 
-    pub fn seti(&mut self, x: i32, y: i32, to: Pixel) {
+    pub fn seti(&mut self, x: i32, y: i32, to: ColorU8) {
         if x < 0 || y < 0 {
             return;
         }
@@ -179,13 +179,13 @@ impl Image {
         }
     }
 
-    pub fn set_blend(&mut self, x: usize, y: usize, color: Pixel) {
+    pub fn set_blend(&mut self, x: usize, y: usize, color: ColorU8) {
         if let Some(pixel) = self.get_pixel_mut(x, y) {
             *pixel = color.blend_over(*pixel);
         }
     }
 
-    pub fn seti_blend(&mut self, x: i32, y: i32, color: Pixel) {
+    pub fn seti_blend(&mut self, x: i32, y: i32, color: ColorU8) {
         if x < 0 || y < 0 {
             return;
         }
@@ -198,7 +198,7 @@ impl Image {
         }
     }
 
-    pub fn rows_mut(&mut self) -> impl Iterator<Item = &mut [Pixel]> {
+    pub fn rows_mut(&mut self) -> impl Iterator<Item = &mut [ColorU8]> {
         self.buf.chunks_exact_mut(self.width)
     }
 
@@ -250,20 +250,20 @@ pub struct Iter<'a> {
     y: usize,
     width: usize,
     height: usize,
-    buf: &'a [Pixel],
+    buf: &'a [ColorU8],
 }
 
 pub struct IterMut<'a> {
-    current: *mut Pixel,
-    end: *mut Pixel,
+    current: *mut ColorU8,
+    end: *mut ColorU8,
     x: usize,
     y: usize,
     width: usize,
-    _marker: PhantomData<&'a mut [Pixel]>,
+    _marker: PhantomData<&'a mut [ColorU8]>,
 }
 
 impl Iterator for Iter<'_> {
-    type Item = (usize, usize, Pixel);
+    type Item = (usize, usize, ColorU8);
 
     fn next(&mut self) -> Option<Self::Item> {
         if self.y >= self.height {
@@ -284,7 +284,7 @@ impl Iterator for Iter<'_> {
 }
 
 impl<'a> Iterator for IterMut<'a> {
-    type Item = (usize, usize, &'a mut Pixel);
+    type Item = (usize, usize, &'a mut ColorU8);
 
     fn next(&mut self) -> Option<Self::Item> {
         if self.current >= self.end {

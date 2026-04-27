@@ -12,9 +12,9 @@ use sge_programs::{
 use sge_shapes::d2::{QUAD_INDICES, Shape2D, UNIT_QUAD};
 use sge_textures::TextureRef;
 use sge_types::{
-    CircleBatch, CircleInstance, ColorVertex2D, CubicBezier, CubicBezierBatch, MetaballBatch,
-    Pattern, QuadraticBezier, QuadraticBezierBatch, RadialGradientBatch, RadialGradientInstance,
-    RoundedBatch, RoundedInstance, ShapeBatch,
+    CircleBatch, CircleInstance, ColorVertex2D, CubicBezier, CubicBezierBatch, LineBatch,
+    MetaballBatch, Pattern, PointBatch, QuadraticBezier, QuadraticBezierBatch, RadialGradientBatch,
+    RadialGradientInstance, RoundedBatch, RoundedInstance, ShapeBatch,
 };
 use sge_vectors::{Mat4, Rect, Vec2, Vec3};
 use sge_window::get_display;
@@ -30,6 +30,8 @@ mod scene;
 #[derive(Clone)]
 pub enum DrawCommand {
     Shapes(ShapeBatch),
+    Points(PointBatch),
+    Lines(LineBatch),
     Circles(CircleBatch),
     Rounded(RoundedBatch),
     Radial(RadialGradientBatch),
@@ -438,5 +440,57 @@ impl Renderer2D {
 
     pub fn add_scene(&mut self, scene: &Scene2D) {
         self.draws_mut().append(&mut scene.clone().draws)
+    }
+    pub fn current_point_batch(&mut self) -> &mut PointBatch {
+        let scissor = current_scissor();
+        let needs_new = match self.draws().last() {
+            Some(DrawCommand::Points(b)) => b.scissor != scissor,
+            _ => true,
+        };
+        if needs_new {
+            self.draws_mut()
+                .push(DrawCommand::Points(PointBatch::new(scissor)));
+        }
+        match self.draws_mut().last_mut().unwrap() {
+            DrawCommand::Points(b) => b,
+            _ => unreachable!(),
+        }
+    }
+
+    pub fn current_line_batch(&mut self) -> &mut LineBatch {
+        let scissor = current_scissor();
+        let needs_new = match self.draws().last() {
+            Some(DrawCommand::Lines(b)) => b.scissor != scissor,
+            _ => true,
+        };
+        if needs_new {
+            self.draws_mut()
+                .push(DrawCommand::Lines(LineBatch::new(scissor)));
+        }
+        match self.draws_mut().last_mut().unwrap() {
+            DrawCommand::Lines(b) => b,
+            _ => unreachable!(),
+        }
+    }
+
+    pub fn add_pixel(&mut self, shape: &impl Shape2D) {
+        debugger_add_drawn_objects(1);
+        let batch = self.current_point_batch();
+        let (_indices, vertices) = shape.gen_mesh(batch.max_index);
+        for vertex in &vertices {
+            batch.vertices.push(vertex.solid_pattern());
+        }
+        batch.max_index += vertices.len() as u32;
+    }
+
+    pub fn add_pixel_line(&mut self, shape: &impl Shape2D) {
+        debugger_add_drawn_objects(1);
+        let batch = self.current_line_batch();
+        let (mut indices, vertices) = shape.gen_mesh(batch.max_index);
+        for vertex in &vertices {
+            batch.vertices.push(vertex.solid_pattern());
+        }
+        batch.max_index += vertices.len() as u32;
+        batch.indices.append(&mut indices);
     }
 }

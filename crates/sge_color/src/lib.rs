@@ -2,7 +2,7 @@ use egui_glium::egui_winit::egui::Color32;
 use palette::{Hsl, IntoColor, LinSrgb, LinSrgba, Oklch, Srgb, Srgba};
 use rkyv::{Archive, Deserialize, Serialize};
 use sge_vectors::Vec4;
-use u8::Pixel;
+use u8::ColorU8;
 
 mod data;
 pub mod schemes;
@@ -220,8 +220,8 @@ impl Color {
         Self::from_oklch_with_alpha(l, c, new_h, self.a)
     }
 
-    pub fn to_pixel(self) -> Pixel {
-        Pixel::from_rgba_f32(self.r, self.g, self.b, self.a)
+    pub fn to_pixel(self) -> ColorU8 {
+        ColorU8::from_rgba_f32(self.r, self.g, self.b, self.a)
     }
 
     #[inline]

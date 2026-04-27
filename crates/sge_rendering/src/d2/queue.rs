@@ -46,6 +46,16 @@ impl DrawQueue2D {
                         self.draw_mesh_batch(frame, projection, batch, FLAT_PROGRAM.get());
                     }
                 }
+                DrawCommand::Points(batch) => {
+                    if !batch.vertices.is_empty() {
+                        self.draw_point_batch(frame, projection, batch);
+                    }
+                }
+                DrawCommand::Lines(batch) => {
+                    if !batch.vertices.is_empty() {
+                        self.draw_line_batch(frame, projection, batch);
+                    }
+                }
                 DrawCommand::Circles(batch) => {
                     if !batch.instances.is_empty() {
                         self.draw_quad_instanced(
@@ -154,6 +164,8 @@ impl DrawQueue2D {
 
     fn common_draw_params(scissor: Option<glium::Rect>) -> DrawParameters<'static> {
         DrawParameters {
+            point_size: Some(1.0),
+            line_width: Some(1.0),
             blend: Blend {
                 color: glium::BlendingFunction::Addition {
                     source: glium::LinearBlendingFactor::SourceAlpha,
@@ -204,6 +216,66 @@ impl DrawQueue2D {
 
         frame
             .draw(&vertex_buffer, &index_buffer, program, &uniforms, &params)
+            .unwrap();
+    }
+
+    fn draw_point_batch<T: Surface>(&self, frame: &mut T, projection: &Mat4, batch: &PointBatch) {
+        let display = get_display();
+        let params = Self::common_draw_params(batch.scissor);
+        let vertex_buffer = VertexBuffer::new(display, &batch.vertices).unwrap();
+        let index_buffer = IndexBuffer::new(
+            display,
+            glium::index::PrimitiveType::Points,
+            &(0u32..batch.vertices.len() as u32).collect::<Vec<_>>(),
+        )
+        .unwrap();
+
+        let uniforms = uniform! {
+            transform: projection.to_cols_array_2d(),
+        };
+
+        debugger_add_draw_calls(1);
+        debugger_add_vertices(vertex_buffer.len());
+
+        frame
+            .draw(
+                &vertex_buffer,
+                &index_buffer,
+                FLAT_PROGRAM.get(),
+                &uniforms,
+                &params,
+            )
+            .unwrap();
+    }
+
+    fn draw_line_batch<T: Surface>(&self, frame: &mut T, projection: &Mat4, batch: &LineBatch) {
+        let display = get_display();
+        let mut params = Self::common_draw_params(batch.scissor);
+        params.multisampling = false;
+        let vertex_buffer = VertexBuffer::new(display, &batch.vertices).unwrap();
+        let index_buffer = IndexBuffer::new(
+            display,
+            glium::index::PrimitiveType::LinesList,
+            &batch.indices,
+        )
+        .unwrap();
+
+        let uniforms = uniform! {
+            transform: projection.to_cols_array_2d(),
+        };
+
+        debugger_add_draw_calls(1);
+        debugger_add_vertices(vertex_buffer.len());
+        debugger_add_indices(index_buffer.len());
+
+        frame
+            .draw(
+                &vertex_buffer,
+                &index_buffer,
+                FLAT_PROGRAM.get(),
+                &uniforms,
+                &params,
+            )
             .unwrap();
     }
 

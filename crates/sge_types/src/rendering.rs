@@ -570,3 +570,47 @@ impl IndexMut<usize> for MetaballBatch {
         &mut self.data[index]
     }
 }
+
+///////////////////////////////////////////////////////////////////////////////
+//                                   Points                                  //
+///////////////////////////////////////////////////////////////////////////////
+
+#[derive(Clone)]
+pub struct PointBatch {
+    pub vertices: Vec<PatternVertex2D>,
+    pub max_index: u32,
+    pub scissor: Option<glium::Rect>,
+}
+
+impl PointBatch {
+    pub fn new(scissor: Option<glium::Rect>) -> Self {
+        Self {
+            vertices: Vec::new(),
+            max_index: 0,
+            scissor,
+        }
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+//                                   Lines                                   //
+///////////////////////////////////////////////////////////////////////////////
+
+#[derive(Clone)]
+pub struct LineBatch {
+    pub vertices: Vec<PatternVertex2D>,
+    pub indices: Vec<u32>,
+    pub max_index: u32,
+    pub scissor: Option<glium::Rect>,
+}
+
+impl LineBatch {
+    pub fn new(scissor: Option<glium::Rect>) -> Self {
+        Self {
+            vertices: Vec::new(),
+            indices: Vec::new(),
+            max_index: 0,
+            scissor,
+        }
+    }
+}

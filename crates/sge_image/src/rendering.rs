@@ -1,8 +1,8 @@
-use sge_vectors::{IVec2, USizeVec2, Vec2, ivec2};
 use rayon::iter::{IntoParallelIterator, ParallelIterator};
+use sge_vectors::{IVec2, USizeVec2, Vec2, ivec2};
 
 use sge_camera::d2::Camera2D;
-use sge_color::u8::Pixel;
+use sge_color::u8::ColorU8;
 
 use super::Image;
 
@@ -12,9 +12,9 @@ const OPTIMIZATION_CIRCLE_RADIUS_MULTITHREADING_CUTOFF: i32 = 50; // 50 radius c
 #[allow(unused)]
 #[allow(clippy::unnecessary_cast)]
 impl Image {
-    pub fn line_internal<F>(&mut self, mut a: IVec2, mut b: IVec2, color: Pixel, mut set: F)
+    pub fn line_internal<F>(&mut self, mut a: IVec2, mut b: IVec2, color: ColorU8, mut set: F)
     where
-        F: FnMut(&mut Image, i32, i32, Pixel),
+        F: FnMut(&mut Image, i32, i32, ColorU8),
     {
         use std::mem::swap;
 
@@ -56,8 +56,8 @@ impl Image {
         &mut self,
         center: IVec2,
         radius: i32,
-        color: Pixel,
-        set: fn(&mut Image, i32, i32, Pixel),
+        color: ColorU8,
+        set: fn(&mut Image, i32, i32, ColorU8),
     ) {
         if radius > OPTIMIZATION_CIRCLE_RADIUS_MULTITHREADING_CUTOFF {
             self.circle_internal_multithreaded(center, radius, color);
@@ -79,7 +79,7 @@ impl Image {
         }
     }
 
-    fn circle_internal_multithreaded(&mut self, center: IVec2, radius: i32, color: Pixel) {
+    fn circle_internal_multithreaded(&mut self, center: IVec2, radius: i32, color: ColorU8) {
         let canvas_addr = self as *mut Image as usize;
         let r = radius as f32;
 
@@ -117,8 +117,8 @@ impl Image {
         center: IVec2,
         radius: i32,
         outline_width: i32,
-        color: Pixel,
-        set: fn(&mut Image, i32, i32, Pixel),
+        color: ColorU8,
+        set: fn(&mut Image, i32, i32, ColorU8),
     ) {
         let min = center - radius;
         let max = center + radius;
@@ -136,7 +136,7 @@ impl Image {
         }
     }
 
-    fn rect_internal(&mut self, top_left: IVec2, size: IVec2, color: Pixel, blend: bool) {
+    fn rect_internal(&mut self, top_left: IVec2, size: IVec2, color: ColorU8, blend: bool) {
         if size.x.saturating_mul(size.y) > OPTIMIZATION_RECT_FILL_MULTITHREADING_CUTOFF && !blend {
             self.rect_internal_multithreaded(top_left, size, color, blend);
             return;
@@ -166,7 +166,7 @@ impl Image {
         &mut self,
         top_left: IVec2,
         size: IVec2,
-        color: Pixel,
+        color: ColorU8,
         blend: bool,
     ) {
         let bottom_right = top_left + size;
@@ -195,8 +195,8 @@ impl Image {
         &mut self,
         top_left: IVec2,
         size: IVec2,
-        color: Pixel,
-        set: fn(&mut Image, i32, i32, Pixel),
+        color: ColorU8,
+        set: fn(&mut Image, i32, i32, ColorU8),
     ) {
         let bottom_right = top_left + size;
 
@@ -216,8 +216,8 @@ impl Image {
         mut a: IVec2,
         mut b: IVec2,
         mut c: IVec2,
-        color: Pixel,
-        set: fn(&mut Image, i32, i32, Pixel),
+        color: ColorU8,
+        set: fn(&mut Image, i32, i32, ColorU8),
     ) {
         [&mut a, &mut b, &mut c].sort_by_key(|a| a.y);
 
@@ -263,8 +263,8 @@ impl Image {
         a: IVec2,
         b: IVec2,
         c: IVec2,
-        color: Pixel,
-        set: fn(&mut Image, i32, i32, Pixel),
+        color: ColorU8,
+        set: fn(&mut Image, i32, i32, ColorU8),
     ) {
         let points = [a, b, c, a];
 
@@ -273,32 +273,38 @@ impl Image {
         }
     }
 
-    pub fn line(&mut self, a: IVec2, b: IVec2, color: Pixel) {
+    pub fn line(&mut self, a: IVec2, b: IVec2, color: ColorU8) {
         self.line_internal(a, b, color, Self::seti);
     }
 
-    pub fn line_blend(&mut self, a: IVec2, b: IVec2, color: Pixel) {
+    pub fn line_blend(&mut self, a: IVec2, b: IVec2, color: ColorU8) {
         self.line_internal(a, b, color, Self::seti_blend);
     }
 
     /// slow
-    pub fn line_thick(&mut self, a: IVec2, b: IVec2, color: Pixel, radius: i32) {
-        let seti_circle = |image: &mut Image, x: i32, y: i32, color: Pixel| {
+    pub fn line_thick(&mut self, a: IVec2, b: IVec2, color: ColorU8, radius: i32) {
+        let seti_circle = |image: &mut Image, x: i32, y: i32, color: ColorU8| {
             image.circle_filled(ivec2(x, y), radius, color)
         };
 
         self.line_internal(a, b, color, seti_circle);
     }
 
-    pub fn circle_filled(&mut self, center: IVec2, radius: i32, color: Pixel) {
+    pub fn circle_filled(&mut self, center: IVec2, radius: i32, color: ColorU8) {
         self.circle_internal(center, radius, color, Self::seti);
     }
 
-    pub fn circle_filled_blend(&mut self, center: IVec2, radius: i32, color: Pixel) {
+    pub fn circle_filled_blend(&mut self, center: IVec2, radius: i32, color: ColorU8) {
         self.circle_internal(center, radius, color, Self::seti_blend);
     }
 
-    pub fn circle_outline(&mut self, center: IVec2, radius: i32, outline_width: i32, color: Pixel) {
+    pub fn circle_outline(
+        &mut self,
+        center: IVec2,
+        radius: i32,
+        outline_width: i32,
+        color: ColorU8,
+    ) {
         self.circle_outline_internal(center, radius, outline_width, color, Self::seti);
     }
 
@@ -307,56 +313,56 @@ impl Image {
         center: IVec2,
         radius: i32,
         outline_width: i32,
-        color: Pixel,
+        color: ColorU8,
     ) {
         self.circle_outline_internal(center, radius, outline_width, color, Self::seti_blend);
     }
 
-    pub fn rect_filled(&mut self, top_left: IVec2, size: IVec2, color: Pixel) {
+    pub fn rect_filled(&mut self, top_left: IVec2, size: IVec2, color: ColorU8) {
         self.rect_internal(top_left, size, color, false);
     }
 
-    pub fn rect_filled_blend(&mut self, top_left: IVec2, size: IVec2, color: Pixel) {
+    pub fn rect_filled_blend(&mut self, top_left: IVec2, size: IVec2, color: ColorU8) {
         self.rect_internal(top_left, size, color, true);
     }
 
-    pub fn rect_outline(&mut self, top_left: IVec2, size: IVec2, color: Pixel) {
+    pub fn rect_outline(&mut self, top_left: IVec2, size: IVec2, color: ColorU8) {
         self.rect_outline_internal(top_left, size, color, Self::seti);
     }
 
-    pub fn rect_outline_blend(&mut self, top_left: IVec2, size: IVec2, color: Pixel) {
+    pub fn rect_outline_blend(&mut self, top_left: IVec2, size: IVec2, color: ColorU8) {
         self.rect_outline_internal(top_left, size, color, Self::seti_blend);
     }
 
-    pub fn triangle_filled(&mut self, a: IVec2, b: IVec2, c: IVec2, color: Pixel) {
+    pub fn triangle_filled(&mut self, a: IVec2, b: IVec2, c: IVec2, color: ColorU8) {
         self.triangle_internal(a, b, c, color, Self::seti);
     }
 
-    pub fn triangle_filled_blend(&mut self, a: IVec2, b: IVec2, c: IVec2, color: Pixel) {
+    pub fn triangle_filled_blend(&mut self, a: IVec2, b: IVec2, c: IVec2, color: ColorU8) {
         self.triangle_internal(a, b, c, color, Self::seti_blend);
     }
 
-    pub fn triangle_outline(&mut self, a: IVec2, b: IVec2, c: IVec2, color: Pixel) {
+    pub fn triangle_outline(&mut self, a: IVec2, b: IVec2, c: IVec2, color: ColorU8) {
         self.triangle_outline_internal(a, b, c, color, Self::seti);
     }
 
-    pub fn triangle_outline_blend(&mut self, a: IVec2, b: IVec2, c: IVec2, color: Pixel) {
+    pub fn triangle_outline_blend(&mut self, a: IVec2, b: IVec2, c: IVec2, color: ColorU8) {
         self.triangle_outline_internal(a, b, c, color, Self::seti_blend);
     }
 
-    pub fn square_outline(&mut self, top_left: IVec2, size: i32, color: Pixel) {
+    pub fn square_outline(&mut self, top_left: IVec2, size: i32, color: ColorU8) {
         self.rect_outline(top_left, IVec2::splat(size), color);
     }
 
-    pub fn square_outline_blend(&mut self, top_left: IVec2, size: i32, color: Pixel) {
+    pub fn square_outline_blend(&mut self, top_left: IVec2, size: i32, color: ColorU8) {
         self.rect_outline_blend(top_left, IVec2::splat(size), color);
     }
 
-    pub fn square_filled(&mut self, top_left: IVec2, size: i32, color: Pixel) {
+    pub fn square_filled(&mut self, top_left: IVec2, size: i32, color: ColorU8) {
         self.rect_filled(top_left, IVec2::splat(size), color);
     }
 
-    pub fn square_filled_blend(&mut self, top_left: IVec2, size: i32, color: Pixel) {
+    pub fn square_filled_blend(&mut self, top_left: IVec2, size: i32, color: ColorU8) {
         self.rect_filled_blend(top_left, IVec2::splat(size), color);
     }
 
@@ -373,7 +379,7 @@ impl Image {
         true
     }
 
-    pub fn line_world(&mut self, a: Vec2, b: Vec2, camera: &mut Camera2D, color: Pixel) {
+    pub fn line_world(&mut self, a: Vec2, b: Vec2, camera: &mut Camera2D, color: ColorU8) {
         let a_screen = camera.world_to_screen(a).as_ivec2();
         let b_screen = camera.world_to_screen(b).as_ivec2();
 
@@ -389,7 +395,7 @@ impl Image {
         self.line(a_screen, b_screen, color);
     }
 
-    pub fn line_world_blend(&mut self, a: Vec2, b: Vec2, camera: &mut Camera2D, color: Pixel) {
+    pub fn line_world_blend(&mut self, a: Vec2, b: Vec2, camera: &mut Camera2D, color: ColorU8) {
         let a_screen = camera.world_to_screen(a).as_ivec2();
         let b_screen = camera.world_to_screen(b).as_ivec2();
 
@@ -410,7 +416,7 @@ impl Image {
         center: Vec2,
         radius: f32,
         camera: &mut Camera2D,
-        color: Pixel,
+        color: ColorU8,
     ) {
         let center_screen = camera.world_to_screen(center).as_ivec2();
         let radius_screen = camera.world_distance_to_screen(radius as f32) as i32;
@@ -430,7 +436,7 @@ impl Image {
         center: Vec2,
         radius: f32,
         camera: &mut Camera2D,
-        color: Pixel,
+        color: ColorU8,
     ) {
         let center_screen = camera.world_to_screen(center).as_ivec2();
         let radius_screen = camera.world_distance_to_screen(radius as f32) as i32;
@@ -451,7 +457,7 @@ impl Image {
         radius: f32,
         outline_width: f32,
         camera: &mut Camera2D,
-        color: Pixel,
+        color: ColorU8,
     ) {
         let center_screen = camera.world_to_screen(center).as_ivec2();
         let radius_screen = camera.world_distance_to_screen(radius as f32) as i32;
@@ -465,7 +471,7 @@ impl Image {
         radius: f32,
         outline_width: f32,
         camera: &mut Camera2D,
-        color: Pixel,
+        color: ColorU8,
     ) {
         let center_screen = camera.world_to_screen(center).as_ivec2();
         let radius_screen = camera.world_distance_to_screen(radius as f32) as i32;
@@ -478,7 +484,7 @@ impl Image {
         top_left: Vec2,
         size: Vec2,
         camera: &mut Camera2D,
-        color: Pixel,
+        color: ColorU8,
     ) {
         let top_left_screen = camera.world_to_screen(top_left).as_ivec2();
         let size_screen = IVec2::new(
@@ -500,7 +506,7 @@ impl Image {
         top_left: Vec2,
         size: Vec2,
         camera: &mut Camera2D,
-        color: Pixel,
+        color: ColorU8,
     ) {
         let top_left_screen = camera.world_to_screen(top_left).as_ivec2();
         let size_screen = IVec2::new(
@@ -522,7 +528,7 @@ impl Image {
         top_left: Vec2,
         size: Vec2,
         camera: &mut Camera2D,
-        color: Pixel,
+        color: ColorU8,
     ) {
         let top_left_screen = camera.world_to_screen(top_left).as_ivec2();
         let size_screen = IVec2::new(
@@ -544,7 +550,7 @@ impl Image {
         top_left: Vec2,
         size: Vec2,
         camera: &mut Camera2D,
-        color: Pixel,
+        color: ColorU8,
     ) {
         let top_left_screen = camera.world_to_screen(top_left).as_ivec2();
         let size_screen = IVec2::new(
@@ -567,7 +573,7 @@ impl Image {
         b: Vec2,
         c: Vec2,
         camera: &mut Camera2D,
-        color: Pixel,
+        color: ColorU8,
     ) {
         let a_screen = camera.world_to_screen(a).as_ivec2();
         let b_screen = camera.world_to_screen(b).as_ivec2();
@@ -591,7 +597,7 @@ impl Image {
         b: Vec2,
         c: Vec2,
         camera: &mut Camera2D,
-        color: Pixel,
+        color: ColorU8,
     ) {
         let a_screen = camera.world_to_screen(a).as_ivec2();
         let b_screen = camera.world_to_screen(b).as_ivec2();
@@ -615,7 +621,7 @@ impl Image {
         b: Vec2,
         c: Vec2,
         camera: &mut Camera2D,
-        color: Pixel,
+        color: ColorU8,
     ) {
         let a_screen = camera.world_to_screen(a).as_ivec2();
         let b_screen = camera.world_to_screen(b).as_ivec2();
@@ -639,7 +645,7 @@ impl Image {
         b: Vec2,
         c: Vec2,
         camera: &mut Camera2D,
-        color: Pixel,
+        color: ColorU8,
     ) {
         let a_screen = camera.world_to_screen(a).as_ivec2();
         let b_screen = camera.world_to_screen(b).as_ivec2();
@@ -662,7 +668,7 @@ impl Image {
         top_left: Vec2,
         size: f32,
         camera: &mut Camera2D,
-        color: Pixel,
+        color: ColorU8,
     ) {
         let top_left_screen = camera.world_to_screen(top_left).as_ivec2();
         let size_screen = camera.world_distance_to_screen(size as f32) as i32;
@@ -681,7 +687,7 @@ impl Image {
         top_left: Vec2,
         size: f32,
         camera: &mut Camera2D,
-        color: Pixel,
+        color: ColorU8,
     ) {
         let top_left_screen = camera.world_to_screen(top_left).as_ivec2();
         let size_screen = camera.world_distance_to_screen(size as f32) as i32;
@@ -700,7 +706,7 @@ impl Image {
         top_left: Vec2,
         size: f32,
         camera: &mut Camera2D,
-        color: Pixel,
+        color: ColorU8,
     ) {
         let top_left_screen = camera.world_to_screen(top_left).as_ivec2();
         let size_screen = camera.world_distance_to_screen(size as f32) as i32;
@@ -719,7 +725,7 @@ impl Image {
         top_left: Vec2,
         size: f32,
         camera: &mut Camera2D,
-        color: Pixel,
+        color: ColorU8,
     ) {
         let top_left_screen = camera.world_to_screen(top_left).as_ivec2();
         let size_screen = camera.world_distance_to_screen(size as f32) as i32;
