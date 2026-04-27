@@ -2,6 +2,10 @@
 name = "sge_exec"
 version = "1.0.4"
 edition = "2024"
+description = "Async/coroutines for SGE"
+authors = [ "Lily Lopes <joshrl@proton.me>" ]
+license = "MIT"
+repository = "https://github.com/LilyRL/sge"
 
 [features]
 default = ["network"]
