@@ -112,6 +112,7 @@ pub enum InputError {
     Gilrs(GilrsError),
     #[cfg(feature = "gamepad")]
     Clipboard(arboard::Error),
+    Other(&'static str),
 }
 
 impl Input {
