@@ -351,14 +351,18 @@ impl UiNode for Text {
 
     fn size(&self, area: Area) -> Vec2 {
         if self.wrap {
-            measure_wrapped_text(
-                &self.text,
-                area.width(),
-                Some(self.font),
-                self.font_size,
-                self.do_dpi_scaling,
-                self.line_spacing,
+            dbg!(
+                area,
+                measure_wrapped_text(
+                    &self.text,
+                    area.width(),
+                    Some(self.font),
+                    self.font_size,
+                    self.do_dpi_scaling,
+                    self.line_spacing,
+                )
             )
+            .1
         } else {
             self.preferred_dimensions()
         }

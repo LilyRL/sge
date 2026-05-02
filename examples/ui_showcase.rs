@@ -13,6 +13,7 @@ const NODES: &[(&str, fn() -> UiRef)] = &[
     ("Circle", circle),
     ("Color selector", color_selector),
     ("Drawer", drawer),
+    ("Drop file", drop_file),
     ("Fill/active", active_fill),
     ("Fill/box", box_fill),
     ("Fill/fill", fill),
@@ -36,6 +37,7 @@ const NODES: &[(&str, fn() -> UiRef)] = &[
     ("Progress Bar", progress_bar),
     ("Scissor Box", scissor_box),
     ("Scroll", scroll),
+    ("Search", search),
     ("Selectbox", selectbox),
     ("Sized Box", sized_box),
     ("Slider", slider),
@@ -49,6 +51,8 @@ const SCHEME: ColorScheme = ColorScheme::LACKLUSTER;
 #[main("UI Showcase")]
 fn main() -> anyhow::Result<()> {
     let select = id!();
+
+    wait_for_events();
 
     loop {
         clear_screen(SCHEME.bg1);
@@ -181,7 +185,17 @@ fn border() -> UiRef {
     let b = BorderStyle::new(20.0, SCHEME.bg2);
     let c = BorderStyle::new(20.0, SCHEME.bg3);
 
-    Border::tblr(c, c, b, b, BoxFill::new(SCHEME.bg1, EMPTY)).square(200.0)
+    Col::with_gap(
+        20.0,
+        [
+            Border::tblr(c, c, b, b, BoxFill::new(SCHEME.bg1, EMPTY)).square(200.0),
+            Border::all_style(
+                BorderStyle::custom(10.0, SCHEME.bg3, BorderType::Dashed(30.0)),
+                EMPTY,
+            )
+            .square(200.0),
+        ],
+    )
 }
 
 fn box_fill() -> UiRef {
@@ -625,7 +639,7 @@ fn fancy_slider(value: &mut usize) -> UiRef {
     )
     .min_height(10.0)
     .padding_vertical(10.0);
-    let handle = BoxFill::new(Color::WHITE, EMPTY).sized_wh(20.0, 30.0);
+    let handle = RoundedFill::new(Color::WHITE, 5.0, EMPTY).sized_wh(20.0, 30.0);
 
     Slider::new(value, 0, max, handle, bar, id!())
 }
@@ -709,7 +723,9 @@ fn hyperlink() -> UiRef {
 }
 
 fn tooltip() -> UiRef {
-    Col::with_gap(
+    Grid::with_gap(
+        3,
+        3,
         20.0,
         [
             TooltipPosition::Top,
@@ -737,6 +753,7 @@ fn tooltip() -> UiRef {
         })
         .collect::<Vec<_>>(),
     )
+    .fit()
 }
 
 fn multipoint_gradient_fill() -> UiRef {
@@ -795,7 +812,7 @@ fn modal() -> UiRef {
                                 delete_button_id,
                                 "Delete account",
                             )),
-                            FlexBox::Fixed(flat::Button::primary_text(button_id, "Close")),
+                            FlexBox::Fixed(flat::Button::primary_text(button_id, "Cancel")),
                         ],
                     ),
                 ],
@@ -803,4 +820,69 @@ fn modal() -> UiRef {
         ),
         flat::Button::danger(button_id, Text::nowrap("Delete account")),
     ])
+}
+
+fn drop_file() -> UiRef {
+    struct State {
+        dropped_files: Vec<String>,
+    }
+
+    if !storage_exists::<State>() {
+        storage_store_state(State {
+            dropped_files: vec![],
+        });
+    }
+
+    let state = storage_get_state_mut::<State>();
+
+    let id = id!();
+
+    if let Some(path) = drop_file_path(id) {
+        state.dropped_files.push(path.to_string_lossy().to_string());
+    }
+
+    Col::with_gap(
+        20.0,
+        [
+            flat::DropFile::new(vec2(600.0, 400.0), id),
+            Col::new(
+                state
+                    .dropped_files
+                    .iter()
+                    .map(|s| Text::new(s))
+                    .collect::<Vec<_>>(),
+            ),
+        ],
+    )
+}
+
+fn search() -> UiRef {
+    let options = [
+        "Madvillany",
+        "Money Store",
+        "OK COMPUTER",
+        "Exmilitary",
+        "The Powers That B",
+        "Untrue",
+        "Wish You Were Here",
+        "Atrocity Exhibition",
+        "Bottomless Pit",
+        "Enter The Wu-Tang",
+        "OFFLINE!",
+        "Kid A",
+        "To Pimp a Butterfly",
+        "Good Kid m.A.A.d City",
+        "In Rainbows",
+        "Remain in Light",
+        "Twin Fantasy ",
+        "Chaser",
+        "Dark Side of the Moon",
+        "Vaudeville Villain",
+        "Maxinquaye",
+        "Dummy",
+        "In the Aeroplane Over the Sea",
+        "Vespertine",
+    ];
+
+    flat::Search::text(id!(), options)
 }

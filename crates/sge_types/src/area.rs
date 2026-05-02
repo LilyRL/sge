@@ -8,6 +8,11 @@ pub struct Area {
 }
 
 impl Area {
+    pub const ZERO: Self = Self {
+        top_left: Vec2::ZERO,
+        size: Vec2::ZERO,
+    };
+
     pub fn new(top_left: Vec2, size: Vec2) -> Self {
         Self { top_left, size }
     }
@@ -22,6 +27,26 @@ impl Area {
             bottom: bottom_y as u32,
             width: self.size.x as u32,
             height: self.size.y as u32,
+        }
+    }
+
+    pub fn resize(&self, new_size: Vec2) -> Self {
+        Self {
+            top_left: self.top_left,
+            size: new_size,
+        }
+    }
+
+    /// create area that encompasses this and another
+    pub fn merge(&self, other: Self) -> Self {
+        let left = self.left().min(other.left());
+        let right = self.right().max(other.right());
+        let top = self.top().min(other.top());
+        let bottom = self.bottom().max(other.bottom());
+
+        Self {
+            top_left: Vec2::new(left, top),
+            size: Vec2::new(right - left, bottom - top),
         }
     }
 

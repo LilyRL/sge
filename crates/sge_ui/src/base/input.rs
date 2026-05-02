@@ -13,7 +13,7 @@ pub(crate) const CURSOR_WIDTH: f32 = 2.0;
 
 #[derive(Debug)]
 pub struct TextInput {
-    state: State<Data>,
+    state: State<InputState>,
 
     prompt: String,
     font: FontRef,
@@ -68,10 +68,10 @@ impl TextInput {
 }
 
 #[derive(Default, Debug)]
-struct Data {
-    value: String,
-    is_active: bool,
-    changed: bool,
+pub struct InputState {
+    pub value: String,
+    pub is_active: bool,
+    pub changed: bool,
 }
 
 impl UiNode for TextInput {
@@ -170,11 +170,16 @@ impl UiNode for TextInput {
 }
 
 pub fn text_input_value(id: usize) -> &'static str {
-    let state: State<Data> = State::from_id(id);
+    let state: State<InputState> = State::from_id(id);
     &state.get_or_default().value
 }
 
 pub fn text_input_changed(id: usize) -> bool {
-    let state: State<Data> = State::from_id(id);
+    let state: State<InputState> = State::from_id(id);
     state.get_or_default().changed
+}
+
+pub fn text_input_state(id: usize) -> &'static mut InputState {
+    let state: State<InputState> = State::from_id(id);
+    state.get_or_default()
 }

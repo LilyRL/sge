@@ -843,6 +843,12 @@ pub struct CustomShape {
     pub color: Color,
 }
 
+impl CustomShape {
+    pub fn new(points: Vec<Vec2>, color: Color) -> Self {
+        Self { points, color }
+    }
+}
+
 impl HasBounds2D for CustomShape {
     fn bounds(&self) -> Aabb2d {
         if self.points.is_empty() {

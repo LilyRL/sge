@@ -1,11 +1,9 @@
-#![feature(vec_from_fn)]
-
 use sge::prelude::*;
 
 #[main("Gradients")]
 async fn main() -> anyhow::Result<()> {
-    let gen_point = |_| rand::<Vec2>() * 1000.0;
-    let points = Vec::from_fn(20, gen_point);
+    let gen_point = || rand::<Vec2>() * 1000.0;
+    let points: Vec<_> = (0..20).map(|_| gen_point()).collect();
 
     loop {
         draw_square_gradient_tl_br(Vec2::ZERO, 1000.0, Color::WHITE, Color::BLACK);

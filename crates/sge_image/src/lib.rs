@@ -1,6 +1,6 @@
 use std::{io::Cursor, marker::PhantomData};
 
-use image::ImageFormat;
+use image::{ImageEncoder, ImageFormat};
 use sge_color::u8::ColorU8;
 use sge_error_union::ErrorUnion;
 use sge_macros::gen_ref_type;
@@ -28,6 +28,21 @@ gen_ref_type!(Image, ImageRef, images);
 impl Image {
     pub fn new(width: usize, height: usize, buf: Vec<ColorU8>) -> Self {
         Self { width, height, buf }
+    }
+
+    pub fn to_png_bytes(&self) -> Vec<u8> {
+        let mut data = Vec::new();
+        let encoder = image::codecs::png::PngEncoder::new(&mut data);
+        encoder
+            .write_image(
+                self.bytes(),
+                self.width as u32,
+                self.height as u32,
+                image::ExtendedColorType::Rgba8,
+            )
+            .expect("Failed to encode image to PNG");
+
+        data
     }
 
     pub fn empty(width: usize, height: usize) -> Self {

@@ -1,4 +1,4 @@
-use sge_api::shapes_2d::draw_custom_shape;
+use sge_api::shapes_2d::{draw_custom_shape, draw_dashed_line};
 
 use super::*;
 
@@ -6,16 +6,17 @@ use super::*;
 pub struct BorderStyle {
     pub thickness: f32,
     pub color: Color,
+    pub ty: BorderType,
 }
 
-impl BorderStyle {
-    pub fn none() -> Self {
-        Self {
-            thickness: 0.0,
-            color: Color::TRANSPARENT,
-        }
-    }
+#[derive(Clone, Copy, Debug)]
+pub enum BorderType {
+    Solid,
+    Dashed(f32),
+    Dotted,
 }
+
+impl BorderStyle {}
 
 impl Default for BorderStyle {
     fn default() -> Self {
@@ -33,30 +34,85 @@ enum Side {
 
 impl BorderStyle {
     pub fn new(thickness: f32, color: Color) -> Self {
-        Self { thickness, color }
+        Self {
+            thickness,
+            color,
+            ty: BorderType::Solid,
+        }
+    }
+
+    pub const fn none() -> Self {
+        Self {
+            thickness: 0.0,
+            color: Color::TRANSPARENT,
+            ty: BorderType::Solid,
+        }
+    }
+
+    pub fn custom(thickness: f32, color: Color, ty: BorderType) -> Self {
+        Self {
+            thickness,
+            color,
+            ty,
+        }
+    }
+
+    pub fn with_type(mut self, ty: BorderType) -> Self {
+        self.ty = ty;
+        self
     }
 
     fn draw(&self, a: Vec2, b: Vec2, side: Side) {
-        let ((x_a, y_a), (x_b, y_b)) = match side {
-            Side::Top => ((1, 1), (-1, 1)),
-            Side::Left => ((1, 1), (1, -1)),
-            Side::Bottom => ((1, -1), (-1, -1)),
-            Side::Right => ((-1, 1), (-1, -1)),
-        };
+        match self.ty {
+            BorderType::Solid => {
+                let ((x_a, y_a), (x_b, y_b)) = match side {
+                    Side::Top => ((1, 1), (-1, 1)),
+                    Side::Left => ((1, 1), (1, -1)),
+                    Side::Bottom => ((1, -1), (-1, -1)),
+                    Side::Right => ((-1, 1), (-1, -1)),
+                };
 
-        let mul_a = Vec2::new(x_a as f32, y_a as f32);
-        let mul_b = Vec2::new(x_b as f32, y_b as f32);
+                let mul_a = Vec2::new(x_a as f32, y_a as f32);
+                let mul_b = Vec2::new(x_b as f32, y_b as f32);
 
-        let c = a + (self.thickness * mul_a);
-        let d = b + (self.thickness * mul_b);
+                let c = a + (self.thickness * mul_a);
+                let d = b + (self.thickness * mul_b);
 
-        draw_custom_shape(vec![a, c, d, b], self.color);
+                draw_custom_shape(vec![a, c, d, b], self.color);
+            }
+            BorderType::Dashed(_) | BorderType::Dotted => {
+                let half_thickness = self.thickness / 2.0;
+                let (point_a, point_b) = match side {
+                    Side::Top => (
+                        a + Vec2::new(0.0, half_thickness),
+                        b + Vec2::new(0.0, half_thickness),
+                    ),
+                    Side::Left => (
+                        a + Vec2::new(half_thickness, 0.0),
+                        b + Vec2::new(half_thickness, 0.0),
+                    ),
+                    Side::Bottom => (
+                        a - Vec2::new(0.0, half_thickness),
+                        b - Vec2::new(0.0, half_thickness),
+                    ),
+                    Side::Right => (
+                        a - Vec2::new(half_thickness, 0.0),
+                        b - Vec2::new(half_thickness, 0.0),
+                    ),
+                };
+
+                let len = match self.ty {
+                    BorderType::Dashed(len) => len,
+                    BorderType::Dotted => self.thickness,
+                    _ => unreachable!(),
+                };
+
+                draw_dashed_line(point_a, point_b, self.thickness, self.color, len);
+            }
+        }
     }
 
-    pub const NONE: Self = Self {
-        thickness: 0.0,
-        color: Color::TRANSPARENT,
-    };
+    pub const NONE: Self = Self::none();
 }
 
 #[derive(Debug)]
@@ -165,7 +221,11 @@ impl Border {
     }
 
     pub fn all(thickness: f32, color: Color, child: Child) -> UiRef {
-        let style = BorderStyle { thickness, color };
+        let style = BorderStyle {
+            thickness,
+            color,
+            ty: BorderType::Solid,
+        };
         Self {
             top: style,
             bottom: style,

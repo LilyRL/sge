@@ -17,3 +17,5 @@ sge_config.workspace = true
 sge_image.workspace = true
 sge_macros.workspace = true
 sge_window.workspace = true
+sge_types.workspace = true
+sge_color.workspace = true

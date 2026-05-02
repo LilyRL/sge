@@ -1,3 +1,5 @@
+use std::fmt::Debug;
+
 use egui_glium::egui_winit::egui::Color32;
 use palette::{Hsl, IntoColor, LinSrgb, LinSrgba, Oklch, Srgb, Srgba};
 use rkyv::{Archive, Deserialize, Serialize};
@@ -13,12 +15,24 @@ pub mod u8;
 pub use data::*;
 
 #[repr(C)]
-#[derive(Copy, Clone, Debug, PartialEq, PartialOrd, Archive, Serialize, Deserialize)]
+#[derive(Copy, Clone, PartialEq, PartialOrd, Archive, Serialize, Deserialize)]
 pub struct Color {
     pub r: f32,
     pub g: f32,
     pub b: f32,
     pub a: f32,
+}
+
+impl Debug for Color {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(&format!(
+            "#{:02X}{:02X}{:02X}{:02X}",
+            (self.r * 255.0).round() as u8,
+            (self.g * 255.0).round() as u8,
+            (self.b * 255.0).round() as u8,
+            (self.a * 255.0).round() as u8
+        ))
+    }
 }
 
 impl Color {

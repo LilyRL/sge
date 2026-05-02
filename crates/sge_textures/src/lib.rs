@@ -2,14 +2,16 @@ use std::{fmt::Debug, io::Cursor};
 
 use glium::{
     Texture2d,
-    texture::{RawImage2d, TextureCreationError},
+    texture::{InternalFormat, InternalFormatType, RawImage2d, TextureCreationError},
     uniforms::{MagnifySamplerFilter, MinifySamplerFilter},
 };
 pub use image::ImageFormat;
+use sge_color::u8::ColorU8;
 use sge_config::get_config;
 use sge_error_union::ErrorUnion;
 use sge_image::Image;
 use sge_macros::gen_ref_type;
+use sge_types::Area;
 use sge_vectors::{UVec2, Vec2};
 use sge_window::get_window_state;
 
@@ -109,6 +111,112 @@ impl SgeTexture {
         )?;
 
         Ok(SgeTexture::new(texture))
+    }
+
+    pub fn download_to_image(&self) -> Image {
+        let layer = self.gl_texture.main_level().first_layer();
+        let any_image = layer.into_image(None).unwrap();
+        let rect = Area::new(Vec2::new(0.0, 0.0), self.dimensions.as_vec2()).to_rect();
+        let format = self.gl_texture.get_internal_format().unwrap();
+
+        match format {
+            InternalFormat::FourComponents {
+                ty1: InternalFormatType::Float,
+                bits1: 32,
+                ty2: InternalFormatType::Float,
+                bits2: 32,
+                ty3: InternalFormatType::Float,
+                bits3: 32,
+                ty4: InternalFormatType::Float,
+                bits4: 32,
+            } => {
+                let raw_image = any_image.raw_read::<RawImage2d<f32>, f32>(&rect);
+                let u8_data = raw_image
+                    .data
+                    .array_windows::<4>()
+                    .map(|&[r, g, b, a]| ColorU8::from_rgba_f32(r, g, b, a))
+                    .collect();
+
+                let image = Image::new(
+                    self.dimensions.x as usize,
+                    self.dimensions.y as usize,
+                    u8_data,
+                );
+
+                image
+            }
+
+            InternalFormat::ThreeComponents {
+                ty1: InternalFormatType::Float,
+                bits1: 32,
+                ty2: InternalFormatType::Float,
+                bits2: 32,
+                ty3: InternalFormatType::Float,
+                bits3: 32,
+            } => {
+                let raw_image = any_image.raw_read::<RawImage2d<f32>, f32>(&rect);
+                let u8_data = raw_image
+                    .data
+                    .array_windows::<3>()
+                    .map(|&[r, g, b]| ColorU8::from_rgba_f32(r, g, b, 1.0))
+                    .collect();
+
+                let image = Image::new(
+                    self.dimensions.x as usize,
+                    self.dimensions.y as usize,
+                    u8_data,
+                );
+
+                image
+            }
+
+            InternalFormat::FourComponents {
+                ty1: InternalFormatType::UnsignedInt,
+                bits1: 8,
+                ty2: InternalFormatType::UnsignedInt,
+                bits2: 8,
+                ty3: InternalFormatType::UnsignedInt,
+                bits3: 8,
+                ty4: InternalFormatType::UnsignedInt,
+                bits4: 8,
+            } => {
+                let raw_image = any_image.raw_read::<RawImage2d<u8>, u8>(&rect);
+
+                let image = Image::from_bytes(
+                    self.dimensions.x as usize,
+                    self.dimensions.y as usize,
+                    raw_image.data.to_vec(),
+                );
+
+                image.unwrap()
+            }
+
+            InternalFormat::ThreeComponents {
+                ty1: InternalFormatType::UnsignedInt,
+                bits1: 8,
+                ty2: InternalFormatType::UnsignedInt,
+                bits2: 8,
+                ty3: InternalFormatType::UnsignedInt,
+                bits3: 8,
+            } => {
+                let raw_image = any_image.raw_read::<RawImage2d<u8>, u8>(&rect);
+                let u8_data = raw_image
+                    .data
+                    .array_windows::<3>()
+                    .map(|&[r, g, b]| ColorU8::from_rgba(r, g, b, 255))
+                    .collect();
+
+                let image = Image::new(
+                    self.dimensions.x as usize,
+                    self.dimensions.y as usize,
+                    u8_data,
+                );
+
+                image
+            }
+
+            _ => panic!("Unsupported texture format"),
+        }
     }
 }
 

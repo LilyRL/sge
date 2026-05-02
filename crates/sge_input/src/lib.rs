@@ -388,6 +388,11 @@ pub fn dropped_file() -> Option<PathBuf> {
     get_input().dropped_file()
 }
 
+/// Returns the path to a file that the OS is currently dragging over the window, if any.
+pub fn hovered_file() -> Option<PathBuf> {
+    get_input().hovered_file()
+}
+
 /// Returns the current window size if it was resized during the last step.
 /// Otherwise returns None.
 pub fn window_resized() -> Option<UVec2> {

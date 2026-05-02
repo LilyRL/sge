@@ -119,6 +119,15 @@ pub use tooltip::*;
 mod modal;
 pub use modal::*;
 
+mod drop_file;
+pub use drop_file::*;
+
+mod search;
+pub use search::*;
+
+mod collect;
+pub use collect::*;
+
 use sge_window::window_width;
 
 pub fn media_query<T>(small: T, medium: T, large: T) -> T {

@@ -84,6 +84,14 @@ impl UiRef {
         SizedBox::height(height, self)
     }
 
+    pub fn expand_x(self) -> UiRef {
+        SizedBox::width(f32::INFINITY, self)
+    }
+
+    pub fn expand_y(self) -> UiRef {
+        SizedBox::height(f32::INFINITY, self)
+    }
+
     pub fn width_infinite_height(self, width: f32) -> UiRef {
         SizedBox::width(width, self)
     }

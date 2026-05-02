@@ -263,6 +263,10 @@ impl<T: Debug> State<T> {
         }
     }
 
+    pub fn to_id(&self) -> usize {
+        self._ref.0
+    }
+
     pub fn get_or_create_mut<F>(&self, create: F) -> &'static mut T
     where
         F: FnOnce() -> T,

@@ -12,6 +12,7 @@
 - [ ] some kinda mf https://docs.rs/macroquad/latest/macroquad/telemetry/index.html
 - [ ] miniquad backend + web
 - [ ] bitmap fonts
+- [ ] ui slideshow from markdown render to textures
 - [ ] unload refs
 - [ ] set target fps
 - [ ] get screen to world ray
@@ -28,7 +29,7 @@
 - [ ] ui select in text edit
 - [ ] ui text box
 - [ ] ui drop file, with example that opens an image if dropped onto area
-- [ ] ui dotted border
+- [X] ui dotted border
   floating window
 - [ ] dirty struct macro, which automatically keeps track of what is dirty, and you can define computations as impls with a function that takes some fields and returns a value and adds that as a field on the struct with methods for getting and getting mut and setting fields which deals with making things dirty
 - [ ] more filters
@@ -40,7 +41,6 @@
   - [ ] pixel sort
   - [ ] custom
 - [ ] coroutines, some kind of future management so that the user can ask to run some code at the end of the frame, in some number of frames, after some time, or when something next happens
-- [ ] crates.io
 - [ ] make the ui more performant
 - [ ] re-add profiling
 - [ ] measure startup and runtime performance
@@ -74,16 +74,15 @@
   - [ ] needs gouraud shading
 - [ ] sphere SDF
 - [ ] video
-- [ ] screenshake
+- [X] screenshake
 - [ ] sepia
 - [ ] edge detection
-- [ ] sharpen
+- [X] sharpen
 - [ ] 3d scene with lights and shadow
 - [ ] list view builder where it only generates the nodes that are actually visible
 - [ ] loading spinner
   - [ ] needs arcs
-- [ ] player controllers
-- [ ] text box
+- [X] player controllers
 - [ ] probably add bold and italic to rich text. so we need fonts to be packaged
   with all three and make bold and italics optional, and fall back to default
 - [ ] automatic interpolated values for ui elements
@@ -449,3 +448,4 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord) {
   - [X] functions to specify arbritrary transform of 2d shapes
 - [X] draw pixel
 - [X] draw pixel line
+- [X] crates.io

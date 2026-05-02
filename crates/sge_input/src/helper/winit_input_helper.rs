@@ -28,6 +28,7 @@ use std::{path::PathBuf, time::Duration};
 pub struct WinitInputHelper {
     pub(crate) current: Option<CurrentInput>,
     pub(crate) dropped_file: Option<PathBuf>,
+    pub(crate) hovered_file: Option<PathBuf>,
     pub(crate) window_resized: Option<PhysicalSize<u32>>,
     pub(crate) window_size: Option<(u32, u32)>,
     pub(crate) scale_factor_changed: Option<f64>,
@@ -49,6 +50,7 @@ impl WinitInputHelper {
         WinitInputHelper {
             current: Some(CurrentInput::new()),
             dropped_file: None,
+            hovered_file: None,
             window_resized: None,
             window_size: None,
             scale_factor_changed: None,
@@ -93,7 +95,9 @@ impl WinitInputHelper {
                     self.current = Some(CurrentInput::new())
                 }
             }
-            WindowEvent::DroppedFile(path) => self.dropped_file = Some(path.clone()),
+            WindowEvent::DroppedFile(path) => self.dropped_file = dbg!(Some(path.clone())),
+            WindowEvent::HoveredFile(path) => self.hovered_file = dbg!(Some(path.clone())),
+            WindowEvent::HoveredFileCancelled => self.hovered_file = dbg!(None),
             WindowEvent::Resized(size) => {
                 self.window_resized = Some(*size);
                 self.window_size = Some((*size).into());
@@ -382,6 +386,11 @@ impl WinitInputHelper {
     /// Returns the path to a file that has been drag-and-dropped onto the window.
     pub fn dropped_file(&self) -> Option<PathBuf> {
         self.dropped_file.clone()
+    }
+
+    /// Returns the path to a file that is being hovered over the window.
+    pub fn hovered_file(&self) -> Option<PathBuf> {
+        self.hovered_file.clone()
     }
 
     /// Returns the current window size if it was resized during the last step.

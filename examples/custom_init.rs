@@ -1,3 +1,4 @@
+use glium::winit::monitor::VideoModeHandle;
 use sge::prelude::*;
 
 struct PhysicsCircle {
@@ -9,6 +10,7 @@ fn main() -> anyhow::Result<()> {
     let opts = EngineCreationOptions::builder()
         .window_transparent(true)
         .opengl_debug(true)
+        .dithering(false)
         .opengl_profile(GlProfile::Core)
         .default_magnify_filter(MagnifySamplerFilter::Nearest)
         .log_verbosity(Verbosity::Medium)

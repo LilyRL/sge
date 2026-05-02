@@ -165,7 +165,6 @@ default = [
     "gamepad",
     "input",
     "precise_cursor_movement",
-    "round_coords",
     "text",
     "ui",
     "network",
@@ -229,6 +228,6 @@ members = [
     "crates/sge_ui",
     "crates/sge_utils",
     "crates/sge_vectors",
-    "crates/sge_window",
-]
+    "crates/sge_window"
+, "examples/md"]
 resolver = "3"

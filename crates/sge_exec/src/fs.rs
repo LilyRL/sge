@@ -5,7 +5,7 @@ use sge_image::{ImageRef, LoadImageError};
 use sge_programs::{LoadProgramError, ProgramRef};
 use sge_text::{FontRef, LoadFontError};
 use sge_textures::{ImageFormat, LoadTextureError, SgeTexture, TextureRef};
-use std::io::Cursor;
+use std::{io::Cursor, path::Path};
 
 pub type LoadingTexture = Option<Result<TextureRef, LoadTextureError>>;
 
@@ -102,10 +102,22 @@ pub async fn load_program_from_strings(
         .map_err(LoadProgramError::Create)
 }
 
-pub async fn load_file(path: impl AsRef<str> + Send + 'static) -> Result<Vec<u8>, std::io::Error> {
+pub async fn read_file(path: impl AsRef<Path> + Send + 'static) -> Result<Vec<u8>, std::io::Error> {
     let (tx, rx) = oneshot::channel();
     rayon::spawn(move || {
-        let _ = tx.send(std::fs::read(path.as_ref()));
+        let _ = tx.send(std::fs::read(path));
+    });
+    rx.await
+        .map_err(|_| std::io::Error::other("sender dropped"))?
+}
+
+pub async fn write_file(
+    path: impl AsRef<Path> + Send + 'static,
+    data: impl AsRef<[u8]> + Send + 'static,
+) -> Result<(), std::io::Error> {
+    let (tx, rx) = oneshot::channel();
+    rayon::spawn(move || {
+        let _ = tx.send(std::fs::write(path, data));
     });
     rx.await
         .map_err(|_| std::io::Error::other("sender dropped"))?

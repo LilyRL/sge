@@ -679,23 +679,31 @@ fn dashed_line_internal(
 ) {
     let delta = end - start;
     let (dir, length) = delta.normalize_and_length();
-
     if length == 0.0 || segment_length <= 0.0 {
         return;
     }
 
+    let ideal_count = (length / segment_length).round() as u32;
+
+    let count = if ideal_count < 1 {
+        1
+    } else if ideal_count % 2 == 0 {
+        ideal_count + 1
+    } else {
+        ideal_count
+    };
+
+    let adjusted_len = length / count as f32;
+
     let mut t = 0.0;
     let mut draw = true;
-
-    while t < length {
-        let next_t = (t + segment_length).min(length);
-
+    for _ in 0..count {
+        let next_t = t + adjusted_len;
         if draw {
             let a = start + dir * t;
             let b = start + dir * next_t;
             draw_line_to(a, b, thickness, color, renderer);
         }
-
         t = next_t;
         draw = !draw;
     }
@@ -1059,6 +1067,29 @@ draw_variants!(
 pub enum Orientation {
     Vertical,
     Horizontal,
+}
+
+impl Orientation {
+    pub fn main(self, vec2: Vec2) -> f32 {
+        match self {
+            Orientation::Vertical => vec2.y,
+            Orientation::Horizontal => vec2.x,
+        }
+    }
+
+    pub fn cross(self, vec2: Vec2) -> f32 {
+        match self {
+            Orientation::Vertical => vec2.x,
+            Orientation::Horizontal => vec2.y,
+        }
+    }
+
+    pub fn create_vec2(self, main: f32, cross: f32) -> Vec2 {
+        match self {
+            Orientation::Vertical => vec2(cross, main),
+            Orientation::Horizontal => vec2(main, cross),
+        }
+    }
 }
 
 #[derive(Debug, Clone, Copy)]
