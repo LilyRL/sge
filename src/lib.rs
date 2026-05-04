@@ -75,12 +75,12 @@ pub fn init_custom(mut opts: Opts) -> Result<(), InitError> {
     sge_debugging::init();
     sge_rng::init();
     sge_programs::init()?;
-    sge_rendering::init();
     #[cfg(feature = "audio")]
     sge_audio::init()?;
     sge_image::init();
     sge_texture_atlas::init();
     sge_textures::init();
+    sge_rendering::init();
     #[cfg(feature = "text")]
     sge_text::init();
     #[cfg(feature = "ui")]

@@ -2,13 +2,13 @@ use super::*;
 use sge_api::shapes_2d::Orientation;
 
 #[derive(Debug)]
-pub struct Collect {
+pub struct Flow {
     orientation: Orientation,
     children: Vec<Child>,
     gap: f32,
 }
 
-impl Collect {
+impl Flow {
     pub fn new(orientation: Orientation, children: Vec<Child>) -> UiRef {
         Self {
             orientation,
@@ -27,20 +27,20 @@ impl Collect {
         .to_ref()
     }
 
-    pub fn vertical(children: Vec<Child>) -> UiRef {
-        Self::new(Orientation::Vertical, children)
+    pub fn vertical(children: impl Into<Vec<Child>>) -> UiRef {
+        Self::new(Orientation::Vertical, children.into())
     }
 
-    pub fn vertical_with_gap(gap: f32, children: Vec<Child>) -> UiRef {
-        Self::with_gap(Orientation::Vertical, gap, children)
+    pub fn vertical_with_gap(gap: f32, children: impl Into<Vec<Child>>) -> UiRef {
+        Self::with_gap(Orientation::Vertical, gap, children.into())
     }
 
-    pub fn horizontal(children: Vec<Child>) -> UiRef {
-        Self::new(Orientation::Horizontal, children)
+    pub fn horizontal(children: impl Into<Vec<Child>>) -> UiRef {
+        Self::new(Orientation::Horizontal, children.into())
     }
 
-    pub fn horizontal_with_gap(gap: f32, children: Vec<Child>) -> UiRef {
-        Self::with_gap(Orientation::Horizontal, gap, children)
+    pub fn horizontal_with_gap(gap: f32, children: impl Into<Vec<Child>>) -> UiRef {
+        Self::with_gap(Orientation::Horizontal, gap, children.into())
     }
 
     fn layout(&self, area: Area) -> Vec<Area> {
@@ -54,14 +54,14 @@ impl Collect {
                 top_left: area.top_left + self.orientation.create_vec2(main_offset, cross_offset),
                 size: area.size - self.orientation.create_vec2(main_offset, cross_offset),
             };
-            let size = dbg!(child.node.size(child_area));
+            let size = child.node.size(child_area);
             let main_axis_size = self.orientation.main(size);
             let main_axis_area = self.orientation.main(area.size);
             let remaining_space = main_axis_area - main_offset;
 
             if remaining_space < main_axis_size {
                 cross_offset += max_cross + self.gap;
-                main_offset = self.gap;
+                main_offset = 0.0;
             }
 
             let child_area = Area {
@@ -80,7 +80,7 @@ impl Collect {
     }
 }
 
-impl UiNode for Collect {
+impl UiNode for Flow {
     fn draw(&self, area: Area, ui: &UiState) -> Vec2 {
         let areas = self.layout(area);
         for (child, area) in self.children.iter().zip(&areas) {

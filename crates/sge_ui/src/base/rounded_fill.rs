@@ -128,3 +128,9 @@ impl UiNode for RoundedHoverFill {
         self.child.node.preferred_dimensions()
     }
 }
+
+impl UiRef {
+    pub fn rounded_fill(self, fill_color: Color, corner_radius: f32) -> UiRef {
+        RoundedFill::new(fill_color, corner_radius, self)
+    }
+}

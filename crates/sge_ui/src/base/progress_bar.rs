@@ -1,6 +1,5 @@
-use sge_vectors::vec2;
-use sge_api::shapes_2d::draw_rect;
 use sge_math::lerp;
+use sge_vectors::vec2;
 
 use super::*;
 
@@ -8,7 +7,7 @@ use super::*;
 pub struct ProgressBar {
     pub(crate) max: f32,
     pub(crate) value: f32,
-    pub(crate) color: Color,
+    pub(crate) fill: Child,
     pub(crate) state: State<ProgressBarState>,
     pub(crate) interpolation_speed: f32,
 }
@@ -19,13 +18,13 @@ pub(crate) struct ProgressBarState {
 }
 
 impl ProgressBar {
-    pub fn new(value: f32, max: f32, color: Color, id: usize) -> UiRef {
+    pub fn new(value: f32, max: f32, fill: UiRef, id: usize) -> UiRef {
         ProgressBar {
             max,
             value,
-            color,
+            fill,
             state: State::from_id(id),
-            interpolation_speed: 10.0,
+            interpolation_speed: 20.0,
         }
         .to_ref()
     }
@@ -34,14 +33,14 @@ impl ProgressBar {
     pub fn new_with_interpolation_speed(
         value: f32,
         max: f32,
-        color: Color,
+        fill: UiRef,
         interpolation_speed: f32,
         id: usize,
     ) -> UiRef {
         ProgressBar {
             max,
             value,
-            color,
+            fill,
             state: State::from_id(id),
             interpolation_speed,
         }
@@ -61,7 +60,8 @@ impl UiNode for ProgressBar {
         let ratio = state.displayed_value / self.max;
         let width = area.width() * ratio;
 
-        draw_rect(area.top_left, vec2(width, area.height()), self.color);
+        let fill_area = Area::new(area.top_left, vec2(width, area.height()));
+        self.fill.draw(fill_area, ui);
 
         area.size
     }

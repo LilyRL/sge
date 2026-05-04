@@ -210,6 +210,10 @@ pub fn gen_ref_type(input: TokenStream) -> TokenStream {
             pub const unsafe fn new_indexed(idx: usize) -> Self {
                 Self(idx)
             }
+
+            pub unsafe fn delete(self) {
+                #get_name()[self.0] = unsafe { std::mem::zeroed() };
+            }
         }
 
         impl #ty {

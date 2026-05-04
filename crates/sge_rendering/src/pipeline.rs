@@ -2,7 +2,6 @@ use crate::d3::DrawQueue3D;
 use crate::get_render_state;
 use crate::post_processing::PostProcessingEffect;
 use crate::{DrawQueues, d2::DrawQueue2D};
-use sge_vectors::{Mat4, UVec2, Vec2, Vec3};
 use glium::Texture2d;
 use glium::{
     Surface,
@@ -14,7 +13,8 @@ use sge_camera::{Cameras, get_cameras};
 use sge_color::Color;
 use sge_macros::gen_ref_type;
 use sge_programs::COPY_PROGRAM;
-use sge_textures::{SgeTexture, TextureRef, get_texture_state};
+use sge_textures::{SgeTexture, TextureRef};
+use sge_vectors::{Mat4, UVec2, Vec2, Vec3};
 use sge_window::{get_display, get_display_mut, get_window_state};
 
 pub struct RenderTexture {
@@ -48,6 +48,7 @@ impl RenderTextureRef {
     }
 }
 
+#[derive(Clone, Copy)]
 pub enum RenderTarget {
     Screen,
     Texture(RenderTextureRef),
@@ -180,92 +181,58 @@ impl RenderPipeline {
         let mut cameras = self.cameras();
         let is_texture_target = matches!(self.output, RenderTarget::Texture(_));
 
-        let has_post_processing = self
-            .steps
-            .iter()
-            .any(|step| matches!(step, RenderStep::PostProcessing(_)));
+        let dimensions = frame.get_dimensions();
 
-        if has_post_processing {
-            let dimensions = frame.get_dimensions();
+        get_render_state().update_rts(frame);
 
-            let mut a = empty_render_texture(dimensions.0, dimensions.1).unwrap();
-            let mut b = empty_render_texture(dimensions.0, dimensions.1).unwrap();
+        let a = &mut get_render_state().a;
+        let b = &mut get_render_state().b;
 
-            match self.clear_color {
-                ClearColor::DontClear => (),
-                ClearColor::Default => {
-                    a.framebuffer().clear_color(0.0, 0.0, 0.0, 1.0);
-                    b.framebuffer().clear_color(0.0, 0.0, 0.0, 1.0);
-                }
-                ClearColor::Clear(c) => {
-                    a.framebuffer().clear_color(c.r, c.g, c.b, c.a);
-                    b.framebuffer().clear_color(c.r, c.g, c.b, c.a);
-                }
+        match self.clear_color {
+            ClearColor::DontClear => (),
+            ClearColor::Default => {
+                a.framebuffer().clear_color(0.0, 0.0, 0.0, 1.0);
+                b.framebuffer().clear_color(0.0, 0.0, 0.0, 1.0);
             }
-
-            for step in std::mem::take(&mut self.steps) {
-                a.framebuffer().clear_depth(1.0);
-                b.framebuffer().clear_depth(1.0);
-
-                match step {
-                    RenderStep::Drawing(draw_queues) => {
-                        self.draw_queues_to(
-                            &mut a.framebuffer(),
-                            draw_queues,
-                            &mut cameras,
-                            is_texture_target,
-                        );
-                    }
-                    RenderStep::PostProcessing(effects) => {
-                        for effect in effects.0 {
-                            effect
-                                .apply(
-                                    a.color_texture,
-                                    &mut b.framebuffer(),
-                                    Vec2::new(dimensions.0 as f32, dimensions.1 as f32),
-                                )
-                                .unwrap();
-
-                            std::mem::swap(&mut a, &mut b);
-                        }
-                    }
-                }
+            ClearColor::Clear(c) => {
+                a.framebuffer().clear_color(c.r, c.g, c.b, c.a);
+                b.framebuffer().clear_color(c.r, c.g, c.b, c.a);
             }
+        }
 
-            self.draw_texture_to_target(frame, a.color_texture);
+        for step in std::mem::take(&mut self.steps) {
+            a.framebuffer().clear_depth(1.0);
+            b.framebuffer().clear_depth(1.0);
 
-            let storage = get_texture_state();
-            storage.pop();
-            storage.pop();
-        } else {
-            match self.clear_color {
-                ClearColor::DontClear => (),
-                ClearColor::Default => {
-                    frame.clear_color(0.0, 0.0, 0.0, 1.0);
-                    frame.clear_depth(1.0);
+            match step {
+                RenderStep::Drawing(draw_queues) => {
+                    RenderPipeline::draw_queues_to(
+                        &mut a.framebuffer(),
+                        draw_queues,
+                        &mut cameras,
+                        is_texture_target,
+                    );
                 }
-                ClearColor::Clear(c) => {
-                    let lin = c.to_linear();
-                    frame.clear_color(lin.r, lin.g, lin.b, lin.a);
-                    frame.clear_depth(1.0);
-                }
-            }
+                RenderStep::PostProcessing(effects) => {
+                    for effect in effects.0 {
+                        effect
+                            .apply(
+                                a.color_texture,
+                                &mut b.framebuffer(),
+                                Vec2::new(dimensions.0 as f32, dimensions.1 as f32),
+                            )
+                            .unwrap();
 
-            for step in std::mem::take(&mut self.steps) {
-                match step {
-                    RenderStep::Drawing(draw_queues) => {
-                        self.draw_queues_to(frame, draw_queues, &mut cameras, is_texture_target);
-                    }
-                    RenderStep::PostProcessing(_) => {
-                        unreachable!();
+                        std::mem::swap(a, b);
                     }
                 }
             }
         }
+
+        self.draw_texture_to_target(frame, a.color_texture);
     }
 
     fn draw_queues_to<T: Surface>(
-        &self,
         target: &mut T,
         mut draw_queues: DrawQueues,
         cameras: &mut Cameras,

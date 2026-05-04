@@ -1,6 +1,9 @@
 use core::f32;
 
-use sge::prelude::*;
+use sge::{
+    icons::{ICON_BOMB, ICON_CARET_DOWN, ICON_CIRCLE_NOTCH, ICON_PLUS_CIRCLE},
+    prelude::*,
+};
 use ui::*;
 
 const NODES: &[(&str, fn() -> UiRef)] = &[
@@ -21,6 +24,7 @@ const NODES: &[(&str, fn() -> UiRef)] = &[
     ("Fill/multigradient", multipoint_gradient_fill),
     ("Fill/pattern", pattern_fill),
     ("Fill/rounded", rounded_fill),
+    ("Flow", flow),
     ("Hoverable", hoverable),
     ("Hyperlink", hyperlink),
     ("Image/async", async_image),
@@ -34,6 +38,7 @@ const NODES: &[(&str, fn() -> UiRef)] = &[
     ("Layout/row", row),
     ("Loading Bar", loading_bar),
     ("Modal", modal),
+    ("Outline", outline),
     ("Progress Bar", progress_bar),
     ("Scissor Box", scissor_box),
     ("Scroll", scroll),
@@ -43,6 +48,7 @@ const NODES: &[(&str, fn() -> UiRef)] = &[
     ("Slider", slider),
     ("Stack", stack),
     ("Text/rich", rich_text_page),
+    ("Text", text_showcase),
     ("Tooltip", tooltip),
     ("Window", window),
 ];
@@ -51,8 +57,6 @@ const SCHEME: ColorScheme = ColorScheme::LACKLUSTER;
 #[main("UI Showcase")]
 fn main() -> anyhow::Result<()> {
     let select = id!();
-
-    wait_for_events();
 
     loop {
         clear_screen(SCHEME.bg1);
@@ -85,7 +89,12 @@ fn main() -> anyhow::Result<()> {
                             FlexBox::Flex(Col::with_gap(
                                 40.0,
                                 [
-                                    Text::h1_no_padding(NODES[selected].0),
+                                    Text::builder()
+                                        .text(NODES[selected].0)
+                                        .font(SANS_DISPLAY)
+                                        .color(SCHEME.fg0)
+                                        .font_size(40)
+                                        .build(),
                                     (NODES[selected].1)(),
                                 ],
                             )),
@@ -275,7 +284,7 @@ fn line_chart() -> UiRef {
         [
             flat::LineChart::new(data, 500.0, 200.0),
             text(
-                "This sin graph looks weird with the round_coords feature enabled, but that feature makes other parts of the UI look more crisp. You can enable and disable it in your Cargo.toml.",
+                "This sin graph will look weird with the round_coords feature enabled, but that feature makes other parts of the UI look more crisp. You can enable and disable it in your Cargo.toml.",
             ),
             flat::Hyperlink::new("https://doc.rust-lang.org/cargo/reference/features.html"),
         ],
@@ -518,9 +527,15 @@ fn progress_bar() -> UiRef {
     Col::with_gap(
         20.0,
         [
-            ProgressBar::new(state.progress as f32, 5.0, SCHEME.fg1, id!())
-                .fill(SCHEME.bg1)
-                .sized_wh(300.0, 50.0),
+            ProgressBar::new(
+                state.progress as f32,
+                5.0,
+                RoundedFill::new(SCHEME.fg1, 10.0, EMPTY),
+                id!(),
+            )
+            .padding(5.0)
+            .rounded_fill(SCHEME.bg3, 15.0)
+            .sized_wh(300.0, 50.0),
             flat::Button::primary_text(button, "Increment"),
         ],
     )
@@ -885,4 +900,97 @@ fn search() -> UiRef {
     ];
 
     flat::Search::text(id!(), options)
+}
+
+fn flow() -> UiRef {
+    struct State {
+        boxes: Vec<(u8, f32)>,
+    }
+
+    fn b(s: u8, c: f32) -> UiRef {
+        let s = s as f32 / 4.0 + 50.0;
+        let n = (c * 11.0 + time()) as usize % 11;
+        BoxFill::new(Palette::SKY.shades()[n], EMPTY).sized_wh(s, 50.0)
+    }
+
+    if !storage_exists::<State>() {
+        let boxes = (0..500).map(|_| (rand(), rand())).collect();
+        storage_store_state(State { boxes });
+    }
+
+    let state = storage_get_state::<State>();
+    let children = state
+        .boxes
+        .iter()
+        .map(|(s, c)| b(*s, *c))
+        .collect::<Vec<_>>();
+
+    BoxFill::new(
+        SCHEME.bg1,
+        Flow::horizontal_with_gap(10.0, children)
+            .scroll(id!())
+            .padding(10.0),
+    )
+    .fit_size()
+}
+
+fn outline() -> UiRef {
+    Col::with_gap(
+        20.0,
+        [
+            Row::with_gap(
+                20.0,
+                [
+                    Outline::all_style(
+                        BorderStyle::custom(10.0, SCHEME.fg2, BorderType::Dashed(30.0)),
+                        BoxFill::new(SCHEME.bg3, Center::new(text("Outline"))),
+                    )
+                    .square(200.0),
+                    Border::all_style(
+                        BorderStyle::custom(10.0, SCHEME.fg2, BorderType::Dashed(30.0)),
+                        BoxFill::new(SCHEME.bg3, Center::new(text("Border"))),
+                    )
+                    .square(200.0),
+                ],
+            ),
+            Text::new("Outline does not shift the layout, and is applied over the child"),
+        ],
+    )
+}
+
+fn text_showcase() -> UiRef {
+    fn bold_italic_colored(text: impl ToString, color: Color) -> UiRef {
+        Text::new_full(text, SANS_BOLD_ITALIC, 24, color, true, 1.0, false)
+    }
+
+    Scroll::new(
+        id!(),
+        Col::new([
+            Text::title("Title"),
+            Text::body(
+                "Lorem ipsum dolor sit amet, consectetur\n\n adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
+            ),
+            Text::h1("Heading 1"),
+            Text::body("Lorem ipsum dolor sit amet."),
+            Text::h2("Heading 1"),
+            Text::body("Lorem ipsum dolor sit amet."),
+            Text::mono_sized(
+                format!(
+                    "{} {} {} {}",
+                    ICON_PLUS_CIRCLE, ICON_BOMB, ICON_CARET_DOWN, ICON_CIRCLE_NOTCH
+                ),
+                40,
+            ),
+            Text::h3("Heading 1"),
+            Text::body("Lorem ipsum dolor sit amet."),
+            Text::italic("Lorem ipsum dolor sit amet."),
+            Text::bold("Lorem ipsum dolor sit amet."),
+            Text::bold_italic("Lorem ipsum dolor sit amet."),
+            Col::new(
+                Palette::NEUTRAL
+                    .shades()
+                    .map(|c| bold_italic_colored("Lorem ipsum dolor sit amet.", c)),
+            ),
+        ]),
+    )
 }

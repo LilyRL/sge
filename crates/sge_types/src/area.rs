@@ -147,3 +147,10 @@ impl Area {
         }
     }
 }
+
+pub fn window_area() -> Area {
+    Area {
+        top_left: Vec2::ZERO,
+        size: window_size(),
+    }
+}

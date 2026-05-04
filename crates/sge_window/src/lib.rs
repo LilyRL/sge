@@ -159,6 +159,11 @@ pub fn window_height() -> f32 {
     get_window_state().window_size.y
 }
 
+pub fn window_aspect_ratio() -> f32 {
+    let size = get_window_state().window_size;
+    size.x / size.y
+}
+
 pub fn window_width() -> f32 {
     get_window_state().window_size.x
 }

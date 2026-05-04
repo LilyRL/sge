@@ -14,6 +14,13 @@ impl<T, const N: usize> RotatingArray<T, N> {
         Self { n: 0, arr }
     }
 
+    pub fn empty() -> Self {
+        Self {
+            n: 0,
+            arr: unsafe { MaybeUninit::uninit().assume_init() },
+        }
+    }
+
     pub fn push(&mut self, item: T) {
         self.arr[self.n] = item;
         self.n = (self.n + 1) % N;

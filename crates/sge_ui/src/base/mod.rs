@@ -125,8 +125,8 @@ pub use drop_file::*;
 mod search;
 pub use search::*;
 
-mod collect;
-pub use collect::*;
+mod flow;
+pub use flow::*;
 
 use sge_window::window_width;
 

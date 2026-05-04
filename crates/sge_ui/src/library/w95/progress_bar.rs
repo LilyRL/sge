@@ -9,14 +9,7 @@ impl ProgressBar {
             size,
             Card::thin(
                 0.0,
-                base::ProgressBar {
-                    color: SECONDARY,
-                    state: State::from_id(id),
-                    interpolation_speed: 40.0,
-                    max,
-                    value,
-                }
-                .to_ref(),
+                base::ProgressBar::new(value, max, BoxFill::new(super::SECONDARY, EMPTY), id),
             ),
         )
     }

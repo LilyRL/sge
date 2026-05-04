@@ -60,6 +60,7 @@ impl From<&Text> for TextDrawParams {
     }
 }
 
+#[bon::bon]
 impl Text {
     pub fn new(text: impl ToString) -> UiRef {
         Self {
@@ -329,6 +330,28 @@ impl Text {
         .to_ref()
     }
 
+    #[builder]
+    pub fn builder(
+        text: impl ToString,
+        font: Option<FontRef>,
+        font_size: Option<usize>,
+        color: Option<Color>,
+        do_dpi_scaling: Option<bool>,
+        line_spacing: Option<f32>,
+        wrap: Option<bool>,
+    ) -> UiRef {
+        Self {
+            text: text.to_string(),
+            font: font.unwrap_or(SANS),
+            font_size: font_size.unwrap_or(TextDrawParams::default().font_size),
+            color: color.unwrap_or(TextDrawParams::default().color),
+            do_dpi_scaling: do_dpi_scaling.unwrap_or(TextDrawParams::default().do_dpi_scaling),
+            line_spacing: line_spacing.unwrap_or(1.0),
+            wrap: wrap.unwrap_or(true),
+        }
+        .to_ref()
+    }
+
     pub fn from_params(text: impl ToString, params: TextDrawParams, wrap: bool) -> UiRef {
         Self {
             text: text.to_string(),
@@ -351,18 +374,14 @@ impl UiNode for Text {
 
     fn size(&self, area: Area) -> Vec2 {
         if self.wrap {
-            dbg!(
-                area,
-                measure_wrapped_text(
-                    &self.text,
-                    area.width(),
-                    Some(self.font),
-                    self.font_size,
-                    self.do_dpi_scaling,
-                    self.line_spacing,
-                )
+            measure_wrapped_text(
+                &self.text,
+                area.width(),
+                Some(self.font),
+                self.font_size,
+                self.do_dpi_scaling,
+                self.line_spacing,
             )
-            .1
         } else {
             self.preferred_dimensions()
         }

@@ -61,3 +61,9 @@ impl UiNode for Observer {
         size
     }
 }
+
+impl UiRef {
+    pub fn observe(self) -> UiRef {
+        Observer::new(self)
+    }
+}

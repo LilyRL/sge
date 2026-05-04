@@ -16,14 +16,17 @@
 - [ ] unload refs
 - [ ] set target fps
 - [ ] get screen to world ray
-- [ ] take screenshot
-- [ ] load image from texture
+- [X] take screenshot
+- [X] load image from texture
 - [ ] load image from screen
 - [ ] add post frame callback
 - [ ] play_sound_looped
 - [ ] stop_sound
 - [ ] safe multithreading
 - [ ] 3d scene for point lights
+- [ ] ui routing with wrapper widget with back and forward buttons and title at
+  the top
+- [ ] ui resizable, like docking and panels
 - [ ] ui span support, so i can have links and stuff inside a paragraph
 - [ ] ui select text
 - [ ] ui select in text edit
