@@ -376,9 +376,9 @@ impl Metaball {
 #[derive(Copy, Clone)]
 #[repr(C)]
 pub struct MetaballBlock {
-    pub centers: [[f32; 2]; 32],
-    pub radii: [f32; 32],
-    pub pads: [f32; 32],
+    pub centers: [[f32; 2]; METABALLS_N],
+    pub radii: [f32; METABALLS_N],
+    pub pads: [f32; METABALLS_N],
 }
 
 implement_uniform_block!(MetaballBlock, centers, radii, pads);
@@ -391,11 +391,13 @@ impl Metaballs {
 
 gen_ref_type!(MetaballBatch, Metaballs, metaballs);
 
+const METABALLS_N: usize = 64;
+
 #[derive(Debug)]
 pub struct MetaballBatch {
     color: Color,
     bounding_box: Area,
-    data: ConstantArray<Metaball, 32>,
+    data: ConstantArray<Metaball, METABALLS_N>,
     texture_dirty: bool,
     bounding_box_dirty: bool,
     texture: Texture1d,
@@ -408,7 +410,7 @@ impl MetaballBatch {
             get_display(),
             UncompressedFloatFormat::F32F32F32F32,
             MipmapsOption::NoMipmap,
-            32,
+            METABALLS_N as u32,
         )
         .expect("failed to create metaball texture");
 
@@ -456,7 +458,7 @@ impl MetaballBatch {
 
     fn update(&mut self) {
         if self.texture_dirty {
-            let mut raw_data = vec![0.0f32; 32 * 4];
+            let mut raw_data = vec![0.0f32; METABALLS_N * 4];
             for (i, ball) in self.data.as_slice().iter().enumerate() {
                 raw_data[i * 4] = ball.center[0];
                 raw_data[i * 4 + 1] = ball.center[1];
@@ -465,7 +467,7 @@ impl MetaballBatch {
             }
             let raw = RawImage1d {
                 data: raw_data.into(),
-                width: 32,
+                width: METABALLS_N as u32,
                 format: ClientFormat::F32F32F32F32,
             };
             self.texture = Texture1d::with_format(

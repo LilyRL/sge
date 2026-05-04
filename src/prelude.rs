@@ -167,7 +167,7 @@ pub use sge_rendering::scissor::{
     clear_scissor_stack, current_scissor, get_scissor_stack, pop_scissor, push_scissor,
 };
 pub use sge_rendering::shapes_3d::*;
-pub use sge_rendering::take_screenshot;
+pub use sge_rendering::{take_screenshot, take_screenshot_image, window_texture};
 pub use sge_rng::{
     const_random::const_random, get_next_counter, get_random, id, maybe_rand_choice, rand,
     rand_bool, rand_choice, rand_color, rand_f32, rand_range, rand_ratio, rand_usize, rand_vec2,

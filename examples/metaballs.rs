@@ -2,7 +2,7 @@ use sge::*;
 use sge_utils::ConstantArray;
 
 // cannot exceed 32
-const N: usize = 32;
+const N: usize = 64;
 
 #[main("Metaballs")]
 async fn main() -> anyhow::Result<()> {
@@ -14,10 +14,12 @@ async fn main() -> anyhow::Result<()> {
         balls.add_metaball(Metaball::new(vec2(0.0, 0.0), 100.0))?;
     }
 
-    balls.set_color(Color::NEUTRAL_800);
+    balls.set_color(Color::NEUTRAL_300);
 
     loop {
-        clear_screen(Color::NEUTRAL_200);
+        clear_screen(Color::NEUTRAL_900);
+
+        draw_fps_bg();
 
         balls.draw_world();
 

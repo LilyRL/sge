@@ -7,9 +7,7 @@ use glium::{
     uniform,
 };
 use materials::init_materials;
-use pipeline::{
-    RenderPipeline, RenderTarget, RenderTexture, RenderTextureRef, empty_render_texture,
-};
+use pipeline::{RenderPipeline, RenderTarget, RenderTexture, empty_render_texture};
 use post_processing::render_fullscreen_quad;
 use sge_image::Image;
 use sge_programs::COPY_PROGRAM;
@@ -115,6 +113,10 @@ pub fn take_screenshot() -> TextureRef {
 
 pub fn take_screenshot_image() -> Image {
     get_render_state().a.color_texture.download_to_image()
+}
+
+pub fn window_texture() -> TextureRef {
+    get_render_state().a.color_texture
 }
 
 pub fn texture_create_clone(texture: TextureRef) -> TextureRef {

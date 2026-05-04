@@ -2,9 +2,7 @@ use std::{fmt::Debug, io::Cursor};
 
 use glium::{
     Texture2d,
-    framebuffer::SimpleFrameBuffer,
     texture::{InternalFormat, InternalFormatType, RawImage2d, TextureCreationError},
-    uniform,
     uniforms::{MagnifySamplerFilter, MinifySamplerFilter},
 };
 pub use image::ImageFormat;
@@ -15,7 +13,7 @@ use sge_image::Image;
 use sge_macros::gen_ref_type;
 use sge_types::Area;
 use sge_vectors::{UVec2, Vec2};
-use sge_window::{get_display, get_window_state};
+use sge_window::get_window_state;
 
 #[derive(ErrorUnion, Debug)]
 pub enum LoadTextureError {
